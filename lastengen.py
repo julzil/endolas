@@ -13,8 +13,8 @@ from tensorflow.keras.utils import Sequence
 
 class LASTENSequence(Sequence):
     def __init__(self, path, batch_size=32, image_ids=None, preprocess_input=None, augment=False, shuffle=False,
-                 width=256, height=512, grid_width=18, grid_height=18, seed=42):
-        """ Object for fitting to a sequence of data of the BAGLS dataset. Anterior and posterior points are considered
+                 width=512, height=512, grid_width=18, grid_height=18, seed=42):
+        """ Object for fitting to a sequence of data of the LASTEN dataset. Laser points are considered
             as labels. In augmentation a rotation is only applied if the first attempt did not rotate a keypoint out of
             the image.
 
@@ -33,9 +33,13 @@ class LASTENSequence(Sequence):
         shuffle : bool, optional
             Whether to shuffle indices after each epoch
         width : int, optional
-            Target image width, by default 256
+            Target image width, by default 512
         height : int, optional
             Target image height, by default 512
+        grid_width : int, optional
+            Laser grid width, by default 18
+        grid_height : int, optional
+            Laser grid height, by default 18
         seed : int, optional
             A seed to be set for shuffling
         """
@@ -78,11 +82,6 @@ class LASTENSequence(Sequence):
 
         batch_image_ids = self._image_ids[index_start:index_end+1]
 
-        # DEBUG:
-        #print("Start " + str(index_start))
-        #print("End+1 " + str(index_end+1))
-        #print("Batch " + str(batch_image_ids))
-
         X, y = self._get_batch(batch_image_ids)
 
         return X, y
@@ -90,7 +89,8 @@ class LASTENSequence(Sequence):
     def _get_batch(self, batch_image_ids):
         """ Retrieves a batch from .png files in path, where the integer interval of [index_start, index_end] defines
             the elements of the batch. X will be preprocessed according to preprocess_input, y will normalized and then
-            shifted by 1 such that it is between [1,2], as mape can not be evaluated for 0.
+            shifted by 1 such that it is between [1,2], as mape can not be evaluated for 0. Keypoints that are
+            no existing, that are laser points which are not visible, are mapped to (0, 0).
         """
         n_data_points = len(batch_image_ids)
 
@@ -116,7 +116,6 @@ class LASTENSequence(Sequence):
     def _get_image_mask_keypoints(self, image_id):
         """ Retrieves one image with its associated mask and keypoints
         """
-        # IMAGE
         path_image = os.path.join(self._path, "{}.png".format(image_id))
 
         image = keras.preprocessing.image.load_img(path_image, color_mode="grayscale")
@@ -129,15 +128,6 @@ class LASTENSequence(Sequence):
         image = image.resize((self._width, self._height))
         image = keras.preprocessing.image.img_to_array(image)
 
-        # MASK
-        path_mask = os.path.join(self._path, "{}_m.png".format(image_id))
-
-        mask = keras.preprocessing.image.load_img(path_mask, color_mode="grayscale")
-        mask = mask.resize((self._width, self._height))
-        mask = keras.preprocessing.image.img_to_array(mask)
-        mask = mask / 255
-
-        # KEYPOINT
         keypoints = self._get_keypoints(image_id)
         keypoints_cache = np.zeros(self._grid_width * self._grid_height * 2)
 
@@ -146,23 +136,45 @@ class LASTENSequence(Sequence):
             scale = scaling[0] if index % 2 == 0 else scaling[1]
 
             keypoint = np.clip(keypoint * scale, 0.1, (length - 0.1))
+            # Round after augmentation, if no augmentation, round here.
+            keypoint = keypoint if self._augment else np.round(keypoint, 0)
             keypoints_cache[index] = keypoint
 
         keypoints = keypoints_cache
 
         if self._augment:
-            image, mask, keypoints = self._run_augmentation(image, keypoints, mask)
+            image, mask, keypoints = self._run_augmentation(image, keypoints)
+
+        else:
+            mask = self._get_mask_from_keypoints(keypoints)
 
         return image, mask, keypoints
 
-    def _run_augmentation(self, image, keypoints, mask):
+    def _get_mask_from_keypoints(self, keypoints):
+        """ Builds the mask based on the keypoints.
+        """
+        mask = np.zeros((self._height, self._width))
+        for index in range(0, self._grid_height * self._grid_width):
+            x_index = index * 2
+
+            # Values are already rounded.
+            x = int(keypoints[x_index])
+            y = int(keypoints[x_index + 1])
+
+            if x >= 1 and y >= 1:
+                mask[y][x] = 1
+
+        mask = np.expand_dims(mask, axis=2)
+
+        return mask
+
+    def _run_augmentation(self, image, keypoints):
         """ Augment an image, its keypoints and its mask.
         """
         image = np.uint8(image)
-        mask = np.uint8(mask)
         keypoints = np.float32(keypoints)
 
-        # Only rotate occuring keypoints
+        # Only rotate occuring keypoints.
         keypoints_cache = []
         rot_index_2_x_index = dict()
         rot_index = 0
@@ -173,7 +185,7 @@ class LASTENSequence(Sequence):
             x = keypoints[x_index]
             y = keypoints[x_index + 1]
 
-            if x > 1 and y > 1:
+            if x >= 1 and y >= 1:
                 keypoints_cache.append((x, y))
 
                 rot_index_2_x_index[rot_index] = x_index
@@ -182,15 +194,12 @@ class LASTENSequence(Sequence):
         keypoints = keypoints_cache
 
         # Run rotated augmentation and check if points were rotated out of the image.
-        augmentation = self._augmenter_rot(image=image, mask=mask, keypoints=keypoints)
+        augmentation = self._augmenter_rot(image=image, keypoints=keypoints)
 
         if len(augmentation["keypoints"]) < rot_index:
-            augmentation = self._augmenter(image=image, mask=mask, keypoints=keypoints)
+            augmentation = self._augmenter(image=image, keypoints=keypoints)
 
         image = augmentation["image"]
-
-        mask = augmentation["mask"]
-        mask = np.round(mask)
 
         # Map back the keypoints.
         keypoints = np.zeros(self._grid_width * self._grid_height * 2)
@@ -198,12 +207,12 @@ class LASTENSequence(Sequence):
         for rot_index, keypoint in enumerate(augmentation["keypoints"]):
             x_index = rot_index_2_x_index[rot_index]
 
-            keypoints[x_index] = keypoint[0]
-            keypoints[x_index + 1] = keypoint[1]
+            keypoints[x_index] = round(keypoint[0], 0)
+            keypoints[x_index + 1] = round(keypoint[1], 0)
 
         image = np.float64(image)
-        mask = np.float64(mask)
         keypoints = np.float64(keypoints)
+        mask = self._get_mask_from_keypoints(keypoints)
 
         return image, mask, keypoints
 
@@ -282,10 +291,3 @@ class LASTENSequence(Sequence):
         """ Get the scaling that was applied when loading images.
         """
         return self._image_id_2_scaling
-
-    @property
-    def image_id_2_keypoints(self):
-        """ Get a dictionary where the image id is mapped to anterior and posterior points that are stored in an
-            ndarray with the convention np.array([x_p, y_p, x_a, y_a]).
-        """
-        return self._image_id_2_keypoints
