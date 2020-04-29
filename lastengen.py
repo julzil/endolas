@@ -111,13 +111,13 @@ class LASTENSequence(Sequence):
         y = {keys.SEGMENTATION_OUTPUT_NAME: y_1,
              keys.KEYPOINT_OUTPUT_NAME: y_2}
 
-        return X, y
+        return X, y_1
 
     def _get_image_mask_keypoints(self, image_id):
         """ Retrieves one image with its associated mask and keypoints
         """
+        # image
         path_image = os.path.join(self._path, "{}.png".format(image_id))
-
         image = keras.preprocessing.image.load_img(path_image, color_mode="grayscale")
 
         scale_factor_x = self._width / image.size[0]
@@ -128,6 +128,14 @@ class LASTENSequence(Sequence):
         image = image.resize((self._width, self._height))
         image = keras.preprocessing.image.img_to_array(image)
 
+        # mask
+        path_mask = os.path.join(self._path, "{}_m.png".format(image_id))
+        mask = keras.preprocessing.image.load_img(path_mask, color_mode="grayscale")
+        mask = mask.resize((self._width, self._height))
+        mask = keras.preprocessing.image.img_to_array(mask)
+        mask = mask / 255
+
+        # image
         keypoints = self._get_keypoints(image_id)
         keypoints_cache = np.zeros(self._grid_width * self._grid_height * 2)
 
@@ -143,10 +151,7 @@ class LASTENSequence(Sequence):
         keypoints = keypoints_cache
 
         if self._augment:
-            image, mask, keypoints = self._run_augmentation(image, keypoints)
-
-        else:
-            mask = self._get_mask_from_keypoints(keypoints)
+            image, mask, keypoints = self._run_augmentation(image, mask, keypoints)
 
         return image, mask, keypoints
 
@@ -168,7 +173,7 @@ class LASTENSequence(Sequence):
 
         return mask
 
-    def _run_augmentation(self, image, keypoints):
+    def _run_augmentation(self, image, mask, keypoints):
         """ Augment an image, its keypoints and its mask.
         """
         image = np.uint8(image)
@@ -194,12 +199,15 @@ class LASTENSequence(Sequence):
         keypoints = keypoints_cache
 
         # Run rotated augmentation and check if points were rotated out of the image.
-        augmentation = self._augmenter_rot(image=image, keypoints=keypoints)
+        augmentation = self._augmenter_rot(image=image, mask=mask, keypoints=keypoints)
 
         if len(augmentation["keypoints"]) < rot_index:
-            augmentation = self._augmenter(image=image, keypoints=keypoints)
+            augmentation = self._augmenter(image=image, mask=mask, keypoints=keypoints)
 
         image = augmentation["image"]
+
+        mask = augmentation["mask"]
+        mask = np.round(mask)
 
         # Map back the keypoints.
         keypoints = np.zeros(self._grid_width * self._grid_height * 2)
@@ -211,8 +219,8 @@ class LASTENSequence(Sequence):
             keypoints[x_index + 1] = round(keypoint[1], 0)
 
         image = np.float64(image)
+        mask = np.float64(mask)  # self._get_mask_from_keypoints(keypoints)
         keypoints = np.float64(keypoints)
-        mask = self._get_mask_from_keypoints(keypoints)
 
         return image, mask, keypoints
 
