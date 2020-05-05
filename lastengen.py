@@ -13,7 +13,7 @@ from tensorflow.keras.utils import Sequence
 
 class LASTENSequence(Sequence):
     def __init__(self, path, batch_size=32, image_ids=None, preprocess_input=None, augment=False, shuffle=False,
-                 width=512, height=512, grid_width=18, grid_height=18, seed=42):
+                 width=512, height=512, grid_width=18, grid_height=18, seed=42, label="mask"):
         """ Object for fitting to a sequence of data of the LASTEN dataset. Laser points are considered
             as labels. In augmentation a rotation is only applied if the first attempt did not rotate a keypoint out of
             the image.
@@ -42,6 +42,8 @@ class LASTENSequence(Sequence):
             Laser grid height, by default 18
         seed : int, optional
             A seed to be set for shuffling
+        label : string, optional
+            Decide which label to return. Possible options are "mask", "keypoints" or "both".
         """
         random.seed(seed)
 
@@ -54,6 +56,7 @@ class LASTENSequence(Sequence):
         self._height = height
         self._grid_width = grid_width
         self._grid_height = grid_height
+        self._label = label
 
         self._image_id_2_scaling = dict()
 
@@ -108,15 +111,26 @@ class LASTENSequence(Sequence):
         if self._preprocess_input:
             X, y_2 = self._preprocess(X, y_2)
 
-        y = {keys.SEGMENTATION_OUTPUT_NAME: y_1,
-             keys.KEYPOINT_OUTPUT_NAME: y_2}
+        if self._label == "mask":
+            y = y_1
 
-        return X, y_1
+        elif self._label == "keypoints":
+            y = y_2
+
+        elif self._label == "both":
+            y = {keys.SEGMENTATION_OUTPUT_NAME: y_1,
+                 keys.KEYPOINT_OUTPUT_NAME: y_2}
+
+        else:
+            raise KeyError('"{}" is not a valid label type. Valid label types are "mask",'
+                           ' "keypoints" and "both".'.format(self._label))
+
+        return X, y
 
     def _get_image_mask_keypoints(self, image_id):
         """ Retrieves one image with its associated mask and keypoints
         """
-        # image
+        # Image
         path_image = os.path.join(self._path, "{}.png".format(image_id))
         image = keras.preprocessing.image.load_img(path_image, color_mode="grayscale")
 
@@ -128,14 +142,14 @@ class LASTENSequence(Sequence):
         image = image.resize((self._width, self._height))
         image = keras.preprocessing.image.img_to_array(image)
 
-        # mask
+        # Mask
         path_mask = os.path.join(self._path, "{}_m.png".format(image_id))
         mask = keras.preprocessing.image.load_img(path_mask, color_mode="grayscale")
         mask = mask.resize((self._width, self._height))
         mask = keras.preprocessing.image.img_to_array(mask)
         mask = mask / 255
 
-        # image
+        # Keypoints
         keypoints = self._get_keypoints(image_id)
         keypoints_cache = np.zeros(self._grid_width * self._grid_height * 2)
 
