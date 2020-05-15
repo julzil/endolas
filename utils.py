@@ -17,16 +17,16 @@ COLOR_ANTERIOR = '#87bf4b'
 COLOR_TRUE = '#f78002'
 COLOR_PREDICTION = '#2269b3'
 
-ID_2_LABEL = {1: 'MSE',
-              2: 'MAE',
-              3: 'Huber loss',
-              4: 'Logcosh loss',
-              5: 'no shuffle',
-              6: 'augmentation',
-              7: 'EfficientNetB0',
-              8: 'UNet Encoder',
-              9: 'MobileNetV2',
-              10: 'GlottisNet'}
+ID_2_LABEL = {1: 'IoU',
+              2: 'IoU',
+              3: 'IoU',
+              4: 'IoU',
+              5: '-',
+              6: '-',
+              7: '-',
+              8: '-',
+              9: '-',
+              10: '-'}
 
 ID_2_STYLE = {1: '-',
               2: '-',
@@ -233,7 +233,7 @@ def plot_convergence(paths, epochs=300, sigma=3, normalize=False, test=False, pl
             else:
                 plt.plot(x, y, label=ID_2_LABEL[experiment_id], color='k', linestyle=ID_2_STYLE[experiment_id])
 
-            plt.ylabel('{}, smoothend, normalized'.format(label))
+            plt.ylabel('{}, normalized'.format(label))
 
         else:
             if log:
@@ -244,7 +244,7 @@ def plot_convergence(paths, epochs=300, sigma=3, normalize=False, test=False, pl
                 plt.plot(x, y, label=ID_2_LABEL[experiment_id], color=ID_2_COLOR[experiment_id],
                          linestyle=ID_2_STYLE[experiment_id])
 
-            plt.ylabel('{}, smoothend'.format(label))
+            plt.ylabel('{}'.format(label))
 
         afile.close()
 
