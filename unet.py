@@ -112,7 +112,7 @@ def UNet(filters=64, layers=4, activation='sigmoid', classes=1, input_shape=None
     # Final output, 1x1 convolution
     segmentation_output = Conv2D(classes,
                                  (1, 1),
-                                 use_bias=False,
+                                 use_bias=True,
                                  padding="same",
                                  activation=activation,
                                  strides=1,
@@ -130,7 +130,7 @@ def _convblock(x, filters, batch_norm=True):
     """
     x = Conv2D(filters,
                (3, 3),
-               use_bias=False,
+               use_bias=True,
                padding="same",
                strides=1,
                kernel_initializer='he_uniform')(x)  # glorot_uniform
