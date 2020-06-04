@@ -17,8 +17,8 @@ COLOR_ANTERIOR = '#87bf4b'
 COLOR_TRUE = '#f78002'
 COLOR_PREDICTION = '#2269b3'
 
-ID_2_LABEL = {1: 'IoU, coarse, 32 filter',
-              2: 'IoU, coarse, 48 filter',
+ID_2_LABEL = {1: 'MAE, fine, 2 input',
+              2: 'MAE, fine, 1 input',
               3: 'IoU, fine, 32 filter',
               4: 'IoU, fine, 48 filter',
               5: '-',
