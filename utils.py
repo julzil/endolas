@@ -1,12 +1,14 @@
 from tensorflow import keras
 from glob import glob
 from scipy.ndimage import gaussian_filter1d
+from scipy.ndimage import gaussian_filter
 
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import albumentations as albu
 import seaborn as sns
+import tensorflow
 
 import os
 import json
@@ -81,7 +83,7 @@ def _decode_keypoint_error(y_true, y_pred, width, height):
 
 
 def _plot_keypoints_and_line(ax, labels, index, width, color, label):
-    """ Help to plot a keypoint and a line
+    """ Help to plot a keypoint and a line.
     """
     post_x = labels[index][0]
     post_y = labels[index][1]
@@ -105,6 +107,47 @@ def _plot_keypoints_and_line(ax, labels, index, width, color, label):
     ante_y_ext = poly(ante_x_ext)
 
     ax[index].plot([post_x_ext, ante_x_ext], [post_y_ext, ante_y_ext], color=color, linewidth=1)
+
+
+def _custom_loss(labels, prediction, loss_type='maed'):
+    """ Compute the custom loss.
+    """
+    batch_size = labels.shape[0]
+    loss = 0.0
+
+    for batch_index in range(0, batch_size):
+        ux = prediction[batch_index, :, :, 0]
+        uy = prediction[batch_index, :, :, 1]
+
+        x_mov = labels[batch_index, :, 0, 0]
+        y_mov = labels[batch_index, :, 1, 0]
+        x_mov_int = keras.backend.cast(x_mov, "int32")
+        y_mov_int = keras.backend.cast(y_mov, "int32")
+
+        x_fix = labels[batch_index, :, 0, 1]
+        y_fix = labels[batch_index, :, 1, 1]
+
+        ux_mov = get_displacement(ux, x_mov_int, y_mov_int)
+        uy_mov = get_displacement(uy, x_mov_int, y_mov_int)
+
+        x_squared = keras.backend.square(x_mov + ux_mov - x_fix)
+        y_squared = keras.backend.square(y_mov + uy_mov - y_fix)
+
+        sum_of_squares = x_squared + y_squared
+        euclidean_distance = keras.backend.sqrt(sum_of_squares)
+
+        if loss_type == 'maed':
+            loss += keras.backend.mean(euclidean_distance)
+
+        elif loss_type == 'msed':
+            loss += keras.backend.mean(sum_of_squares)
+
+        else:
+            loss += 0.0
+
+    loss = loss / batch_size
+
+    return loss
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -653,6 +696,89 @@ def get_augmenter(rotation=True):
 
     return augmenter
 
+
+def get_displacement(u, x, y):
+    """ Use the keras backend functionality to compute the displacement in a vectorized way.
+
+    Parameters
+    ----------
+    u : Tensor (width, height)
+        Predicted displacement field
+
+    x : Tensor (n_keypoints)
+        x-coordinate of key point position
+
+    y : Tensor (n_keypoints)
+        y-coordinate of key point position
+
+    Returns
+    -------
+    Tensor (n_keypoints)
+        The displacement of each keypoint
+
+    """
+    length = x.shape[0]
+    indices = [val * length + val for val in range(0, length)]
+
+    u = keras.backend.gather(u, y)
+    u = keras.backend.transpose(u)
+    u = keras.backend.gather(u, x)
+    u = keras.backend.flatten(u)
+    u = keras.backend.gather(u, indices)
+
+    return u
+
+
+def maed_loss(labels, prediction):
+    """ Compute the mean absolute euclidean distance.
+
+    Parameters
+    ----------
+    labels : Tensor
+        The labels forwarded by the network
+
+    prediction : Tensor
+        The prediction forwarded by the network
+
+    Returns
+    -------
+    float
+        The loss value
+    """
+    return _custom_loss(labels, prediction, loss_type='maed')
+
+
+def msed_loss(labels, prediction):
+    """ Compute the mean absolute euclidean distance.
+        Parameters
+    ----------
+    labels : Tensor
+        The labels forwarded by the network
+
+    prediction : Tensor
+        The prediction forwarded by the network
+
+    Returns
+    -------
+    float
+        The loss value
+    """
+    return _custom_loss(labels, prediction, loss_type='msed')
+
+
+def apply_smoothing(image):
+    sigma = 1.0
+    sigma_back = 10
+
+    image_orig = image
+    image = gaussian_filter(image, sigma=sigma)
+    image_back = gaussian_filter(image, sigma=sigma_back)
+
+    image = (image / image.max()) * 255
+    image_back = (image_back / image_back.max()) * 255
+    image = 0.3 * image_orig + 0.3 * image + 0.3 * image_back
+
+    return image
 
 if __name__ == "__main__":
     pass
