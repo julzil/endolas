@@ -664,13 +664,16 @@ def get_training_data(path_training, n_data_points, preprocess_input=None, width
     return X_train, y_train, image_id_2_scaling
 
 
-def get_augmenter(rotation=True):
+def get_augmenter(rotation=True, flip=True):
     """ Get the augmenter as used in [1]_.
 
     Parameters
     ----------
     rotation : bool, optional
         Property whether to include rotation or not
+
+    rotation : bool, optional
+        Property whether to include flipping or not
 
     Returns
     -------
@@ -685,9 +688,11 @@ def get_augmenter(rotation=True):
 
     transformers = [albu.RandomBrightnessContrast(p=0.75),
                     albu.RandomGamma(p=0.75),
-                    albu.HorizontalFlip(p=0.5),
                     albu.Blur(p=0.5),
                     albu.GaussNoise(p=0.5)]
+
+    if flip:
+        transformers.append(albu.HorizontalFlip(p=0.5))
 
     if rotation:
         transformers.append(albu.Rotate(limit=30, border_mode=0, p=0.75))
