@@ -19,9 +19,9 @@ COLOR_ANTERIOR = '#87bf4b'
 COLOR_TRUE = '#f78002'
 COLOR_PREDICTION = '#2269b3'
 
-ID_2_LABEL = {1: 'MAE, fine, 2 input',
+ID_2_LABEL = {1: 'MSED, fine, 2 input',
               2: 'MAE, fine, 1 input',
-              3: 'IoU, fine, 32 filter',
+              3: 'MSED',
               4: 'IoU, fine, 48 filter',
               5: '-',
               6: '-',
@@ -112,7 +112,7 @@ def _plot_keypoints_and_line(ax, labels, index, width, color, label):
 def _custom_loss(labels, prediction, loss_type='maed'):
     """ Compute the custom loss.
     """
-    batch_size = labels.shape[0]
+    batch_size = 4 #labels.shape[0]
     loss = 0.0
 
     for batch_index in range(0, batch_size):
@@ -722,7 +722,7 @@ def get_displacement(u, x, y):
         The displacement of each keypoint
 
     """
-    length = x.shape[0]
+    length = 25 # x.shape[0]
     indices = [val * length + val for val in range(0, length)]
 
     u = keras.backend.gather(u, y)
@@ -755,7 +755,8 @@ def maed_loss(labels, prediction):
 
 def msed_loss(labels, prediction):
     """ Compute the mean absolute euclidean distance.
-        Parameters
+
+    Parameters
     ----------
     labels : Tensor
         The labels forwarded by the network
@@ -772,6 +773,18 @@ def msed_loss(labels, prediction):
 
 
 def apply_smoothing(image):
+    """ Smooth an image with two gaussian kernels.
+
+    Parameters
+    ----------
+    image : ndarray
+        The image to be smoothed
+
+    Returns
+    -------
+    ndarray
+        The smoothed image
+    """
     sigma = 1.0
     sigma_back = 10
 
