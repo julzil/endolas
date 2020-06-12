@@ -14,6 +14,8 @@ import os
 import json
 import csv
 
+from pdb import set_trace
+
 COLOR_POSTERIOR = '#4cb2cf'
 COLOR_ANTERIOR = '#87bf4b'
 COLOR_TRUE = '#f78002'
@@ -109,10 +111,11 @@ def _plot_keypoints_and_line(ax, labels, index, width, color, label):
     ax[index].plot([post_x_ext, ante_x_ext], [post_y_ext, ante_y_ext], color=color, linewidth=1)
 
 
-def _custom_loss(labels, prediction, loss_type='maed'):
+def _custom_loss(labels, prediction, loss_type='msed'):
     """ Compute the custom loss.
     """
-    batch_size = 4 #labels.shape[0]
+    # labels.shape = (None, None, None)
+    batch_size = labels.shape[0]
     loss = 0.0
 
     for batch_index in range(0, batch_size):
@@ -143,7 +146,9 @@ def _custom_loss(labels, prediction, loss_type='maed'):
             loss += keras.backend.mean(sum_of_squares)
 
         else:
-            loss += 0.0
+             loss += 0.0
+
+        set_trace()
 
     loss = loss / batch_size
 

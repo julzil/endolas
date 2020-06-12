@@ -14,7 +14,7 @@ from pdb import set_trace
 
 
 class SIMPLESequence(Sequence):
-    def __init__(self, path, batch_size=32, image_ids=None, preprocess_input=None, augment=False, shuffle=False,
+    def __init__(self, path, path_fixed, batch_size=32, image_ids=None, preprocess_input=None, augment=False, shuffle=False,
                  width=224, height=224, grid_width=5, grid_height=5, seed=42):
         """ Object for fitting to a sequence of data of the SIMPLE dataset. Laser points are considered
             as labels. In augmentation a rotation is only applied if the first attempt did not rotate a keypoint out of
@@ -23,7 +23,9 @@ class SIMPLESequence(Sequence):
         Parameters
         ----------
         path : str
-            The path to the directory where .png files and the ap.points file is stored
+            The path to the directory where .png files are stored
+        path_fixed : str
+            The path to the .json file for the fixed image
         batch_size : int, optional
             The batch size
         image_ids : list, optional
@@ -48,6 +50,7 @@ class SIMPLESequence(Sequence):
         random.seed(seed)
 
         self._path = path
+        self._path_fixed = path_fixed
         self._batch_size = batch_size
         self._preprocess_input = preprocess_input
         self._augment = augment
@@ -200,7 +203,8 @@ class SIMPLESequence(Sequence):
         data_moving = json.load(file_moving)
         file_moving.close()
 
-        path_fixed = os.path.join(self._path, "{}_f.json".format(image_id))
+        path_fixed = self._path_fixed
+        #path_fixed = os.path.join(self._path, "{}_f.json".format(image_id))
         file_fixed = open(path_fixed)
         data_fixed = json.load(file_fixed)
         file_fixed.close()
