@@ -115,7 +115,8 @@ def _custom_loss(labels, prediction, loss_type='msed'):
     """ Compute the custom loss.
     """
     # labels.shape = (None, None, None)
-    batch_size = labels.shape[0]
+    # batch_size = labels.shape[0]
+    batch_size = 4    
     loss = 0.0
 
     for batch_index in range(0, batch_size):
@@ -147,8 +148,6 @@ def _custom_loss(labels, prediction, loss_type='msed'):
 
         else:
              loss += 0.0
-
-        set_trace()
 
     loss = loss / batch_size
 
