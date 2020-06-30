@@ -10,12 +10,15 @@ import glob
 from tensorflow import keras
 from tensorflow.keras.utils import Sequence
 
+from skimage.filters.rank import gradient
+from skimage.morphology import disk
+
 from pdb import set_trace
 
 
 class SIMPLESequence(Sequence):
     def __init__(self, path, path_fixed, batch_size=32, image_ids=None, preprocess_input=None, augment=False, shuffle=False,
-                 width=224, height=224, grid_width=5, grid_height=5, seed=42):
+                 width=224, height=224, grid_width=5, grid_height=5, seed=42, multi_channel='moving'):
         """ Object for fitting to a sequence of data of the SIMPLE dataset. Laser points are considered
             as labels. In augmentation a rotation is only applied if the first attempt did not rotate a keypoint out of
             the image.
@@ -46,6 +49,12 @@ class SIMPLESequence(Sequence):
             Laser grid height, by default 18
         seed : int, optional
             A seed to be set for shuffling
+        multi_channel : string, optional
+            Can be used to generate more input channels. Possible options are:
+            - 'moving' for single channel with moving image only
+            - 'fixed' for an additional fixed image
+            - 'diff' for an additional difference image
+            - 'grad' for difference and gradient
         """
         random.seed(seed)
 
@@ -59,6 +68,7 @@ class SIMPLESequence(Sequence):
         self._height = height
         self._grid_width = grid_width
         self._grid_height = grid_height
+        self._multi_channel = multi_channel
 
         self._image_id_2_scaling = dict()
 
@@ -96,13 +106,44 @@ class SIMPLESequence(Sequence):
         """
         n_data_points = len(batch_image_ids)
 
-        X = np.zeros((n_data_points, self._height, self._width, 1))
+        if self._multi_channel == 'fixed' or self._multi_channel == 'diff':
+            X = np.zeros((n_data_points, self._height, self._width, 2))
+
+        elif self._multi_channel == 'grad':
+            X = np.zeros((n_data_points, self._height, self._width, 3))
+
+        else:
+            X = np.zeros((n_data_points, self._height, self._width, 1))
+
         y = np.zeros((n_data_points, self._grid_width * self._grid_height, 2, 2))
 
         for batch_index, image_id in enumerate(batch_image_ids):
-            image, keypoints = self._get_image_keypoints(image_id)
+            image, image_fixed, keypoints = self._get_image_keypoints(image_id)
 
-            X[batch_index] = image
+            if self._multi_channel == 'fixed':
+                X[batch_index] = np.concatenate((image, image_fixed), axis=2)
+
+            elif self._multi_channel == 'diff':
+                image_diff = image - image_fixed
+                image_diff = image_diff - image_diff.min()
+                image_diff = 255.0 * image_diff / image_diff.max()
+
+                X[batch_index] = np.concatenate((image, image_diff), axis=2)
+
+            elif self._multi_channel == 'grad':
+                image_diff = image - image_fixed
+                image_diff = image_diff - image_diff.min()
+                image_diff = 255.0 * image_diff / image_diff.max()
+
+                image_grad = gradient(image[:, :, 0] / image.max(), disk(3))[:, :, np.newaxis]
+                image_grad = image_grad - image_grad.min()
+                image_grad = 255.0 * image_grad / image_grad.max()
+
+                X[batch_index] = np.concatenate((image, image_diff, image_grad), axis=2)
+
+            else:
+                X[batch_index] = image
+
             y[batch_index] = keypoints
 
         if self._preprocess_input:
@@ -115,7 +156,10 @@ class SIMPLESequence(Sequence):
         """
         # Image
         path_image = os.path.join(self._path, "{}_m.png".format(image_id))
+        path_image_fixed = self._path_fixed + "_f.png"
+
         image = keras.preprocessing.image.load_img(path_image, color_mode="grayscale")
+        image_fixed = keras.preprocessing.image.load_img(path_image_fixed, color_mode="grayscale")
 
         scale_factor_x = self._width / image.size[0]
         scale_factor_y = self._height / image.size[1]
@@ -124,6 +168,9 @@ class SIMPLESequence(Sequence):
 
         image = image.resize((self._width, self._height))
         image = keras.preprocessing.image.img_to_array(image)
+
+        image_fixed = image_fixed.resize((self._width, self._height))
+        image_fixed = keras.preprocessing.image.img_to_array(image_fixed)
 
         # Keypoints
         keypoints = self._get_keypoints(image_id)
@@ -142,7 +189,7 @@ class SIMPLESequence(Sequence):
         if self._augment:
             image = self._run_augmentation(image)
 
-        return image, keypoints
+        return image, image_fixed, keypoints
 
     def _run_augmentation(self, image):
         """ Augment an image.
@@ -203,8 +250,7 @@ class SIMPLESequence(Sequence):
         data_moving = json.load(file_moving)
         file_moving.close()
 
-        path_fixed = self._path_fixed
-        #path_fixed = os.path.join(self._path, "{}_f.json".format(image_id))
+        path_fixed = self._path_fixed + "_f.json"
         file_fixed = open(path_fixed)
         data_fixed = json.load(file_fixed)
         file_fixed.close()
