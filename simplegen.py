@@ -126,14 +126,16 @@ class SIMPLESequence(Sequence):
             elif self._multi_channel == 'diff':
                 image_diff = image - image_fixed
                 image_diff = image_diff - image_diff.min()
-                image_diff = 255.0 * image_diff / image_diff.max()
+                if image_diff.max() > 1e-10:
+                    image_diff = 255.0 * image_diff / image_diff.max()
 
                 X[batch_index] = np.concatenate((image, image_diff), axis=2)
 
             elif self._multi_channel == 'grad':
                 image_diff = image - image_fixed
                 image_diff = image_diff - image_diff.min()
-                image_diff = 255.0 * image_diff / image_diff.max()
+                if image_diff.max() > 1e-10:
+                    image_diff = 255.0 * image_diff / image_diff.max()
 
                 image_grad = gradient(image[:, :, 0] / image.max(), disk(3))[:, :, np.newaxis]
                 image_grad = image_grad - image_grad.min()
