@@ -26,9 +26,9 @@ def preprocess_input(x, **kwargs):
     return imagenet_utils.preprocess_input(x, mode='tf', **kwargs)
 
 
-def UNet(filters=64, layers=4, activation='sigmoid', classes=1, input_shape=None):
+def UNet(filters=64, layers=4, activation='sigmoid', classes=1, input_shape=None, kernel_regularizer=None):
     """
-    Building a U-Net [1]_. Implementation from [2]_ modified for a keypoint output.
+    Building a U-Net [1]_. Implementation from [2]_ modified.
 
 
     Parameters
@@ -53,13 +53,8 @@ def UNet(filters=64, layers=4, activation='sigmoid', classes=1, input_shape=None
         input shapes, default is None. Otherwise, the tuple has to follow
         the following criterion: (X, Y, channels)
 
-    keypoints : int, optional
-        The number of keypoints. Default is 2.
-
-    encoder : str, optional
-        The encoder to be used for the network. Possible options are 'classic', 'mobilenetv2' and 'efficientnet'.
-        Ensure to make use of the correct preprocessing function.
-
+    kernel_regularizer : str, optional
+        The kernel regularizer used for all Conv2D layers.
 
     Returns
     -------
@@ -90,24 +85,24 @@ def UNet(filters=64, layers=4, activation='sigmoid', classes=1, input_shape=None
 
     # Encoding
     for block in range(layers):
-        x = _convblock(x, filters * (2 ** block))
-        x = _convblock(x, filters * (2 ** block))
+        x = _convblock(x, filters * (2 ** block), kernel_regularizer)
+        x = _convblock(x, filters * (2 ** block), kernel_regularizer)
         to_concat.append(x)
 
         x = MaxPooling2D(pool_size=(2, 2))(x)
 
-    x = _convblock(x, filters * (2 ** (block + 1)))
+    x = _convblock(x, filters * (2 ** (block + 1)), kernel_regularizer)
 
     # Decoding
     for block, filter_factor in enumerate(np.arange(layers)[::-1]):
-        x = _convblock(x, filters * (2 ** filter_factor))
+        x = _convblock(x, filters * (2 ** filter_factor), kernel_regularizer)
 
         x = UpSampling2D(size=(2, 2))(x)
         x = Concatenate()([x, to_concat[::-1][block]])
 
-        x = _convblock(x, filters * (2 ** filter_factor))
+        x = _convblock(x, filters * (2 ** filter_factor), kernel_regularizer)
 
-    x = _convblock(x, filters * (2 ** filter_factor))
+    x = _convblock(x, filters * (2 ** filter_factor), kernel_regularizer)
 
     # Final output, 1x1 convolution
     segmentation_output = Conv2D(classes,
@@ -117,12 +112,13 @@ def UNet(filters=64, layers=4, activation='sigmoid', classes=1, input_shape=None
                                  activation=activation,
                                  strides=1,
                                  kernel_initializer='glorot_uniform',
+                                 kernel_regularizer=kernel_regularizer,
                                  name=keys.SEGMENTATION_OUTPUT_NAME)(x)
 
     return Model(inputs=model_input, outputs=segmentation_output)
 
 
-def _convblock(x, filters, batch_norm=True):
+def _convblock(x, filters, kernel_regularizer, batch_norm=True):
     """ The implementation was copied from [1]_.
 
     [1] https://github.com/anki-xyz/bagls/blob/master/Utils/DataGenerator.py
@@ -133,7 +129,8 @@ def _convblock(x, filters, batch_norm=True):
                use_bias=False,
                padding="same",
                strides=1,
-               kernel_initializer='he_uniform')(x)  # glorot_uniform
+               kernel_initializer='he_uniform', # glorot_uniform
+               kernel_regularizer=kernel_regularizer)(x)
 
     if batch_norm:
         x = BatchNormalization()(x)
