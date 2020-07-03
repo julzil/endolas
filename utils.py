@@ -15,44 +15,8 @@ import json
 import csv
 
 from pdb import set_trace
+from styles import *
 
-COLOR_POSTERIOR = '#4cb2cf'
-COLOR_ANTERIOR = '#87bf4b'
-COLOR_TRUE = '#f78002'
-COLOR_PREDICTION = '#2269b3'
-
-ID_2_LABEL = {1: 'MSED, fine, 2 input',
-              2: 'MAE, fine, 1 input',
-              3: 'MSED',
-              4: 'IoU, fine, 48 filter',
-              5: '-',
-              6: '-',
-              7: '-',
-              8: '-',
-              9: '-',
-              10: '-'}
-
-ID_2_STYLE = {1: '-',
-              2: '-',
-              3: '-',
-              4: '-',
-              5: '-.',
-              6: '-',
-              7: '-',
-              8: '--',
-              9: '-.',
-              10: ':'}
-
-ID_2_COLOR = {1: COLOR_POSTERIOR,
-              2: COLOR_ANTERIOR,
-              3: COLOR_TRUE,
-              4: COLOR_PREDICTION,
-              5: 'k',
-              6: 'k',
-              7: 'k',
-              8: 'k',
-              9: 'k',
-              10: 'k'}
 # ----------------------------------------------------------------------------------------------------------------------
 def _init_plot():
     """ Initialize all plot settings @ default dpi=100.
@@ -61,14 +25,15 @@ def _init_plot():
     sns.set_style('ticks')
 
     plt.rcParams['svg.fonttype'] = 'none'
-    plt.rcParams['axes.labelsize'] = 8
+    plt.rcParams['axes.labelsize'] = 5
     #plt.rcParams['axes.titlesize'] = 12
-    plt.rcParams['xtick.labelsize'] = 8
-    plt.rcParams['ytick.labelsize'] = 8
-    plt.rcParams['legend.fontsize'] = 8
+    plt.rcParams['xtick.labelsize'] = 5
+    plt.rcParams['ytick.labelsize'] = 5
+    plt.rcParams['legend.fontsize'] = 5
     plt.rcParams['font.family'] = 'sans-serif'
     plt.rcParams['font.sans-serif'] = ['Arial']
-
+    plt.rcParams['figure.figsize'] = 3, 2
+    plt.rcParams['lines.linewidth'] = 0.8
     # INFO: Default dpi = 100
 
 def _decode_keypoint_error(y_true, y_pred, width, height):
@@ -116,7 +81,7 @@ def _custom_loss(labels, prediction, loss_type='msed'):
     """
     # labels.shape = (None, None, None)
     # batch_size = labels.shape[0]
-    batch_size = 4    
+    batch_size = 1
     loss = 0.0
 
     for batch_index in range(0, batch_size):
@@ -225,13 +190,15 @@ def plot_midline(X, y_true, y_pred, epoch, width=256, height=512, test=False):
     plt.savefig(save_title + '.svg', format='svg', bbox_inches='tight')
 
 
-def plot_convergence(paths, epochs=300, sigma=3, normalize=False, test=False, plot=-1, label='MAPE', log=False):
+def plot_convergence(paths, series, epochs=300, sigma=3, append='', plot1=-1, plot2=0, ylabel='MAPE', log=False):
     """ Create a convergence plot.
 
     Parameters
     ----------
     paths : dictionary
         All experiment ids mapped to corresponding path including data
+    series : int
+        The series which was selected
     epochs : int
         Number of epochs to plot
     sigma : float
@@ -249,15 +216,24 @@ def plot_convergence(paths, epochs=300, sigma=3, normalize=False, test=False, pl
     """
     _init_plot()
 
-    if not normalize:
-        plt.axhline(1, color='k', linewidth=0.5)
+    #if not normalize:
+        #plt.axhline(1, color='k', linewidth=0.5)
 
     for experiment_id in paths.keys():
         afile = open(paths[experiment_id])
         areader = csv.reader(afile, delimiter=',')
 
-        y = np.zeros(epochs)
+        y1 = np.zeros(epochs)
+        y2 = np.zeros(epochs)
         x = np.zeros(epochs)
+
+        label1 = EX_2_ID_2_LABEL_1[series][experiment_id]
+        color1 = EX_2_ID_2_COLOR_1[series][experiment_id]
+        style1 = EX_2_ID_2_STYLE_1[series][experiment_id]
+
+        label2 = EX_2_ID_2_LABEL_2[series][experiment_id]
+        color2 = EX_2_ID_2_COLOR_2[series][experiment_id]
+        style2 = EX_2_ID_2_STYLE_2[series][experiment_id]
 
         for index, row in enumerate(areader):
             if index == 0:
@@ -266,53 +242,44 @@ def plot_convergence(paths, epochs=300, sigma=3, normalize=False, test=False, pl
             if index == epochs + 1:
                 break
 
-            y[index - 1] = row[plot]
+            y1[index - 1] = row[plot1]
+            y2[index - 1] = row[plot2]
             x[index - 1] = row[0]
 
         if sigma > 0.0:
-            y = gaussian_filter1d(y, sigma, mode='nearest')
-        
-        if normalize:
-            y = y / y[0]
-            if log:
-                plt.semilogy(x, y, label=ID_2_LABEL[experiment_id], color='k', linestyle=ID_2_STYLE[experiment_id])
+            y1 = gaussian_filter1d(y1, sigma, mode='nearest')
+            if plot2:
+                y2 = gaussian_filter1d(y2, sigma, mode='nearest')
 
-            else:
-                plt.plot(x, y, label=ID_2_LABEL[experiment_id], color='k', linestyle=ID_2_STYLE[experiment_id])
-
-            plt.ylabel('{}, normalized'.format(label))
+        if log:
+            plt.semilogy(x, y1, label=label1, color=color1, linestyle=style1)
+            if plot2:
+                plt.semilogy(x, y2, label=label2, color=color2, linestyle=style2)
 
         else:
-            if log:
-                plt.semilogy(x, y, label=ID_2_LABEL[experiment_id], color=ID_2_COLOR[experiment_id],
-                             linestyle=ID_2_STYLE[experiment_id])
+            plt.plot(x, y1, label=label1, color=color1, linestyle=style1)
+            if plot2:
+                plt.plot(x, y2, label=label2, color=color2, linestyle=style2)
 
-            else:
-                plt.plot(x, y, label=ID_2_LABEL[experiment_id], color=ID_2_COLOR[experiment_id],
-                         linestyle=ID_2_STYLE[experiment_id])
+    plt.ylabel('{}'.format(ylabel))
 
-            plt.ylabel('{}'.format(label))
-
-        afile.close()
+    afile.close()
 
     plt.xlabel('Epoch')
     plt.legend(loc='upper right')
 
+    #plt.xticks([0, 100, 200, 300])
+    plt.ylim([0, 100])
+
     save_title = 'convergence'
+
+    save_title += '_' + str(series)
+    save_title += '_' + ylabel
 
     for experiment_id in paths.keys():
         save_title += '_' + str(experiment_id)
 
-    if normalize:
-        save_title += '_norm'
-
-    if test:
-        save_title += '_test'
-
-    else:
-        save_title += '_val'
-
-    save_title += '_' + label
+    save_title += append
 
     plt.savefig(save_title + '.png', format='png', bbox_inches='tight', dpi=100)
     plt.savefig(save_title + '.svg', format='svg', bbox_inches='tight')
@@ -417,7 +384,7 @@ def plot_loss_convergence(paths, epochs=300, plot=-1, label='MAPE'):
 
     save_title += '_' + label
 
-    plt.savefig(save_title + '.png', format='png', bbox_inches='tight',dpi=300)
+    plt.savefig(save_title + '.png', format='png', bbox_inches='tight', dpi=300)
     plt.savefig(save_title + '.svg', format='svg', bbox_inches='tight')
 
 
