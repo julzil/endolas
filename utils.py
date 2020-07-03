@@ -76,49 +76,6 @@ def _plot_keypoints_and_line(ax, labels, index, width, color, label):
     ax[index].plot([post_x_ext, ante_x_ext], [post_y_ext, ante_y_ext], color=color, linewidth=1)
 
 
-def _custom_loss(labels, prediction, loss_type='msed'):
-    """ Compute the custom loss.
-    """
-    # labels.shape = (None, None, None)
-    # batch_size = labels.shape[0]
-    batch_size = 1
-    loss = 0.0
-
-    for batch_index in range(0, batch_size):
-        ux = prediction[batch_index, :, :, 0]
-        uy = prediction[batch_index, :, :, 1]
-
-        x_mov = labels[batch_index, :, 0, 0]
-        y_mov = labels[batch_index, :, 1, 0]
-        x_mov_int = keras.backend.cast(x_mov, "int32")
-        y_mov_int = keras.backend.cast(y_mov, "int32")
-
-        x_fix = labels[batch_index, :, 0, 1]
-        y_fix = labels[batch_index, :, 1, 1]
-
-        ux_mov = get_displacement(ux, x_mov_int, y_mov_int)
-        uy_mov = get_displacement(uy, x_mov_int, y_mov_int)
-
-        x_squared = keras.backend.square(x_mov + ux_mov - x_fix)
-        y_squared = keras.backend.square(y_mov + uy_mov - y_fix)
-
-        sum_of_squares = x_squared + y_squared
-        euclidean_distance = keras.backend.sqrt(sum_of_squares)
-
-        if loss_type == 'maed':
-            loss += keras.backend.mean(euclidean_distance)
-
-        elif loss_type == 'msed':
-            loss += keras.backend.mean(sum_of_squares)
-
-        else:
-             loss += 0.0
-
-    loss = loss / batch_size
-
-    return loss
-
-
 # ----------------------------------------------------------------------------------------------------------------------
 def show(image):
     """ Display only an image.
@@ -671,76 +628,6 @@ def get_augmenter(rotation=True, flip=True):
     augmenter = albu.Compose(transformers, keypoint_params=albu.KeypointParams(format='xy'), p=1)
 
     return augmenter
-
-
-def get_displacement(u, x, y):
-    """ Use the keras backend functionality to compute the displacement in a vectorized way.
-
-    Parameters
-    ----------
-    u : Tensor (width, height)
-        Predicted displacement field
-
-    x : Tensor (n_keypoints)
-        x-coordinate of key point position
-
-    y : Tensor (n_keypoints)
-        y-coordinate of key point position
-
-    Returns
-    -------
-    Tensor (n_keypoints)
-        The displacement of each keypoint
-
-    """
-    length = 25 # x.shape[0]
-    indices = [val * length + val for val in range(0, length)]
-
-    u = keras.backend.gather(u, y)
-    u = keras.backend.transpose(u)
-    u = keras.backend.gather(u, x)
-    u = keras.backend.flatten(u)
-    u = keras.backend.gather(u, indices)
-
-    return u
-
-
-def maed_loss(labels, prediction):
-    """ Compute the mean absolute euclidean distance.
-
-    Parameters
-    ----------
-    labels : Tensor
-        The labels forwarded by the network
-
-    prediction : Tensor
-        The prediction forwarded by the network
-
-    Returns
-    -------
-    float
-        The loss value
-    """
-    return _custom_loss(labels, prediction, loss_type='maed')
-
-
-def msed_loss(labels, prediction):
-    """ Compute the mean absolute euclidean distance.
-
-    Parameters
-    ----------
-    labels : Tensor
-        The labels forwarded by the network
-
-    prediction : Tensor
-        The prediction forwarded by the network
-
-    Returns
-    -------
-    float
-        The loss value
-    """
-    return _custom_loss(labels, prediction, loss_type='msed')
 
 
 def apply_smoothing(image):

@@ -23,6 +23,9 @@ class EuclideanLoss(keras.losses.Loss):
                     - 'maed' Mean Absolute Euclidean Distance
 
         """
+        if loss_type != 'msed' or loss_type != 'maed':
+            raise AssertionError('Loss type "{}" not known, valid loss types are "maed" and "msed'.format(loss_type))
+
         super().__init__(name=loss_type)
         self._batch_size = batch_size
         self._grid_width = grid_width
