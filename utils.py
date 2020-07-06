@@ -13,6 +13,7 @@ import tensorflow
 import os
 import json
 import csv
+import math
 
 from pdb import set_trace
 from styles import *
@@ -655,6 +656,108 @@ def apply_smoothing(image):
     image = 0.3 * image_orig + 0.3 * image + 0.3 * image_back
 
     return image
+
+def nearest_neighbor(store_path, path_fixed, set_type):
+    """ Computes the nearest neighbors and returns a misclassification information.
+
+    Parameters
+    ----------
+    store_path : str
+        The path in which the data is stored
+
+    path_fixed : str
+        The path in which the fixed image is stored
+
+    set_type : str
+        The type of set which can either be 'val' or 'train'
+
+    Returns
+    -------
+    dict
+        A dictionary that maps image ids to a misclassification count
+    """
+
+    data_path = os.path.join(store_path, set_type)
+
+    globs = glob(data_path + os.sep + "*_w.json")
+    globs = [int(path.split(os.sep)[-1].split(".")[0].split("_")[0]) for path in globs]
+    image_ids = sorted(globs)
+
+    image_id_2_misclassification = dict()
+    for image_id in image_ids:
+        # 0) Define desired dictionary
+        warped_key_2_fixed_key = dict()
+
+        warp_path = data_path + os.sep + "{}_w.json".format(image_id)
+        with open(warp_path) as warped_file:
+            warped_json = json.load(warped_file)
+
+        fixed_path = path_fixed + "_f.json"
+        with open(fixed_path) as fixed_file:
+            fixed_json = json.load(fixed_file)
+
+        # 1) Sort out all obsolete points
+        for key, value in list(warped_json.items()):
+            if value[0] < 2.0 and value[1] < 2.0:
+                _ = warped_json.pop(key)
+
+        # 2) Compute nearest neighbor
+        is_loop_valid = True
+
+        while(is_loop_valid):
+            key_warped_2_nearest_neighbor = dict()
+            key_warped_2_nearest_distance = dict()
+            nearest_fixed_neighbor_2_key_warpeds = dict()
+
+            for key_warped, value_warped in warped_json.items():
+                nearest_fixed_neighbor = None
+                nearest_distance = math.inf
+
+                for key_fixed, value_fixed in fixed_json.items():
+                    distance = math.sqrt((value_warped[0] - value_fixed[0])**2 + (value_warped[1] - value_fixed[1])**2)
+
+                    if distance < nearest_distance:
+                        nearest_fixed_neighbor = key_fixed
+                        nearest_distance = distance
+
+                key_warped_2_nearest_neighbor[key_warped] = nearest_fixed_neighbor
+                key_warped_2_nearest_distance[key_warped] = nearest_distance
+
+                try:
+                    nearest_fixed_neighbor_2_key_warpeds[nearest_fixed_neighbor].append(key_warped)
+
+                except KeyError:
+                    nearest_fixed_neighbor_2_key_warpeds[nearest_fixed_neighbor] = [key_warped]
+
+            # 3) Evaluate all found neighbors
+            for nearest_fixed_neighbor, key_warpeds in nearest_fixed_neighbor_2_key_warpeds.items():
+                nearest_warped_neighbor = None
+                nearest_distance = math.inf
+
+                for key_warped in key_warpeds:
+                    if key_warped_2_nearest_distance[key_warped] < nearest_distance:
+                        nearest_distance = key_warped_2_nearest_distance[key_warped]
+                        nearest_warped_neighbor = key_warped
+
+                if nearest_warped_neighbor != None:
+                    _ = warped_json.pop(nearest_warped_neighbor)
+                    _ = fixed_json.pop(nearest_fixed_neighbor)
+                    warped_key_2_fixed_key[nearest_warped_neighbor] = nearest_fixed_neighbor
+
+            # 4) Determine loop criterion
+            if len(warped_json) == 0:
+                is_loop_valid = False
+
+        # 5) Count all misclassified
+        counter = 0
+        for warped_key, fixed_key in warped_key_2_fixed_key.items():
+            if warped_key != fixed_key:
+                counter += 1
+
+        image_id_2_misclassification[image_id] = counter
+
+    return image_id_2_misclassification
+
 
 if __name__ == "__main__":
     pass
