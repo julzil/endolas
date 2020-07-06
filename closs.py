@@ -21,10 +21,11 @@ class EuclideanLoss(keras.losses.Loss):
                 The type that can either be:
                     - 'msed' Mean Squared Euclidean Distance
                     - 'maed' Mean Absolute Euclidean Distance
-
+                    - 'max' Maximum Euclidean Distance
+                    - 'min' Minimum Euclidean Distance
         """
-        if loss_type != 'msed' or loss_type != 'maed':
-            raise AssertionError('Loss type "{}" not known, valid loss types are "maed" and "msed'.format(loss_type))
+        if loss_type not in ['msed', 'maed', 'max', 'min']:
+            raise AssertionError('Loss type "{}" not known, valid loss types are "maed", "msed, "max" and "min"'.format(loss_type))
 
         super().__init__(name=loss_type)
         self._batch_size = batch_size
@@ -76,6 +77,12 @@ class EuclideanLoss(keras.losses.Loss):
 
             elif self._loss_type == 'msed':
                 loss += keras.backend.mean(sum_of_squares)
+
+            elif self._loss_type == 'max':
+                loss += keras.backend.max(euclidean_distance)
+
+            elif self._loss_type == 'min':
+                loss += keras.backend.min(euclidean_distance)
 
             else:
                 loss += 0.0
