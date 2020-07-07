@@ -683,7 +683,7 @@ def nearest_neighbor(store_path, path_fixed, set_type):
     globs = [int(path.split(os.sep)[-1].split(".")[0].split("_")[0]) for path in globs]
     image_ids = sorted(globs)
 
-    image_id_2_misclassification = dict()
+    image_id_2_accuracy = dict()
     for image_id in image_ids:
         # 0) Define desired dictionary
         warped_key_2_fixed_key = dict()
@@ -700,6 +700,8 @@ def nearest_neighbor(store_path, path_fixed, set_type):
         for key, value in list(warped_json.items()):
             if value[0] < 2.0 and value[1] < 2.0:
                 _ = warped_json.pop(key)
+
+        number_of_predictions = len(warped_json)
 
         # 2) Compute nearest neighbor
         is_loop_valid = True
@@ -754,9 +756,9 @@ def nearest_neighbor(store_path, path_fixed, set_type):
             if warped_key != fixed_key:
                 counter += 1
 
-        image_id_2_misclassification[image_id] = counter
+        image_id_2_accuracy[image_id] = (number_of_predictions - counter) / number_of_predictions
 
-    return image_id_2_misclassification
+    return image_id_2_accuracy
 
 
 if __name__ == "__main__":
