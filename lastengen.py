@@ -13,7 +13,7 @@ from tensorflow.keras.utils import Sequence
 
 class LASTENSequence(Sequence):
     def __init__(self, path, batch_size=32, image_ids=None, preprocess_input=None, augment=False, shuffle=False,
-                 width=512, height=512, grid_width=18, grid_height=18, seed=42, label="mask"):
+                 width=512, height=512, grid_width=18, grid_height=18, seed=42, label="mask", multi_channel="moving"):
         """ Object for fitting to a sequence of data of the LASTEN dataset. Laser points are considered
             as labels. In augmentation a rotation is only applied if the first attempt did not rotate a keypoint out of
             the image.
@@ -44,6 +44,10 @@ class LASTENSequence(Sequence):
             A seed to be set for shuffling
         label : string, optional
             Decide which label to return. Possible options are "mask", "keypoints" or "both".
+        multi_channel : string, optional
+            Can be used to generate more input channels. Possible options are:
+            - 'moving' for single channel with moving image only
+            - 'fixed' for an additional fixed image
         """
         random.seed(seed)
 
@@ -127,7 +131,7 @@ class LASTENSequence(Sequence):
 
         return X, y
 
-    def _get_image_mask_keypoints(self, image_id):
+    def _get_image_mask_keypoints_get_image_mask_keypoints_get_image_mask_keypoints(self, image_id):
         """ Retrieves one image with its associated mask and keypoints
         """
         # Image

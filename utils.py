@@ -631,22 +631,23 @@ def get_augmenter(rotation=True, flip=True):
     return augmenter
 
 
-def apply_smoothing(image):
+def apply_smoothing(image, sigma=1.0, sigma_back=10.0):
     """ Smooth an image with two gaussian kernels.
 
     Parameters
     ----------
     image : ndarray
         The image to be smoothed
+    sigma : float, optional
+        The standard deviation for the kernel
+    sigma_back : float, optional
+        The standard deviation for the kernel in the background
 
     Returns
     -------
     ndarray
         The smoothed image
     """
-    sigma = 1.0
-    sigma_back = 10
-
     image_orig = image
     image = gaussian_filter(image, sigma=sigma)
     image_back = gaussian_filter(image, sigma=sigma_back)

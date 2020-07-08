@@ -39,7 +39,7 @@ class EuclideanLoss(keras.losses.Loss):
         Parameters
         ----------
         labels : Tensor
-            The labels forwarded by the network
+            The labels forwarded by the network shape = (batch, point, x-y, mov-fix)
 
         prediction : Tensor
             The prediction forwarded by the network
