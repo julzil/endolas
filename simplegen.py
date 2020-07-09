@@ -4,7 +4,6 @@ import utils
 import os
 import json
 import random
-import keys
 import glob
 
 from tensorflow import keras
@@ -28,7 +27,7 @@ class SIMPLESequence(Sequence):
         path : str
             The path to the directory where .png files are stored
         path_fixed : str
-            The path to the .json file for the fixed image
+            The path to the .json and .png file the fixed image
         batch_size : int, optional
             The batch size
         image_ids : list, optional

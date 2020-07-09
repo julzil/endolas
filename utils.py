@@ -593,7 +593,7 @@ def get_training_data(path_training, n_data_points, preprocess_input=None, width
     return X_train, y_train, image_id_2_scaling
 
 
-def get_augmenter(rotation=True, flip=True):
+def get_augmenter(rotation=True, flip=True, keypoints=False):
     """ Get the augmenter as used in [1]_.
 
     Parameters
@@ -603,6 +603,9 @@ def get_augmenter(rotation=True, flip=True):
 
     rotation : bool, optional
         Property whether to include flipping or not
+
+    keypoints : bool, optional
+        Property whether to augment keypoints or not
 
     Returns
     -------
@@ -626,7 +629,10 @@ def get_augmenter(rotation=True, flip=True):
     if rotation:
         transformers.append(albu.Rotate(limit=30, border_mode=0, p=0.75))
 
-    augmenter = albu.Compose(transformers, keypoint_params=albu.KeypointParams(format='xy'), p=1)
+    if keypoints:
+        augmenter = albu.Compose(transformers, keypoint_params=albu.KeypointParams(format='xy'), p=1)
+    else:
+        augmenter = albu.Compose(transformers, p=1)
 
     return augmenter
 

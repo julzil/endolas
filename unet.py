@@ -1,5 +1,3 @@
-import keys
-
 import numpy as np
 
 from tensorflow.keras.models import Model
@@ -112,8 +110,7 @@ def UNet(filters=64, layers=4, activation='sigmoid', classes=1, input_shape=None
                                  activation=activation,
                                  strides=1,
                                  kernel_initializer='glorot_uniform',
-                                 kernel_regularizer=kernel_regularizer,
-                                 name=keys.SEGMENTATION_OUTPUT_NAME)(x)
+                                 kernel_regularizer=kernel_regularizer)(x)
 
     return Model(inputs=model_input, outputs=segmentation_output)
 
