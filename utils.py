@@ -664,8 +664,9 @@ def apply_smoothing(image, sigma=1.0, sigma_back=10.0):
 
     return image
 
-def nearest_neighbor(store_path, path_fixed, set_type):
-    """ Computes the nearest neighbors and returns a misclassification information.
+
+def nearest_neighbor(store_path, path_fixed, set_type, scale_factor=1):
+    """ Computes the nearest neighbors and returns an accuracy.
 
     Parameters
     ----------
@@ -678,10 +679,13 @@ def nearest_neighbor(store_path, path_fixed, set_type):
     set_type : str
         The type of set which can either be 'val' or 'train'
 
+    scale_factor : float, optional
+        Scales the fixed data up or down
+
     Returns
     -------
     dict
-        A dictionary that maps image ids to a misclassification count
+        A dictionary that maps image ids to an accuracy
     """
 
     data_path = os.path.join(store_path, set_type)
@@ -699,7 +703,7 @@ def nearest_neighbor(store_path, path_fixed, set_type):
         with open(warp_path) as warped_file:
             warped_json = json.load(warped_file)
 
-        fixed_path = path_fixed + "_f.json"
+        fixed_path = path_fixed + ".json"
         with open(fixed_path) as fixed_file:
             fixed_json = json.load(fixed_file)
 
@@ -723,7 +727,10 @@ def nearest_neighbor(store_path, path_fixed, set_type):
                 nearest_distance = math.inf
 
                 for key_fixed, value_fixed in fixed_json.items():
-                    distance = math.sqrt((value_warped[0] - value_fixed[0])**2 + (value_warped[1] - value_fixed[1])**2)
+                    val_fix_0 = value_fixed[0] * scale_factor
+                    val_fix_1 = value_fixed[1] * scale_factor
+
+                    distance = math.sqrt((value_warped[0] - val_fix_0)**2 + (value_warped[1] - val_fix_1)**2)
 
                     if distance < nearest_distance:
                         nearest_fixed_neighbor = key_fixed

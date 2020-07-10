@@ -293,6 +293,7 @@ class LASTENSequence(Sequence):
 
             except KeyError:
                 keypoints[index][0][0] = 0.0
+
                 keypoints[index][1][0] = 0.0
                 keypoints[index][0][1] = 0.0
                 keypoints[index][1][1] = 0.0

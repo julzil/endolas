@@ -114,20 +114,39 @@ ID_2_COLOR_6_2 = {1: COLOR_POSTERIOR,
                   12: COLOR_POSTERIOR}
 
 # ----------------------------------------------------------------------------------------------------------------------
+ID_2_LABEL_7_1 = {1: '1) BS2 train'}
+
+ID_2_LABEL_7_2 = {1: '1) BS2 val'}
+
+ID_2_STYLE_7_1 = {1: '-'}
+
+ID_2_STYLE_7_2 = {1: '--'}
+
+ID_2_COLOR_7_1 = {1: COLOR_POSTERIOR}
+
+ID_2_COLOR_7_2 = {1: COLOR_POSTERIOR}
+
+# ----------------------------------------------------------------------------------------------------------------------
 EX_2_ID_2_LABEL_1 = {2: ID_2_LABEL_2_1,
-                     6: ID_2_LABEL_6_1}
+                     6: ID_2_LABEL_6_1,
+                     7: ID_2_LABEL_7_1}
 
 EX_2_ID_2_STYLE_1 = {2: ID_2_STYLE_2_1,
-                     6: ID_2_STYLE_6_1}
+                     6: ID_2_STYLE_6_1,
+                     7: ID_2_STYLE_7_1}
 
 EX_2_ID_2_COLOR_1 = {2: ID_2_COLOR_2_1,
-                     6: ID_2_COLOR_6_1}
+                     6: ID_2_COLOR_6_1,
+                     7: ID_2_COLOR_7_1}
 
 EX_2_ID_2_LABEL_2 = {2: ID_2_LABEL_2_2,
-                     6: ID_2_LABEL_6_2}
+                     6: ID_2_LABEL_6_2,
+                     7: ID_2_LABEL_7_2}
 
 EX_2_ID_2_STYLE_2 = {2: ID_2_STYLE_2_2,
-                     6: ID_2_STYLE_6_2}
+                     6: ID_2_STYLE_6_2,
+                     7: ID_2_STYLE_7_2}
 
 EX_2_ID_2_COLOR_2 = {2: ID_2_COLOR_2_2,
-                     6: ID_2_COLOR_6_2}
+                     6: ID_2_COLOR_6_2,
+                     7: ID_2_COLOR_7_2}
