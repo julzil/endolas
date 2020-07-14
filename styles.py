@@ -114,17 +114,41 @@ ID_2_COLOR_6_2 = {1: COLOR_POSTERIOR,
                   12: COLOR_POSTERIOR}
 
 # ----------------------------------------------------------------------------------------------------------------------
-ID_2_LABEL_7_1 = {1: '1) BS2 train'}
+ID_2_LABEL_7_1 = {1: '1) BS=2 train',
+                  2: '2) BS=4 train',
+                  3: '3) LASTENS train',
+                  4: '4) LASTENA train',
+                  5: '5) LASTENAS train'}
 
-ID_2_LABEL_7_2 = {1: '1) BS2 val'}
+ID_2_LABEL_7_2 = {1: '1) BS2 val',
+                  2: '2) BS4 val',
+                  3: '3) LASTENS val',
+                  4: '4) LASTENA val',
+                  5: '5) LASTENAS val'}
 
-ID_2_STYLE_7_1 = {1: '-'}
+ID_2_STYLE_7_1 = {1: '-',
+                  2: '-',
+                  3: '-',
+                  4: '-',
+                  5: '-'}
 
-ID_2_STYLE_7_2 = {1: '--'}
+ID_2_STYLE_7_2 = {1: '--',
+                  2: '--',
+                  3: '--',
+                  4: '--',
+                  5: '--'}
 
-ID_2_COLOR_7_1 = {1: COLOR_POSTERIOR}
+ID_2_COLOR_7_1 = {1: COLOR_POSTERIOR,
+                  2: COLOR_ANTERIOR,
+                  3: COLOR_TRUE,
+                  4: COLOR_POSTERIOR,
+                  5: COLOR_PREDICTION}
 
-ID_2_COLOR_7_2 = {1: COLOR_POSTERIOR}
+ID_2_COLOR_7_2 = {1: COLOR_POSTERIOR,
+                  2: COLOR_ANTERIOR,
+                  3: COLOR_TRUE,
+                  4: COLOR_POSTERIOR,
+                  5: COLOR_PREDICTION}
 
 # ----------------------------------------------------------------------------------------------------------------------
 EX_2_ID_2_LABEL_1 = {2: ID_2_LABEL_2_1,

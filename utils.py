@@ -224,10 +224,12 @@ def plot_convergence(paths, series, epochs=300, sigma=3, append='', plot1=-1, pl
     afile.close()
 
     plt.xlabel('Epoch')
-    plt.legend(loc='upper right')
+    #plt.legend(loc='upper right')
+
+    plt.legend(loc=(1.0, 0.0), frameon=False)
 
     #plt.xticks([0, 100, 200, 300])
-    plt.ylim([0, 100])
+    plt.ylim([0, 1000])
 
     save_title = 'convergence'
 
