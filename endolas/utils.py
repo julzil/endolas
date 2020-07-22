@@ -14,6 +14,7 @@ import os
 import json
 import csv
 import math
+import imageio
 
 from pdb import set_trace
 from styles import *

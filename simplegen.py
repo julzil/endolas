@@ -1,6 +1,6 @@
 import numpy as np
 import math
-import utils
+from endolas import utils
 import os
 import json
 import random
@@ -11,8 +11,6 @@ from tensorflow.keras.utils import Sequence
 
 from skimage.filters.rank import gradient
 from skimage.morphology import disk
-
-from pdb import set_trace
 
 
 class SIMPLESequence(Sequence):

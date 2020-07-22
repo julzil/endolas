@@ -1,19 +1,24 @@
 import numpy as np
 import math
-import utils
+
 import os
 import json
 import random
 import glob
+import imageio
 
+from . import keys
+from . import utils
 from tensorflow import keras
 from tensorflow.keras.utils import Sequence
+from PIL import Image
 
+from pdb import set_trace
 
 class LASTENSequence(Sequence):
     def __init__(self, path, path_fixed=None, batch_size=32, image_ids=None, preprocess_input=None, augment=False,
                  shuffle=False, width=512, height=512, grid_width=18, grid_height=18, seed=42, label="mask",
-                 channel="physical", input="dir"):
+                 channel="physical", input="dir", lower_frame=0, upper_frame=0):
         """ Object for fitting to a sequence of data of the LASTEN dataset. Laser points are considered
             as labels. In augmentation a rotation is only applied if the first attempt did not rotate a keypoint out of
             the image.
@@ -55,11 +60,17 @@ class LASTENSequence(Sequence):
             - 'physical' for single channel with physical image only
             - 'moving' for single channel with moving image only
             - 'moving+fixed' for an additional fixed image
+            When input is 'vid' or 'img' there is no difference between 'physical' or 'moving'. Type then
+            depends only on provided input.
         input : string, optional
             Is needed to decide which and how data is read. Possible options are:
             - 'dir' for reading all images from a directory
             - 'img' for reading a single image from file
             - 'vid' for reading a video from file
+        lower_frame : int, optional
+            Index for identifying the lower frame to be selected from video, only needed when input=='vid'
+        upper_frame : int, optional
+            Index for identifying the upper frame to be selected from video, only needed when input=='vid'
         """
         random.seed(seed)
 
@@ -74,12 +85,11 @@ class LASTENSequence(Sequence):
         self._grid_width = grid_width
         self._grid_height = grid_height
 
-        if label == 'keypoints' and not path_fixed:
-            raise ValueError("Please provide a path to the fixed image and keypoints")
-
         self._label = label
         self._channel = channel
         self._input = input
+        self._lower_frame = lower_frame
+        self._upper_frame = upper_frame
 
         self._image_id_2_scaling = dict()
 
@@ -90,6 +100,8 @@ class LASTENSequence(Sequence):
 
         self._check_input()
 
+        self._video = self._load_video() if self._input == "vid" else None
+
     def __len__(self):
         """ On call of len(...) the length of the sequence is returned, which is an integer value that
             is used as steps_per_epoch in training.
@@ -97,27 +109,63 @@ class LASTENSequence(Sequence):
         return self._length
 
     def __getitem__(self, index):
-        """ Overrides the __getitem__ method from Sequence, with index of the currently requested batch
+        """ Overrides the __getitem__ method from Sequence, with index of the currently requested batch.
+            X will be preprocessed according to preprocess_input.
         """
         index_start = index * self._batch_size
-
         if index == (self._length - 1):
             index_end = self._size - 1
-
         else:
             index_end = index_start + self._batch_size - 1
+        batch_image_ids = self._image_ids[index_start:index_end + 1]
 
-        batch_image_ids = self._image_ids[index_start:index_end+1]
+        if self._input == "dir":
+            X, y = self._get_batch_from_dir(batch_image_ids)
 
-        X, y = self._get_batch(batch_image_ids)
+        elif self._input == "img":
+            X, y = self._get_batch_from_img(batch_image_ids[0])
+
+        else:
+            X, y = self._get_batch_from_vid(batch_image_ids)
+
+        if self._preprocess_input:
+            X = self._preprocess(X)
 
         return X, y
 
-    def _get_batch(self, batch_image_ids):
+    def _get_batch_from_img(self, index):
+        """ Retrieves a batch from on single .png file in path.
+        """
+        X = np.zeros((1, self._height, self._width, 2)) if self._channel == "moving+fixed" else \
+            np.zeros((1, self._height, self._width, 1))
+
+        image = self._get_image_from_path(self._path, index)
+        image_fixed = self._get_fixed()
+
+        X[index] = np.concatenate((image, image_fixed), axis=2) if self._channel == "moving+fixed" else image
+
+        return X, None
+
+    def _get_batch_from_vid(self, batch_image_ids):
+        """ Retrieves a batch from a video file in path.
+        """
+        n_data_points = len(batch_image_ids)
+
+        X = np.zeros((n_data_points, self._height, self._width, 2)) if self._channel == "moving+fixed" else \
+            np.zeros((n_data_points, self._height, self._width, 1))
+
+        for batch_index, image_id in enumerate(batch_image_ids):
+            image = self._get_image_from_video(image_id)
+            fixed = self._get_fixed()
+
+            X[batch_index] = np.concatenate((image, fixed), axis=2) if self._channel == "moving+fixed" else image
+
+        return X, None
+
+    def _get_batch_from_dir(self, batch_image_ids):
         """ Retrieves a batch from .png files in path, where the integer interval of [index_start, index_end] defines
-            the elements of the batch. X will be preprocessed according to preprocess_input, y will normalized and then
-            shifted by 1 such that it is between [1,2], as mape can not be evaluated for 0. Keypoints that are
-            no existing, that are laser points which are not visible, are mapped to (0, 0).
+            the elements of the batch. Keypoints that are no existing, that are laser points which are not visible,
+            are mapped to (0, 0).
         """
         n_data_points = len(batch_image_ids)
 
@@ -134,14 +182,18 @@ class LASTENSequence(Sequence):
             y = None
 
         for batch_index, image_id in enumerate(batch_image_ids):
-            if self._channel == "physical" and self._input != "img":
+            if self._channel == "physical":
                 path_image = os.path.join(self._path, "{}.png".format(image_id))
-            elif self._input != "img":
-                path_image = os.path.join(self._path, "{}_mov.png".format(image_id))
             else:
-                path_image = self._path
+                path_image = os.path.join(self._path, "{}_mov.png".format(image_id))
 
-            image, fixed, mask, keypoints = self._get_image_fixed_mask_keypoints(path_image, image_id)
+            image = self._get_image_from_path(path_image, image_id)
+            fixed = self._get_fixed()
+            mask = self._get_mask(image_id)
+            keypoints = self._get_keypoints(image_id)
+
+            if self._augment and self._channel == "physical" and self._label == "mask":
+                image, mask = self._run_augmentation(image, mask)
 
             X[batch_index] = np.concatenate((image, fixed), axis=2) if self._channel == "moving+fixed" else image
 
@@ -151,26 +203,28 @@ class LASTENSequence(Sequence):
             elif self._label == "keypoints":
                 y[batch_index] = keypoints
 
-        if self._preprocess_input:
-            X = self._preprocess(X)
-
         return X, y
 
-    def _get_image_fixed_mask_keypoints(self, path_image, image_id):
-        """ Retrieves one image with its associated fixed image, mask and keypoints
+    def _get_image_from_video(self, image_id):
+        """ Retrieves image from a video.
         """
-        # Image
-        image = keras.preprocessing.image.load_img(path_image, color_mode="grayscale")
+        image = self._video[image_id]
+        image = Image.fromarray(image)
+        image = self._preprocess_image(image, image_id)
 
-        scale_factor_x = self._width / image.size[0]
-        scale_factor_y = self._height / image.size[1]
-        scaling = np.array([scale_factor_x, scale_factor_y])
-        self._image_id_2_scaling[image_id] = scaling
+        return image
 
-        image = image.resize((self._width, self._height))
-        image = keras.preprocessing.image.img_to_array(image)
+    def _get_image_from_path(self, path, image_id):
+        """ Retrieves image from a file path.
+        """
+        image = keras.preprocessing.image.load_img(path, color_mode="grayscale")
+        image = self._preprocess_image(image, image_id)
 
-        # Fixed Image
+        return image
+
+    def _get_fixed(self):
+        """ Retrieves fixed image class attribute.
+        """
         if self._channel == "moving+fixed":
             path_image_fixed = self._path_fixed + ".png"
             image_fixed = keras.preprocessing.image.load_img(path_image_fixed, color_mode="grayscale")
@@ -179,26 +233,33 @@ class LASTENSequence(Sequence):
         else:
             image_fixed = None
 
-        # Mask
-        if self._label == "mask":
-            keypoints = None
+        return image_fixed
 
+    def _get_mask(self, image_id):
+        """ Retrieves mask according to image ID.
+        """
+        if self._label == "mask":
             path_mask = os.path.join(self._path, "{}_m.png".format(image_id))
             mask = keras.preprocessing.image.load_img(path_mask, color_mode="grayscale")
             mask = mask.resize((self._width, self._height))
             mask = keras.preprocessing.image.img_to_array(mask)
             mask = mask / 255
 
-        # Keypoints
-        elif self._label == "keypoints":
+        else:
             mask = None
 
-            keypoints = self._get_keypoints(image_id)
+        return mask
+
+    def _get_keypoints(self, image_id):
+        """ Retrieves keypoints according to image ID.
+        """
+        if self._label == "keypoints":
+            keypoints = self._get_keypoints_from_json(image_id)
             keypoints_cache = np.zeros(keypoints.shape)
 
             for index, keypoint in enumerate(keypoints):
                 length = self._width if index % 2 == 0 else self._height
-                scale = scaling[0] if index % 2 == 0 else scaling[1]
+                scale = self._image_id_2_scaling[image_id][0] if index % 2 == 0 else self._image_id_2_scaling[image_id][1]
 
                 keypoint = np.clip(keypoint * scale, 0.1, (length - 0.1))
                 keypoint = np.round(keypoint, 0)
@@ -206,16 +267,10 @@ class LASTENSequence(Sequence):
 
             keypoints = keypoints_cache
 
-        # No-Labels
         else:
-            mask = None
             keypoints = None
 
-        # Augmentation
-        if self._augment and self._channel == "physical" and self._label == "mask":
-            image, mask = self._run_augmentation(image, mask)
-
-        return image, image_fixed, mask, keypoints
+        return keypoints
 
     def _get_mask_from_keypoints(self, keypoints):
         """ Builds the mask based on the keypoints.
@@ -234,6 +289,19 @@ class LASTENSequence(Sequence):
         mask = np.expand_dims(mask, axis=2)
 
         return mask
+
+    def _preprocess_image(self, image, image_id):
+        """ Preprocesses the image.
+        """
+        scale_factor_x = self._width / image.size[0]
+        scale_factor_y = self._height / image.size[1]
+        scaling = np.array([scale_factor_x, scale_factor_y])
+        self._image_id_2_scaling[image_id] = scaling
+
+        image = image.resize((self._width, self._height))
+        image = keras.preprocessing.image.img_to_array(image)
+
+        return image
 
     def _run_augmentation(self, image, mask):
         """ Augment an image and its mask.
@@ -267,21 +335,31 @@ class LASTENSequence(Sequence):
     def _get_image_ids(self, image_ids):
         """ Get a list of image ids that are supposed to be in the data set.
         """
-        if not image_ids:
-            globs = glob.glob(self._path + os.sep + "*.json")
-            globs = [int(path.split(os.sep)[-1].split(".")[0]) for path in globs]
-            image_ids = sorted(globs)
+        if self._input == "dir":
+            if not image_ids:
+                globs = glob.glob(self._path + os.sep + "*.json")
+                globs = [int(path.split(os.sep)[-1].split(".")[0]) for path in globs]
+                image_ids = sorted(globs)
+
+        elif self._input == "img":
+            image_ids = [0]
+
+        else:
+            image_ids = list(range(self._lower_frame, self._upper_frame+1))
 
         return image_ids
 
     def _get_size(self, image_ids):
         """ Get the size that represents the amount of sample points.
         """
-        size = len(image_ids)
+        if self._input == "dir":
+            size = len(image_ids)
 
-        if self._batch_size > size:
-            raise AssertionError('Batch size "{}" can not be larger than sample size "{}"'.format(self._batch_size,
-                                                                                                  size))
+        elif self._input == "img":
+            size = 1
+
+        else:
+            size = self._upper_frame - self._lower_frame + 1
 
         return size
 
@@ -292,7 +370,7 @@ class LASTENSequence(Sequence):
 
         return length
 
-    def _get_keypoints(self, image_id):
+    def _get_keypoints_from_json(self, image_id):
         """ Get the key points from the moving and fixed ".json" file.
         """
         path_moving = os.path.join(self._path, "{}.json".format(image_id))
@@ -344,9 +422,53 @@ class LASTENSequence(Sequence):
             raise ValueError('Input type "{}" is not valid valid labels are "dir", "img" and'
                              ' "vid"'.format(self._channel))
 
-        if self._input in ["img", "vid"] and self._label in ["mask", "keypoints"]:
+        if self._input in ["img", "vid"] and self._label != "predict":
             raise ValueError('Input type "{}" is only valid if label is "predict"'.format(self._input))
 
+        if type(self._lower_frame) != int or type(self._upper_frame) != int:
+            raise ValueError('"lower_frame" and "upper_frame" must be of type int')
+
+        if self._lower_frame < 0:
+            raise ValueError('"lower_frame" must not be smaller than 0')
+
+        if self._upper_frame < self._lower_frame:
+            raise ValueError('"upper_frame" must not be smaller than "lower_frame"')
+
+        if (self._channel == 'moving+fixed' or self._label == 'keypoints') and not self._path_fixed:
+            raise ValueError("Please provide a path to the fixed image and fixed keypoints")
+
+        if self._input == "dir" and not os.path.isdir(self._path):
+            raise ValueError('Path "{}" is not a directory.'.format(self._path))
+
+        file_extension = self._path.split(os.sep)[-1].split('.')[-1].lower()
+        if self._input == "img" and not os.path.isfile(self._path):
+            raise ValueError('Path "{}" is not a file.'.format(self._path))
+
+        if self._input == "img" and file_extension not in keys.IMAGE_FILE_EXTENSIONS:
+            raise ValueError('Path "{}" is not an admissible image file. Admissible image files are'
+                             '{}'.format(self._path, keys.IMAGE_FILE_EXTENSIONS))
+
+        if self._input == "vid" and not os.path.isfile(self._path):
+            raise ValueError('Path "{}" is not a file.'.format(self._path))
+
+        if self._input == "vid" and file_extension not in keys.VIDEO_FILE_EXTENSIONS:
+            raise ValueError('Path "{}" is not an admissible video file. Admissible video files are'
+                             '{}'.format(self._path, keys.VIDEO_FILE_EXTENSIONS))
+
+        if self._batch_size > self._size:
+            raise ValueError('Batch size "{}" can not be larger than sample size "{}"'.format(self._batch_size,
+                                                                                              self._size))
+
+    def _load_video(self):
+        """ Loads a video from file.
+        """
+        vid = imageio.get_reader(self._path, 'ffmpeg')
+        data = [im[:, :, 0] for im in vid.iter_data()]
+        video = data
+
+        return video
+
+    # ------------------------------------------------------------------------------------------------------------------
     def on_epoch_end(self):
         """ Prepare next epoch
         """
