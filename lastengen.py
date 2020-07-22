@@ -11,8 +11,9 @@ from tensorflow.keras.utils import Sequence
 
 
 class LASTENSequence(Sequence):
-    def __init__(self, path, path_fixed, batch_size=32, image_ids=None, preprocess_input=None, augment=False, shuffle=False,
-                 width=512, height=512, grid_width=18, grid_height=18, seed=42, label="mask", channel="moving"):
+    def __init__(self, path, path_fixed=None, batch_size=32, image_ids=None, preprocess_input=None, augment=False,
+                 shuffle=False, width=512, height=512, grid_width=18, grid_height=18, seed=42, label="mask",
+                 channel="physical", input="dir"):
         """ Object for fitting to a sequence of data of the LASTEN dataset. Laser points are considered
             as labels. In augmentation a rotation is only applied if the first attempt did not rotate a keypoint out of
             the image.
@@ -20,7 +21,7 @@ class LASTENSequence(Sequence):
         Parameters
         ----------
         path : str
-            The path to the directory where .png files and the ap.points file is stored
+            The path to the directory where .png files are stored
         path_fixed : str
             The path to the .json and .png file the fixed image
         batch_size : int, optional
@@ -48,11 +49,17 @@ class LASTENSequence(Sequence):
             Decide which label to return. Possible options are:
             - 'mask' for returning a mask as labels
             - 'keypoints' for returning keypoints as labels
+            - 'predict' for returning None as label
         channel : string, optional
             Can be used to generate more input channels. Possible options are:
             - 'physical' for single channel with physical image only
             - 'moving' for single channel with moving image only
             - 'moving+fixed' for an additional fixed image
+        input : string, optional
+            Is needed to decide which and how data is read. Possible options are:
+            - 'dir' for reading all images from a directory
+            - 'img' for reading a single image from file
+            - 'vid' for reading a video from file
         """
         random.seed(seed)
 
@@ -66,8 +73,13 @@ class LASTENSequence(Sequence):
         self._height = height
         self._grid_width = grid_width
         self._grid_height = grid_height
+
+        if label == 'keypoints' and not path_fixed:
+            raise ValueError("Please provide a path to the fixed image and keypoints")
+
         self._label = label
         self._channel = channel
+        self._input = input
 
         self._image_id_2_scaling = dict()
 
@@ -112,29 +124,42 @@ class LASTENSequence(Sequence):
         X = np.zeros((n_data_points, self._height, self._width, 2)) if self._channel == "moving+fixed" else \
             np.zeros((n_data_points, self._height, self._width, 1))
 
-        y = np.zeros((n_data_points, self._height, self._width, 1)) if self._label == "mask" else \
-            np.zeros((n_data_points, self._grid_width * self._grid_height, 2, 2))
+        if self._label == "mask":
+            y = np.zeros((n_data_points, self._height, self._width, 1))
+
+        elif self._label == "keypoints":
+            y = np.zeros((n_data_points, self._grid_width * self._grid_height, 2, 2))
+
+        else:
+            y = None
 
         for batch_index, image_id in enumerate(batch_image_ids):
-            image, fixed, mask, keypoints = self._get_image_fixed_mask_keypoints(image_id)
+            if self._channel == "physical" and self._input != "img":
+                path_image = os.path.join(self._path, "{}.png".format(image_id))
+            elif self._input != "img":
+                path_image = os.path.join(self._path, "{}_mov.png".format(image_id))
+            else:
+                path_image = self._path
+
+            image, fixed, mask, keypoints = self._get_image_fixed_mask_keypoints(path_image, image_id)
 
             X[batch_index] = np.concatenate((image, fixed), axis=2) if self._channel == "moving+fixed" else image
-            y[batch_index] = mask if self._label == "mask" else keypoints
+
+            if self._label == "mask":
+                y[batch_index] = mask
+
+            elif self._label == "keypoints":
+                y[batch_index] = keypoints
 
         if self._preprocess_input:
             X = self._preprocess(X)
 
         return X, y
 
-    def _get_image_fixed_mask_keypoints(self, image_id):
+    def _get_image_fixed_mask_keypoints(self, path_image, image_id):
         """ Retrieves one image with its associated fixed image, mask and keypoints
         """
         # Image
-        if self._channel == "physical":
-            path_image = os.path.join(self._path, "{}.png".format(image_id))
-        else:
-            path_image = os.path.join(self._path, "{}_mov.png".format(image_id))
-
         image = keras.preprocessing.image.load_img(path_image, color_mode="grayscale")
 
         scale_factor_x = self._width / image.size[0]
@@ -165,7 +190,7 @@ class LASTENSequence(Sequence):
             mask = mask / 255
 
         # Keypoints
-        else:
+        elif self._label == "keypoints":
             mask = None
 
             keypoints = self._get_keypoints(image_id)
@@ -180,6 +205,11 @@ class LASTENSequence(Sequence):
                 keypoints_cache[index] = keypoint
 
             keypoints = keypoints_cache
+
+        # No-Labels
+        else:
+            mask = None
+            keypoints = None
 
         # Augmentation
         if self._augment and self._channel == "physical" and self._label == "mask":
@@ -209,7 +239,6 @@ class LASTENSequence(Sequence):
         """ Augment an image and its mask.
         """
         image = np.uint8(image)
-        print("aug")
         augmentation = self._augmenter(image=image, mask=mask)
 
         image = augmentation["image"]
@@ -303,12 +332,20 @@ class LASTENSequence(Sequence):
     def _check_input(self):
         """ Check if the input arguments are valid
         """
-        if self._label not in ["mask", "keypoints"]:
-            raise ValueError('Label "{}" is not valid, valid labels are "mask" and "keypoints"'.format(self._label))
+        if self._label not in ["mask", "keypoints", "predict"]:
+            raise ValueError('Label "{}" is not valid, valid labels are "mask", "keypoints" and'
+                             ' "predict"'.format(self._label))
 
         if self._channel not in ["physical", "moving", "moving+fixed"]:
             raise ValueError('Channel "{}" is not valid, valid labels are "physical", "moving" and'
                              ' "moving+fixed"'.format(self._channel))
+
+        if self._input not in ["dir", "img", "vid"]:
+            raise ValueError('Input type "{}" is not valid valid labels are "dir", "img" and'
+                             ' "vid"'.format(self._channel))
+
+        if self._input in ["img", "vid"] and self._label in ["mask", "keypoints"]:
+            raise ValueError('Input type "{}" is only valid if label is "predict"'.format(self._input))
 
     def on_epoch_end(self):
         """ Prepare next epoch
