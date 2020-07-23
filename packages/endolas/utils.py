@@ -17,7 +17,7 @@ import math
 import imageio
 
 from pdb import set_trace
-from styles import *
+from .styles import *
 
 # ----------------------------------------------------------------------------------------------------------------------
 def _init_plot():
