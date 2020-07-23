@@ -2,5 +2,5 @@ __pycache__
 *.hdf5
 *.ipynb_checkpoints
 *.idea
-*/test/*
-*/val/*
+experiments/results/*/test/*
+experiments/results/*/val/*
