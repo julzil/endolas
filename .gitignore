@@ -4,3 +4,4 @@ __pycache__
 *.idea
 experiments/results/*/test/*
 experiments/results/*/val/*
+experiments/tf_logs/*
