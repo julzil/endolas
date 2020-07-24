@@ -1,3 +1,6 @@
-papermill 3_1_2_segmentation.ipynb 3_1_2_segmentation_res.ipynb
-papermill 7_7_8_9_euclidean.ipynb 7_7_8_9_euclidean_res.ipynb
-papermill 8_1_2_3_4_euclidean.ipynb 8_1_2_3_4_euclidean_res.ipynb
+papermill 8_2_5_euclidean.ipynb 8_2_5_euclidean_res.ipynb
+papermill 8_6_9_euclidean.ipynb 8_6_9_euclidean_res.ipynb
+papermill 8_7_8_euclidean.ipynb 8_7_8_euclidean_res.ipynb
+papermill 7_7_8_euclidean.ipynb 7_7_8_euclidean_res.ipynb
+papermill 7_9_10_euclidean.ipynb 7_9_10_euclidean_res.ipynb
+
