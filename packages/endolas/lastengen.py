@@ -16,9 +16,9 @@ from PIL import Image
 from pdb import set_trace
 
 class LASTENSequence(Sequence):
-    def __init__(self, path, path_fixed=None, batch_size=32, image_ids=None, preprocess_input=None, augment=False,
-                 shuffle=False, width=512, height=512, grid_width=18, grid_height=18, seed=42, label="mask",
-                 channel="physical", input="dir", lower_frame=0, upper_frame=0):
+    def __init__(self, path, path_fixed=None, batch_size=1, image_ids=None, preprocess_input=None, augment=False,
+                 shuffle=False, width=768, height=768, grid_width=18, grid_height=18, seed=42, label="mask",
+                 channel="physical", input="dir", lower_frame=0, upper_frame=19):
         """ Object for fitting to a sequence of data of the LASTEN dataset. Laser points are considered
             as labels. In augmentation a rotation is only applied if the first attempt did not rotate a keypoint out of
             the image.
@@ -438,18 +438,18 @@ class LASTENSequence(Sequence):
             raise ValueError("Please provide a path to the fixed image and fixed keypoints")
 
         if self._input == "dir" and not os.path.isdir(self._path):
-            raise ValueError('Path "{}" is not a directory.'.format(self._path))
+            raise ValueError('Path "{}" does not exist.'.format(self._path))
 
         file_extension = self._path.split(os.sep)[-1].split('.')[-1].lower()
         if self._input == "img" and not os.path.isfile(self._path):
-            raise ValueError('Path "{}" is not a file.'.format(self._path))
+            raise ValueError('Path "{}" does not exist.'.format(self._path))
 
         if self._input == "img" and file_extension not in keys.IMAGE_FILE_EXTENSIONS:
             raise ValueError('Path "{}" is not an admissible image file. Admissible image files are'
                              '{}'.format(self._path, keys.IMAGE_FILE_EXTENSIONS))
 
         if self._input == "vid" and not os.path.isfile(self._path):
-            raise ValueError('Path "{}" is not a file.'.format(self._path))
+            raise ValueError('Path "{}" does not exist.'.format(self._path))
 
         if self._input == "vid" and file_extension not in keys.VIDEO_FILE_EXTENSIONS:
             raise ValueError('Path "{}" is not an admissible video file. Admissible video files are'
