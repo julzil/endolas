@@ -668,19 +668,16 @@ def apply_smoothing(image, sigma=1.0, sigma_back=10.0):
     return image
 
 
-def nearest_neighbor(store_path, path_fixed, set_type, scale_factor=1):
+def nearest_neighbor(data_path, path_fixed, scale_factor=1):
     """ Computes the nearest neighbors and returns an accuracy.
 
     Parameters
     ----------
-    store_path : str
-        The path in which the data is stored
+    data_path : str
+        The path in which the data is stored, can be a directory or a file
 
     path_fixed : str
-        The path in which the fixed image is stored
-
-    set_type : str
-        The type of set which can either be 'val' or 'train'
+        The path in which the fixed image json is stored
 
     scale_factor : float, optional
         Scales the fixed data up or down
@@ -691,22 +688,25 @@ def nearest_neighbor(store_path, path_fixed, set_type, scale_factor=1):
         A dictionary that maps image ids to an accuracy
     """
 
-    data_path = os.path.join(store_path, set_type)
+    if os.path.isdir(data_path):
+        globs = glob(data_path + os.sep + "*_w.json")
+        globs = [int(path.split(os.sep)[-1].split(".")[0].split("_")[0]) for path in globs]
+        image_ids = sorted(globs)
 
-    globs = glob(data_path + os.sep + "*_w.json")
-    globs = [int(path.split(os.sep)[-1].split(".")[0].split("_")[0]) for path in globs]
-    image_ids = sorted(globs)
+    else:
+        image_ids = [int(data_path.split(os.sep)[-1].split(".")[0].split("_")[0])]
 
     image_id_2_accuracy = dict()
+    image_id_2_misclassified = dict()
     for image_id in image_ids:
         # 0) Define desired dictionary
         warped_key_2_fixed_key = dict()
 
-        warp_path = data_path + os.sep + "{}_w.json".format(image_id)
+        warp_path = data_path + os.sep + "{}_w.json".format(image_id) if os.path.isdir(data_path) else data_path
         with open(warp_path) as warped_file:
             warped_json = json.load(warped_file)
 
-        fixed_path = path_fixed + ".json"
+        fixed_path = path_fixed
         with open(fixed_path) as fixed_file:
             fixed_json = json.load(fixed_file)
 
@@ -774,8 +774,9 @@ def nearest_neighbor(store_path, path_fixed, set_type, scale_factor=1):
                 counter += 1
 
         image_id_2_accuracy[image_id] = (number_of_predictions - counter) / number_of_predictions
+        image_id_2_misclassified[image_id] = counter
 
-    return image_id_2_accuracy
+    return image_id_2_accuracy, image_id_2_misclassified
 
 
 if __name__ == "__main__":
