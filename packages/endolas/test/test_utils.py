@@ -28,6 +28,12 @@ class TestNearestNeighbor(unittest.TestCase):
         store = self._resource_path + "2_w.json"
         self.assertEqual(nearest_neighbor(store, self._fix), ({2: 0.9876543209876543}, {2: 4}))
 
+    def test_outlier(self):
+        """ Keypoint index 0 is mapped to (0, 654) but should still be detected. No misclassification.
+        """
+        store = self._resource_path + "3_w.json"
+        self.assertEqual(nearest_neighbor(store, self._fix), ({3: 1.0}, {3: 0}))
+
 
 def run():
     unittest.main(module='endolas.test.test_utils')
