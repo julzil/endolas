@@ -27,14 +27,14 @@ def _init_plot():
     sns.set_style('ticks')
 
     plt.rcParams['svg.fonttype'] = 'none'
-    plt.rcParams['axes.labelsize'] = 5
+    plt.rcParams['axes.labelsize'] = 6
     #plt.rcParams['axes.titlesize'] = 12
-    plt.rcParams['xtick.labelsize'] = 5
-    plt.rcParams['ytick.labelsize'] = 5
-    plt.rcParams['legend.fontsize'] = 5
+    plt.rcParams['xtick.labelsize'] = 6
+    plt.rcParams['ytick.labelsize'] = 6
+    plt.rcParams['legend.fontsize'] = 6
     plt.rcParams['font.family'] = 'sans-serif'
     plt.rcParams['font.sans-serif'] = ['Arial']
-    plt.rcParams['figure.figsize'] = 3, 2
+    plt.rcParams['figure.figsize'] = 2, 1.5 # 3,2
     plt.rcParams['lines.linewidth'] = 0.8
     # INFO: Default dpi = 100
 
@@ -149,7 +149,7 @@ def plot_midline(X, y_true, y_pred, epoch, width=256, height=512, test=False):
     plt.savefig(save_title + '.svg', format='svg', bbox_inches='tight')
 
 
-def plot_convergence(paths, series, epochs=300, sigma=3, append='', plot1=-1, plot2=0, ylabel='MAPE', log=False):
+def plot_convergence(paths, series, epochs=300, sigma=3, append='', plot1=-1, plot2=0, ylabel='MAPE', log=False, lower_limit=0.0, upper_limit=1.0):
     """ Create a convergence plot.
 
     Parameters
@@ -172,6 +172,8 @@ def plot_convergence(paths, series, epochs=300, sigma=3, append='', plot1=-1, pl
         The label to be displayed for y axis
     log : bool
         Whether to plot as semilog or not
+    upper_limit : int
+        The upper limit to plot on the y-axis
     """
     _init_plot()
 
@@ -230,7 +232,7 @@ def plot_convergence(paths, series, epochs=300, sigma=3, append='', plot1=-1, pl
     plt.legend(loc=(1.0, 0.0), frameon=False)
 
     #plt.xticks([0, 100, 200, 300])
-    plt.ylim([0, 1000])
+    plt.ylim([lower_limit, upper_limit])
 
     save_title = 'convergence'
 
@@ -688,6 +690,8 @@ def nearest_neighbor(data_path, path_fixed, scale_factor=1):
         A dictionary that maps image ids to an accuracy
     """
 
+    path_fixed = path_fixed + '.json'
+
     if os.path.isdir(data_path):
         globs = glob(data_path + os.sep + "*_w.json")
         globs = [int(path.split(os.sep)[-1].split(".")[0].split("_")[0]) for path in globs]
@@ -701,6 +705,7 @@ def nearest_neighbor(data_path, path_fixed, scale_factor=1):
     for image_id in image_ids:
         # 0) Define desired dictionary
         warped_key_2_fixed_key = dict()
+        warped_key_2_ismisclassified = dict()
 
         warp_path = data_path + os.sep + "{}_w.json".format(image_id) if os.path.isdir(data_path) else data_path
         with open(warp_path) as warped_file:
@@ -772,12 +777,15 @@ def nearest_neighbor(data_path, path_fixed, scale_factor=1):
         for warped_key, fixed_key in warped_key_2_fixed_key.items():
             if warped_key != fixed_key:
                 counter += 1
+                warped_key_2_ismisclassified[warped_key] = 1
+            else:
+                warped_key_2_ismisclassified[warped_key] = 0
 
         image_id_2_accuracy[image_id] = (number_of_predictions - counter) / number_of_predictions
         image_id_2_misclassified[image_id] = counter
+        image_id_2_warped_key_2_ismisclassified = warped_key_2_ismisclassified
 
-    return image_id_2_accuracy, image_id_2_misclassified
-
+    return image_id_2_accuracy, image_id_2_misclassified, image_id_2_warped_key_2_ismisclassified
 
 if __name__ == "__main__":
     pass

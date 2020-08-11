@@ -28,7 +28,7 @@ class SegmentationPredictor(_PredictorTemplate):
 
     def predict(self):
         print("Predict Segmentation")
-        dependencies = {'dice_loss': dice_loss, 'iou_score':iou_score}
+        dependencies = {'dice_loss': dice_loss, 'iou_score': iou_score}
 
         model = tf.keras.models.load_model("/home/julian/Documents/Studium/MT-Masterarbeit/Workspace/endolas/experiments/results/2_4_segmentation/weights.100.hdf5",
                                            custom_objects=dependencies)
