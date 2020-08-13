@@ -309,12 +309,8 @@ def plot_loss_convergence(paths, epochs=300, plot=-1, label='MAPE'):
             plt.semilogy(x, y, label=ID_2_LABEL[experiment_id], color=ID_2_COLOR[experiment_id],
                          linestyle=ID_2_STYLE[experiment_id])
 
-
-
             ax.spines['top'].set_visible(False)
             ax.spines['right'].set_visible(False)
-
-
 
             afile.close()
 
@@ -701,15 +697,12 @@ def nearest_neighbor(data_path, path_fixed, scale_factor=1):
     else:
         image_ids = [int(data_path.split(os.sep)[-1].split(".")[0].split("_")[0])]
 
-    image_id_2_accuracy = dict()
-    image_id_2_misclassified = dict()
-    image_id_2_warped_key_2_ismisclassified = dict()
+
     image_id_2_warped_key_2_fixed_key = dict()
     image_id_2_warped_key_2_warped_val = dict()
     for image_id in image_ids:
         # 0) Define desired dictionary
         warped_key_2_fixed_key = dict()
-        warped_key_2_ismisclassified = dict()
 
         warp_path = data_path + os.sep + "{}_w.json".format(image_id) if os.path.isdir(data_path) else data_path
         with open(warp_path) as warped_file:
@@ -783,6 +776,20 @@ def nearest_neighbor(data_path, path_fixed, scale_factor=1):
 
 
 def check_misclassification(image_id_2_warped_key_2_fixed_key):
+    """ Computes the accuracy of an image, how many in total are misclassified and whether a point is
+        misclassified or not.
+
+    Parameters
+    ----------
+    image_id_2_warped_key_2_fixed_key : dict
+        Contains the mapping from global keys (warped) to predicted keys (fixed).
+
+    Returns
+    -------
+    tuple
+        that contains the accuracy, the misclassification per image and the if a point is miscalssified.
+    """
+
     image_id_2_accuracy = dict()
     image_id_2_misclassified = dict()
     image_id_2_warped_key_2_ismisclassified = dict()
@@ -807,13 +814,38 @@ def check_misclassification(image_id_2_warped_key_2_fixed_key):
     return image_id_2_accuracy, image_id_2_misclassified, image_id_2_warped_key_2_ismisclassified
 
 
-def regular_grid_logic(image_id_2_warped_key_2_fixed_key, image_id_2_warped_key_2_warped_val, grid_width, grid_height):
+def regular_grid_logic(image_id_2_warped_key_2_fixed_key, image_id_2_warped_key_2_warped_val, grid_width=18, grid_height=18):
+    """ Takes the assignment of warped_keys, that are the keys for globally identifying a point, to fixed_keys,
+        that are the predicted keys. Based on the values of the warped state as given in warped_val the points
+        are first sorted row-wise and then column-wise, both with a bubblesort algorithm.
+
+    Parameters
+    ----------
+    image_id_2_warped_key_2_fixed_key : dict
+        Contains the mapping from global keys (warped) to predicted keys (fixed).
+
+    image_id_2_warped_key_2_warped_val : dict
+        Contains the x-y-values of a point given its global key (warped).
+
+    grid_width : int, optional
+        Describes the width of the grid.
+
+    grid_height : int, optional
+        Describes the height of the grid.
+
+    Returns
+    -------
+    dict
+        that is a mapping from image_id to a dictionary mapping the warped_keys to the fixed_keys.
+    """
+
+    # Loop over all images
     image_id_2_warped_key_2_fixed_key_update = dict()
     for image_id in image_id_2_warped_key_2_fixed_key.keys():
         warped_key_2_fixed_key = image_id_2_warped_key_2_fixed_key[image_id]
         warped_key_2_warped_val = image_id_2_warped_key_2_warped_val[image_id]
 
-        # 0) Find the inverse dictionary with keys
+        # 0) Determine the inverse dictionary with keys
         fixed_key_2_warped_key = dict()
 
         for warped_key in warped_key_2_fixed_key.keys():
@@ -823,61 +855,102 @@ def regular_grid_logic(image_id_2_warped_key_2_fixed_key, image_id_2_warped_key_
         if len(fixed_key_2_warped_key) != len(warped_key_2_fixed_key):
             raise AssertionError('The assigment of fixed to warped keys is not unique')
 
-        # 1) Loop in rows and check if neighbors need to be switched
-        for i in range(3):
-            for grid_height_index in range(grid_height):
-                for grid_width_index in range(grid_width-1):
-                    indexer = grid_height_index * grid_height + grid_width_index
-
-                    fixed_key_left = str(indexer)
-                    fixed_key_right = str(indexer + 1)
-
-                    try:
-                        x_left = warped_key_2_warped_val[fixed_key_2_warped_key[fixed_key_left]][0]
-                        x_right = warped_key_2_warped_val[fixed_key_2_warped_key[fixed_key_right]][0]
-                    except KeyError:
-                        continue
-
-                    if x_right < x_left:
-                        warped_key_left = fixed_key_2_warped_key[fixed_key_left]
-                        warped_key_right = fixed_key_2_warped_key[fixed_key_right]
-
-                        # swap keys for both dictionaries
-                        warped_key_2_fixed_key[warped_key_left] = fixed_key_right
-                        warped_key_2_fixed_key[warped_key_right] = fixed_key_left
-                        fixed_key_2_warped_key[fixed_key_left] = warped_key_right
-                        fixed_key_2_warped_key[fixed_key_right] = warped_key_left
-
-        # 2) Loop in columns and check if neighbors need to be switched
-        for i in range(3):
+        # 1) row-wise bubblesort
+        for grid_height_index in range(grid_height):
+            warped_vals = []
+            fixed_keys = []
             for grid_width_index in range(grid_width):
-                for grid_height_index in range(grid_height-1):
-                    indexer = grid_height_index * grid_height + grid_width_index
+                indexer = grid_height_index * grid_height + grid_width_index
+                fixed_key = str(indexer)
 
-                    fixed_key_lower = str(indexer)
-                    fixed_key_upper = str(indexer + grid_height)
+                try:
+                    x = warped_key_2_warped_val[fixed_key_2_warped_key[fixed_key]][0]
+                except KeyError:
+                    continue
 
-                    try:
-                        y_lower = warped_key_2_warped_val[fixed_key_2_warped_key[fixed_key_lower]][1]
-                        y_upper = warped_key_2_warped_val[fixed_key_2_warped_key[fixed_key_upper]][1]
-                    except KeyError:
-                        continue
+                warped_vals.append(x)
+                fixed_keys.append(fixed_key)
 
-                    if y_lower < y_upper:
-                        warped_key_lower = fixed_key_2_warped_key[fixed_key_lower]
-                        warped_key_upper = fixed_key_2_warped_key[fixed_key_upper]
+            _, fixed_keys_sorted = bubblesort(warped_vals, fixed_keys)
 
-                        # swap keys for both dictionaries
-                        warped_key_2_fixed_key[warped_key_lower] = fixed_key_upper
-                        warped_key_2_fixed_key[warped_key_upper] = fixed_key_lower
-                        fixed_key_2_warped_key[fixed_key_lower] = warped_key_upper
-                        fixed_key_2_warped_key[fixed_key_upper] = warped_key_lower
+            # Look up which sorted key belongs to which warped then reassign key.
+            # Do not resort fixed_key_2_warped_key as reference needed for finding warped keys previous to sorting.
+            for fixed_key, fixed_key_sorted in zip(fixed_keys, fixed_keys_sorted):
+                warped_key = fixed_key_2_warped_key[fixed_key_sorted]
+                warped_key_2_fixed_key[warped_key] = fixed_key
 
+        # 2) Determine the inverse dictionary with keys again after row-wise bubblesort
+        for warped_key in warped_key_2_fixed_key.keys():
+            fixed_key = warped_key_2_fixed_key[warped_key]
+            fixed_key_2_warped_key[fixed_key] = warped_key
+
+        if len(fixed_key_2_warped_key) != len(warped_key_2_fixed_key):
+            raise AssertionError('The assigment of fixed to warped keys is not unique')
+
+        # 3) column-wise bubblesort
+        for grid_width_index in range(grid_width):
+            warped_vals = []
+            fixed_keys = []
+            for grid_height_index in reversed(range(grid_height)):
+                indexer = grid_height_index * grid_height + grid_width_index
+                fixed_key = str(indexer)
+
+                try:
+                    y = warped_key_2_warped_val[fixed_key_2_warped_key[fixed_key]][1]
+                except KeyError:
+                    continue
+
+                warped_vals.append(y)
+                fixed_keys.append(fixed_key)
+
+            _, fixed_keys_sorted = bubblesort(warped_vals, fixed_keys)
+
+            # Look up which sorted key belongs to which warped then reassign key.
+            # Do not resort fixed_key_2_warped_key as reference needed for finding warped keys previous to sorting.
+            for fixed_key, fixed_key_sorted in zip(fixed_keys, fixed_keys_sorted):
+                warped_key = fixed_key_2_warped_key[fixed_key_sorted]
+                warped_key_2_fixed_key[warped_key] = fixed_key
 
         image_id_2_warped_key_2_fixed_key_update[image_id] = warped_key_2_fixed_key
 
     return image_id_2_warped_key_2_fixed_key_update
 
+
+def bubblesort(list1, list2):
+    """ Takes two list and sorts both in ascending order according to the values in list1 with a bubblesort algorithm.
+
+    Parameters
+    ----------
+    list1 : list
+        A list on whose content the sorting is based.
+
+    list2 : list
+        A list that is sorted based on list1.
+
+    Returns
+    -------
+    tuple
+        containing the sorted list1 and list2
+    """
+
+    list_length = len(list1)
+    list1_sorted = copy.deepcopy(list1)
+    list2_sorted = copy.deepcopy(list2)
+
+    # Traverse all list elements, range(list_length) also okay, but one more iteration.
+    for i in range(list_length - 1):
+        swap_counter = 0
+        for j in range(0, list_length - i - 1):
+            # Check if greater and swap entries in both lists
+            if list1_sorted[j] > list1_sorted[j + 1]:
+                list1_sorted[j], list1_sorted[j + 1] = list1_sorted[j + 1], list1_sorted[j]
+                list2_sorted[j], list2_sorted[j + 1] = list2_sorted[j + 1], list2_sorted[j]
+                swap_counter += 1
+
+        if swap_counter == 0:
+            break
+
+    return list1_sorted, list2_sorted
 
 if __name__ == "__main__":
     pass
