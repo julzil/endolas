@@ -342,12 +342,13 @@ def eval_history(path_fixed, path_data, store_path, width, height, grid_width,
                     json.dump(warp_test, fp)
 
 
-def spatial_history(store_path, image_id, warped_key_2_ismis, last_epoch):
+def spatial_history(store_path, image_id, warped_key_2_ismis, warped_key_2_fixed_key, last_epoch):
     x_val = []
     y_val = []
     point = []
     epoch_write = []
     is_mis = []
+    fixed_key = []
 
     store_path = store_path + '/history'
 
@@ -373,11 +374,13 @@ def spatial_history(store_path, image_id, warped_key_2_ismis, last_epoch):
             epoch_write.append(epoch)
             if epoch==last_epoch:
                 is_mis.append(warped_key_2_ismis[str(key)])
+                fixed_key.append(warped_key_2_fixed_key[str(key)])
 
             else:
                 is_mis.append(1)
+                fixed_key.append(0)
 
     # Build dataframe
     dataset = pd.DataFrame(
-        {'x': x_val, 'y': y_val, 'Point': point, 'Epoch': epoch_write, 'Miss': is_mis})
+        {'x': x_val, 'y': y_val, 'Point': point, 'Epoch': epoch_write, 'Miss': is_mis, 'Fixed': fixed_key})
     dataset.to_csv(store_path + '/evaluation_history.csv')

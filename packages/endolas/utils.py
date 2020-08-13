@@ -14,6 +14,7 @@ import os
 import json
 import csv
 import math
+import copy
 import imageio
 
 from pdb import set_trace
@@ -702,6 +703,9 @@ def nearest_neighbor(data_path, path_fixed, scale_factor=1):
 
     image_id_2_accuracy = dict()
     image_id_2_misclassified = dict()
+    image_id_2_warped_key_2_ismisclassified = dict()
+    image_id_2_warped_key_2_fixed_key = dict()
+    image_id_2_warped_key_2_warped_val = dict()
     for image_id in image_ids:
         # 0) Define desired dictionary
         warped_key_2_fixed_key = dict()
@@ -711,6 +715,8 @@ def nearest_neighbor(data_path, path_fixed, scale_factor=1):
         with open(warp_path) as warped_file:
             warped_json = json.load(warped_file)
 
+        warped_val = copy.deepcopy(warped_json)
+
         fixed_path = path_fixed
         with open(fixed_path) as fixed_file:
             fixed_json = json.load(fixed_file)
@@ -719,8 +725,6 @@ def nearest_neighbor(data_path, path_fixed, scale_factor=1):
         for key, value in list(warped_json.items()):
             if value[0] < 2.0 and value[1] < 2.0:
                 _ = warped_json.pop(key)
-
-        number_of_predictions = len(warped_json)
 
         # 2) Compute nearest neighbor
         is_loop_valid = True
@@ -772,7 +776,21 @@ def nearest_neighbor(data_path, path_fixed, scale_factor=1):
             if len(warped_json) == 0:
                 is_loop_valid = False
 
-        # 5) Count all misclassified
+        image_id_2_warped_key_2_fixed_key[image_id] = warped_key_2_fixed_key
+        image_id_2_warped_key_2_warped_val[image_id] = warped_val
+
+    return image_id_2_warped_key_2_fixed_key, image_id_2_warped_key_2_warped_val
+
+
+def check_misclassification(image_id_2_warped_key_2_fixed_key):
+    image_id_2_accuracy = dict()
+    image_id_2_misclassified = dict()
+    image_id_2_warped_key_2_ismisclassified = dict()
+
+    for image_id in image_id_2_warped_key_2_fixed_key.keys():
+        warped_key_2_fixed_key = image_id_2_warped_key_2_fixed_key[image_id]
+
+        warped_key_2_ismisclassified = dict()
         counter = 0
         for warped_key, fixed_key in warped_key_2_fixed_key.items():
             if warped_key != fixed_key:
@@ -781,11 +799,85 @@ def nearest_neighbor(data_path, path_fixed, scale_factor=1):
             else:
                 warped_key_2_ismisclassified[warped_key] = 0
 
+        number_of_predictions = len(warped_key_2_fixed_key)
         image_id_2_accuracy[image_id] = (number_of_predictions - counter) / number_of_predictions
         image_id_2_misclassified[image_id] = counter
-        image_id_2_warped_key_2_ismisclassified = warped_key_2_ismisclassified
+        image_id_2_warped_key_2_ismisclassified[image_id] = warped_key_2_ismisclassified
 
     return image_id_2_accuracy, image_id_2_misclassified, image_id_2_warped_key_2_ismisclassified
+
+
+def regular_grid_logic(image_id_2_warped_key_2_fixed_key, image_id_2_warped_key_2_warped_val, grid_width, grid_height):
+    image_id_2_warped_key_2_fixed_key_update = dict()
+    for image_id in image_id_2_warped_key_2_fixed_key.keys():
+        warped_key_2_fixed_key = image_id_2_warped_key_2_fixed_key[image_id]
+        warped_key_2_warped_val = image_id_2_warped_key_2_warped_val[image_id]
+
+        # 0) Find the inverse dictionary with keys
+        fixed_key_2_warped_key = dict()
+
+        for warped_key in warped_key_2_fixed_key.keys():
+            fixed_key = warped_key_2_fixed_key[warped_key]
+            fixed_key_2_warped_key[fixed_key] = warped_key
+
+        if len(fixed_key_2_warped_key) != len(warped_key_2_fixed_key):
+            raise AssertionError('The assigment of fixed to warped keys is not unique')
+
+        # 1) Loop in rows and check if neighbors need to be switched
+        for i in range(3):
+            for grid_height_index in range(grid_height):
+                for grid_width_index in range(grid_width-1):
+                    indexer = grid_height_index * grid_height + grid_width_index
+
+                    fixed_key_left = str(indexer)
+                    fixed_key_right = str(indexer + 1)
+
+                    try:
+                        x_left = warped_key_2_warped_val[fixed_key_2_warped_key[fixed_key_left]][0]
+                        x_right = warped_key_2_warped_val[fixed_key_2_warped_key[fixed_key_right]][0]
+                    except KeyError:
+                        continue
+
+                    if x_right < x_left:
+                        warped_key_left = fixed_key_2_warped_key[fixed_key_left]
+                        warped_key_right = fixed_key_2_warped_key[fixed_key_right]
+
+                        # swap keys for both dictionaries
+                        warped_key_2_fixed_key[warped_key_left] = fixed_key_right
+                        warped_key_2_fixed_key[warped_key_right] = fixed_key_left
+                        fixed_key_2_warped_key[fixed_key_left] = warped_key_right
+                        fixed_key_2_warped_key[fixed_key_right] = warped_key_left
+
+        # 2) Loop in columns and check if neighbors need to be switched
+        for i in range(3):
+            for grid_width_index in range(grid_width):
+                for grid_height_index in range(grid_height-1):
+                    indexer = grid_height_index * grid_height + grid_width_index
+
+                    fixed_key_lower = str(indexer)
+                    fixed_key_upper = str(indexer + grid_height)
+
+                    try:
+                        y_lower = warped_key_2_warped_val[fixed_key_2_warped_key[fixed_key_lower]][1]
+                        y_upper = warped_key_2_warped_val[fixed_key_2_warped_key[fixed_key_upper]][1]
+                    except KeyError:
+                        continue
+
+                    if y_lower < y_upper:
+                        warped_key_lower = fixed_key_2_warped_key[fixed_key_lower]
+                        warped_key_upper = fixed_key_2_warped_key[fixed_key_upper]
+
+                        # swap keys for both dictionaries
+                        warped_key_2_fixed_key[warped_key_lower] = fixed_key_upper
+                        warped_key_2_fixed_key[warped_key_upper] = fixed_key_lower
+                        fixed_key_2_warped_key[fixed_key_lower] = warped_key_upper
+                        fixed_key_2_warped_key[fixed_key_upper] = warped_key_lower
+
+
+        image_id_2_warped_key_2_fixed_key_update[image_id] = warped_key_2_fixed_key
+
+    return image_id_2_warped_key_2_fixed_key_update
+
 
 if __name__ == "__main__":
     pass
