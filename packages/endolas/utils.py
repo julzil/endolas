@@ -16,6 +16,7 @@ import csv
 import math
 import copy
 import imageio
+import h5py
 
 from pdb import set_trace
 from .styles import *
@@ -720,9 +721,9 @@ def nearest_neighbor(data_path, path_fixed, scale_factor=1):
                 _ = warped_json.pop(key)
 
         # 2) Compute nearest neighbor
-        is_loop_valid = True
+        is_search_finished = False
 
-        while(is_loop_valid):
+        while(not is_search_finished):
             key_warped_2_nearest_neighbor = dict()
             key_warped_2_nearest_distance = dict()
             nearest_fixed_neighbor_2_key_warpeds = dict()
@@ -767,7 +768,7 @@ def nearest_neighbor(data_path, path_fixed, scale_factor=1):
 
             # 4) Determine loop criterion
             if len(warped_json) == 0:
-                is_loop_valid = False
+                is_search_finished = True
 
         image_id_2_warped_key_2_fixed_key[image_id] = warped_key_2_fixed_key
         image_id_2_warped_key_2_warped_val[image_id] = warped_val
@@ -951,6 +952,18 @@ def bubblesort(list1, list2):
             break
 
     return list1_sorted, list2_sorted
+
+def h5_file_to_dict(load_file):
+    """ Transfer a h5 file to a dictionary.
+    """
+
+    keys_2_values = dict()
+    hf = h5py.File(load_file, 'r')
+    for key in hf.keys():
+        keys_2_values[key] = hf.get(key)[()]
+    hf.close()
+
+    return keys_2_values
 
 if __name__ == "__main__":
     pass

@@ -1,10 +1,16 @@
+"""
+Module used to define a custom loss.
+"""
+
 from tensorflow import keras
 
 
 # ----------------------------------------------------------------------------------------------------------------------
 class EuclideanLoss(keras.losses.Loss):
-    def __init__(self, batch_size=4, grid_width=5, grid_height=5, loss_type='msed'):
-        """ Object used to define a custom loss for predicting a displacement field.
+    def __init__(self, batch_size=4, grid_width=5, grid_height=5,
+                 loss_type='msed'):
+        """ Object used to define a custom loss for predicting
+            a displacement field.
 
             Parameters
             ----------
@@ -20,12 +26,14 @@ class EuclideanLoss(keras.losses.Loss):
             loss_type : str, optional
                 The type that can either be:
                     - 'msed' Mean Squared Euclidean Distance
-                    - 'maed' Mean Absolute Euclidean Distance
+                    - 'maed' Mean Euclidean Distance
                     - 'max' Maximum Euclidean Distance
                     - 'min' Minimum Euclidean Distance
         """
-        if loss_type not in ['msed', 'maed', 'max', 'min']:
-            raise AssertionError('Loss type "{}" not known, valid loss types are "maed", "msed, "max" and "min"'.format(loss_type))
+        if loss_type not in ['msed', 'med', 'max', 'min']:
+            raise AssertionError('Loss type "{}" not known, valid loss types '
+                                 'are "med", "msed, "max" and '
+                                 '"min"'.format(loss_type))
 
         super().__init__(name=loss_type)
         self._batch_size = batch_size
@@ -39,7 +47,8 @@ class EuclideanLoss(keras.losses.Loss):
         Parameters
         ----------
         labels : Tensor
-            The labels forwarded by the network shape = (batch, point, x-y, mov-fix)
+            The labels forwarded by the
+            network shape = (batch, point, x-y, mov-fix)
 
         prediction : Tensor
             The prediction forwarded by the network
@@ -72,7 +81,7 @@ class EuclideanLoss(keras.losses.Loss):
             sum_of_squares = x_squared + y_squared
             euclidean_distance = keras.backend.sqrt(sum_of_squares)
 
-            if self._loss_type == 'maed':
+            if self._loss_type == 'med':
                 loss += keras.backend.mean(euclidean_distance)
 
             elif self._loss_type == 'msed':
@@ -92,7 +101,8 @@ class EuclideanLoss(keras.losses.Loss):
         return loss
 
     def _get_displacement(self, u, x, y):
-        """ Use the keras backend functionality to compute the displacement in a vectorized way.
+        """ Use the keras backend functionality to compute the displacement in
+            a vectorized way.
 
         Parameters
         ----------
