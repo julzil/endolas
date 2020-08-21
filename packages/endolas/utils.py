@@ -84,9 +84,7 @@ def _plot_keypoints_and_line(ax, labels, index, width, color, label):
 def show(image):
     """ Display only an image.
 
-    Parameters
-    ----------
-    image : PIL
+    :param PIL image:
         Single image to be displayed
     """
     plt.figure()
@@ -98,22 +96,13 @@ def show(image):
 def plot_midline(X, y_true, y_pred, epoch, width=256, height=512, test=False):
     """ Plots the midline on an image
 
-    Parameters
-    ----------
-    X : ndarray
-        The image to be displayed
-    y_true : ndarray
-        The true keypoint location
-    y_pred : ndarray
-        The predicted keypoint location
-    epoch : int
-        The epoch the data was evaluated for
-    width : int
-        Keypoint location range in x-direction
-    height : int
-        Keypoint location range in y-direction
-    test : bool
-        Whether data is based on test or validation set
+    :param ndarray X: The image to be displayed
+    :param ndarray y_true: The true keypoint location
+    :param ndarray y_pred: The predicted keypoint location
+    :param int epoch: The epoch the data was evaluated for
+    :param int width: Keypoint location range in x-direction
+    :param int height: Keypoint location range in y-direction
+    :param bool test: Whether data is based on test or validation set
     """
     _init_plot()
 
@@ -154,28 +143,16 @@ def plot_midline(X, y_true, y_pred, epoch, width=256, height=512, test=False):
 def plot_convergence(paths, series, epochs=300, sigma=3, append='', plot1=-1, plot2=0, ylabel='MAPE', log=False, lower_limit=0.0, upper_limit=1.0):
     """ Create a convergence plot.
 
-    Parameters
-    ----------
-    paths : dictionary
-        All experiment ids mapped to corresponding path including data
-    series : int
-        The series which was selected
-    epochs : int
-        Number of epochs to plot
-    sigma : float
-        Parameter for convolution filter
-    normalize : bool
-        Whether to normalize the data or not
-    test : bool
-        Whether data is based on test or validation set
-    plot : int
-        The index of the row to be plotted
-    label : str
-        The label to be displayed for y axis
-    log : bool
-        Whether to plot as semilog or not
-    upper_limit : int
-        The upper limit to plot on the y-axis
+    :param dictionary paths: All experiment ids mapped to corresponding path including data
+    :param int series: The series which was selected
+    :param int epochs: Number of epochs to plot
+    :param float sigma: Parameter for convolution filter
+    :param bool normalize: Whether to normalize the data or not
+    :param bool test: Whether data is based on test or validation set
+    :param int plot: The index of the row to be plotted
+    :param str label: The label to be displayed for y axis
+    :param bool log: Whether to plot as semilog or not
+    :param int upper_limit: The upper limit to plot on the y-axis
     """
     _init_plot()
 
@@ -253,24 +230,14 @@ def plot_convergence(paths, series, epochs=300, sigma=3, append='', plot1=-1, pl
 def plot_loss_convergence(paths, epochs=300, plot=-1, label='MAPE'):
     """ Create a convergence plot.
 
-    Parameters
-    ----------
-    paths : dictionary
-        All experiment ids mapped to corresponding path including data
-    epochs : int
-        Number of epochs to plot
-    sigma : float
-        Parameter for convolution filter
-    normalize : bool
-        Whether to normalize the data or not
-    test : bool
-        Whether data is based on test or validation set
-    plot : int
-        The index of the row to be plotted
-    label : str
-        The label to be displayed for y axis
-    log : bool
-        Whether to plot as semilog or not
+    :param dictionary paths: All experiment ids mapped to corresponding path including data
+    :param int epochs: Number of epochs to plot
+    :param float sigma: Parameter for convolution filter
+    :param bool normalize: Whether to normalize the data or not
+    :param bool test: Whether data is based on test or validation set
+    :param int plot: The index of the row to be plotted
+    :param str label: The label to be displayed for y axis
+    :param bool log: Whether to plot as semilog or not
     """
     _init_plot()
 
@@ -352,20 +319,12 @@ def plot_loss_convergence(paths, epochs=300, plot=-1, label='MAPE'):
 def plot_distribution(y_true, y_pred, epoch, width=256, height=512, test=False):
     """ Generate a boxplot.
 
-    Parameters
-    ----------
-    y_true : ndarray
-        True keypoint locations
-    y_pred : ndarray
-        Predicted keypoint locations
-    epoch : int
-        The epoch to be plotted
-    width : int
-        Keypoint location range in x-direction
-    height : int
-        Keypoint location range in y-direction
-    test : bool
-        Whether data is based on test or validation set
+    :param ndarray y_true: True keypoint locations
+    :param ndarray y_pred: Predicted keypoint locations
+    :param int epoch: The epoch to be plotted
+    :param int width: Keypoint location range in x-direction
+    :param int height: Keypoint location range in y-direction
+    :param bool test: Whether data is based on test or validation set
     """
     y = _decode_keypoint_error(y_true, y_pred, width, height)
 
@@ -412,20 +371,12 @@ def plot_distribution(y_true, y_pred, epoch, width=256, height=512, test=False):
 def plot_error(y_trues, y_preds, epochs, width=256, height=512, test=False):
     """ Plot the error in x- and y-direction of normalized prediction over epochs
 
-    Parameters
-    ----------
-    y_trues : list
-        True keypoint locations
-    y_preds : list
-        Predicted keypoint locations
-    epochs : list
-        Corresponding epochs to prediction
-    width : int
-        Keypoint location range in x-direction
-    height : int
-        Keypoint location range in y-direction
-    test : bool
-        Whether data is based on test or validation set
+    :param list y_trues: True keypoint locations
+    :param list y_preds: Predicted keypoint locations
+    :param list epochs: Corresponding epochs to prediction
+    :param int width: Keypoint location range in x-direction
+    :param int height: Keypoint location range in y-direction
+    :param bool test: Whether data is based on test or validation set
     """
     if len(y_trues) != len(y_preds) and len(y_trues) != len(epochs):
         raise AssertionError("same amount of true and predicted keypoints must be available")
@@ -498,12 +449,8 @@ def plot_error(y_trues, y_preds, epochs, width=256, height=512, test=False):
 def show_labeled_image(x_image, y_label):
     """ Display an image and its corresponding keypoints.
 
-    Parameters
-    ----------
-    x_image : ndarray
-        Single image to be displayed
-    y_label : ndarray
-        Coordinates of anterior and posterior point as [x_p, y_p, x_a, y_a] to be overlayed.
+    :param ndarray x_image: Single image to be displayed
+    :param ndarray y_label: Coordinates of anterior and posterior point as [x_p, y_p, x_a, y_a] to be overlayed.
     """
     plt.figure()
     plt.axis('off')
@@ -516,16 +463,9 @@ def show_labeled_image(x_image, y_label):
 def get_png_files(path):
     """ Get a list with sorted image paths.
 
-    Parameters
-    ----------
-    path : str
-        Path to a directory where .png files are stored
-
-    Returns
-    -------
-    list
-        of all .png files numerically sorted that do not contain the string 'seg' in their identifier
-
+    :param str path: Path to a directory where .png files are stored
+    :return: A list of all .png files numerically sorted that do not contain the string 'seg' in their identifier
+    :rtype: list
     """
     files_cache = glob(os.path.join(path, "*.png"))
     files = [i for i in files_cache if "seg" not in i.split(os.sep)[-1]]
@@ -542,23 +482,13 @@ def get_png_files(path):
 def get_training_data(path_training, n_data_points, preprocess_input=None, width=256, height=512):
     """ Get the training data as X, y.
 
-    Parameters
-    ----------
-    path_training : str
-        Path to the stored training images and labels
-    n_data_points : int
-        Number of data points
-    preprocess_input : function, optional
-        Function according to the used keras model
-    width: int, optional
-        Target image width, by default 256
-    height: int, optional
-        Target image height, by default 512
-
-    Returns
-    -------
-    tuple
-        of the feature vector and labels as well as mapping for scaling
+    :param str path_training: Path to the stored training images and labels
+    :param int n_data_points: Number of data points
+    :param function preprocess_input: Function according to the used keras model
+    :param int width: Target image width, by default 256
+    :param int height: Target image height, by default 512
+    :return: A tuple of the feature vector and labels as well as mapping for scaling
+    :rtype: tuple
     """
     image_id_2_scaling = dict()
     X_train = np.zeros((n_data_points, height, width, 1))
@@ -595,32 +525,15 @@ def get_training_data(path_training, n_data_points, preprocess_input=None, width
 
     return X_train, y_train, image_id_2_scaling
 
-
 def get_augmenter(rotation=True, flip=True, keypoints=False):
-    """ Get the augmenter as used in [1]_.
+    """ Get an augmenter.
 
-    Parameters
-    ----------
-    rotation : bool, optional
-        Property whether to include rotation or not
-
-    rotation : bool, optional
-        Property whether to include flipping or not
-
-    keypoints : bool, optional
-        Property whether to augment keypoints or not
-
-    Returns
-    -------
-    object
-        a Compose object of the albumentations package
-
-    References
-    ----------
-
-    [1] https://github.com/anki-xyz/bagls/blob/master/Utils/DataGenerator.py
+    :param bool rotation: Property whether to include rotation or not
+    :param bool rotation: Property whether to include flipping or not
+    :param bool keypoints: Property whether to augment keypoints or not
+    :return: A Compose object of the albumentations package
+    :rtype: object
     """
-
     transformers = [albu.RandomBrightnessContrast(p=0.75),
                     albu.RandomGamma(p=0.75),
                     albu.Blur(p=0.5),
@@ -643,19 +556,11 @@ def get_augmenter(rotation=True, flip=True, keypoints=False):
 def apply_smoothing(image, sigma=1.0, sigma_back=10.0):
     """ Smooth an image with two gaussian kernels.
 
-    Parameters
-    ----------
-    image : ndarray
-        The image to be smoothed
-    sigma : float, optional
-        The standard deviation for the kernel
-    sigma_back : float, optional
-        The standard deviation for the kernel in the background
-
-    Returns
-    -------
-    ndarray
-        The smoothed image
+    :param ndarray image: The image to be smoothed
+    :param float sigma: The standard deviation for the kernel
+    :param float sigma_back: The standard deviation for the kernel in the background
+    :return: The smoothed image
+    :rtype: ndarray
     """
     image_orig = image
     image = gaussian_filter(image, sigma=sigma)
@@ -671,23 +576,12 @@ def apply_smoothing(image, sigma=1.0, sigma_back=10.0):
 def nearest_neighbor(data_path, path_fixed, scale_factor=1):
     """ Computes the nearest neighbors and returns an accuracy.
 
-    Parameters
-    ----------
-    data_path : str
-        The path in which the data is stored, can be a directory or a file
-
-    path_fixed : str
-        The path in which the fixed image json is stored
-
-    scale_factor : float, optional
-        Scales the fixed data up or down
-
-    Returns
-    -------
-    dict
-        A dictionary that maps image ids to an accuracy
+    :param str data_path: The path in which the data is stored, can be a directory or a file
+    :param str path_fixed: The path in which the fixed image json is stored
+    :param float scale_factor: Scales the fixed data up or down
+    :return: A dictionary that maps image ids to an accuracy
+    :rtype: dict
     """
-
     path_fixed = path_fixed + '.json'
 
     if os.path.isdir(data_path):
@@ -780,15 +674,9 @@ def check_misclassification(image_id_2_warped_key_2_fixed_key):
     """ Computes the accuracy of an image, how many in total are misclassified and whether a point is
         misclassified or not.
 
-    Parameters
-    ----------
-    image_id_2_warped_key_2_fixed_key : dict
-        Contains the mapping from global keys (warped) to predicted keys (fixed).
-
-    Returns
-    -------
-    tuple
-        that contains the accuracy, the misclassification per image and the if a point is miscalssified.
+    :param dict image_id_2_warped_key_2_fixed_key: Contains the mapping from global keys (warped) to predicted keys (fixed).
+    :return: Tuple that contains the accuracy, the misclassification per image and the if a point is miscalssified.
+    :rtype: tuple
     """
 
     image_id_2_accuracy = dict()
@@ -820,26 +708,13 @@ def regular_grid_logic(image_id_2_warped_key_2_fixed_key, image_id_2_warped_key_
         that are the predicted keys. Based on the values of the warped state as given in warped_val the points
         are first sorted row-wise and then column-wise, both with a bubblesort algorithm.
 
-    Parameters
-    ----------
-    image_id_2_warped_key_2_fixed_key : dict
-        Contains the mapping from global keys (warped) to predicted keys (fixed).
-
-    image_id_2_warped_key_2_warped_val : dict
-        Contains the x-y-values of a point given its global key (warped).
-
-    grid_width : int, optional
-        Describes the width of the grid.
-
-    grid_height : int, optional
-        Describes the height of the grid.
-
-    Returns
-    -------
-    dict
-        that is a mapping from image_id to a dictionary mapping the warped_keys to the fixed_keys.
+    :param dict image_id_2_warped_key_2_fixed_key: Contains the mapping from global keys (warped) to predicted keys (fixed).
+    :param dict image_id_2_warped_key_2_warped_val: Contains the x-y-values of a point given its global key (warped).
+    :param int grid_width: Describes the width of the grid.
+    :param int grid_height: Describes the height of the grid.
+    :return: A dict that is a mapping from image_id to a dictionary mapping the warped_keys to the fixed_keys.
+    :rtype: dict
     """
-
     # Loop over all images
     image_id_2_warped_key_2_fixed_key_update = dict()
     for image_id in image_id_2_warped_key_2_fixed_key.keys():
@@ -920,20 +795,11 @@ def regular_grid_logic(image_id_2_warped_key_2_fixed_key, image_id_2_warped_key_
 def bubblesort(list1, list2):
     """ Takes two list and sorts both in ascending order according to the values in list1 with a bubblesort algorithm.
 
-    Parameters
-    ----------
-    list1 : list
-        A list on whose content the sorting is based.
-
-    list2 : list
-        A list that is sorted based on list1.
-
-    Returns
-    -------
-    tuple
-        containing the sorted list1 and list2
+    :param list list1: A list on whose content the sorting is based.
+    :param list list2: A list that is sorted based on list1.
+    :return: A tuple containing the sorted list1 and list2
+    :rtype: tuple
     """
-
     list_length = len(list1)
     list1_sorted = copy.deepcopy(list1)
     list2_sorted = copy.deepcopy(list2)
@@ -955,8 +821,11 @@ def bubblesort(list1, list2):
 
 def h5_file_to_dict(load_file):
     """ Transfer a h5 file to a dictionary.
-    """
 
+    :param str load_file: The string to a h5 file.
+    :return: A dictionary containing the content of the h5 file
+    :rtype: dict
+    """
     keys_2_values = dict()
     hf = h5py.File(load_file, 'r')
     for key in hf.keys():

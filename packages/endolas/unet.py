@@ -9,68 +9,33 @@ from tensorflow.keras.applications import imagenet_utils
 def preprocess_input(x, **kwargs):
     """Preprocesses a numpy array encoding a batch of images.
 
-    Parameters
-    ----------
-
-    x:
-        a 4D numpy array consists of RGB values within [0, 255].
-
-    Returns
-    -------
-
-    Preprocessed array
-
+    :param ndarray x: a 4D numpy array consists of RGB values within [0, 255].
+    :return: Preprocessed array
+    :rtype: ndarray
     """
     return imagenet_utils.preprocess_input(x, mode='tf', **kwargs)
 
 
 def UNet(filters=64, layers=4, activation='sigmoid', classes=1, input_shape=None, kernel_regularizer=None):
     """
-    Building a U-Net [1]_. Implementation from [2]_ modified.
+    Building a U-Net [#ronneberger]_. Implementation from [#ankigit]_ modified.
 
+    .. [#ronneberger] 'Ronneberger, O., Fischer, P., & Brox, T. (2015, October). U-net: Convolutional networks for
+                      biomedical image segmentation. In International Conference on Medical image computing and
+                      computer-assisted intervention (pp. 234-241). Springer, Cham.'
+    .. [#ankigit] `Github <https://github.com/anki-xyz/bagls/blob/master>`_ Repository from Anki
 
-    Parameters
-    ----------
-
-    filters : int, optional
-        The number of filters in the first layer.
-        The subsequent layers have multiples of this filter number.
-        Default is 64.
-
-    layers : int, optional
-        The number of encoding and decoding layers. Default is 4.
-
-    activation : str, optional
-        The activation function in the last layer. Default is sigmoid.
-
-    classes : int, optional
-        The number of classes in the last layer. Default is 1.
-
-    input_shape : tuple, optional
-        The input shape of the data. We train the network to have arbitraty
-        input shapes, default is None. Otherwise, the tuple has to follow
-        the following criterion: (X, Y, channels)
-
-    kernel_regularizer : str, optional
-        The kernel regularizer used for all Conv2D layers.
-
-    Returns
-    -------
-
-    Keras Model
-        A Keras Model containing the U-Net structure.
-
-
-    References
-    ----------
-
-    [1] Ronneberger, O., Fischer, P., & Brox, T. (2015, October).
-    U-net: Convolutional networks for biomedical image segmentation.
-    In International Conference on Medical image computing and
-    computer-assisted intervention (pp. 234-241). Springer, Cham.
-
-    [2] https://github.com/anki-xyz/bagls/blob/master/Utils/DataGenerator.py
-
+    :param int filters: The number of filters in the first layer.
+                        The subsequent layers have multiples of this filter number. Default is 64.
+    :param int layers: The number of encoding and decoding layers. Default is 4.
+    :param str activation: The activation function in the last layer. Default is sigmoid.
+    :param int classes: The number of classes in the last layer. Default is 1.
+    :param tuple input_shape: The input shape of the data. We train the network to have arbitrary
+                              input shapes, default is None. Otherwise, the tuple has to follow
+                              the following criterion: (X, Y, channels)
+    :param str kernel_regularizer: The kernel regularizer used for all Conv2D layers.
+    :return: A Keras Model containing the U-Net structure.
+    :rtype: keras model
     """
     if input_shape is None:
         input_shape = (None, None, 1)
@@ -116,10 +81,7 @@ def UNet(filters=64, layers=4, activation='sigmoid', classes=1, input_shape=None
 
 
 def _convblock(x, filters, kernel_regularizer, batch_norm=True):
-    """ The implementation was copied from [1]_.
-
-    [1] https://github.com/anki-xyz/bagls/blob/master/Utils/DataGenerator.py
-
+    """ Convolutional block with batch norm and activation.
     """
     x = Conv2D(filters,
                (3, 3),

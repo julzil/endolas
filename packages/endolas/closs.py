@@ -12,23 +12,14 @@ class EuclideanLoss(keras.losses.Loss):
         """ Object used to define a custom loss for predicting
             a displacement field.
 
-            Parameters
-            ----------
-            batch_size : int, optional
-                The batch size which is used for training and evaluation.
-
-            grid_width : int, optional
-                The width of the laser grid.
-
-            grid_height : int, optional
-                The height of the laser grid
-
-            loss_type : str, optional
-                The type that can either be:
-                    - 'msed' Mean Squared Euclidean Distance
-                    - 'maed' Mean Euclidean Distance
-                    - 'max' Maximum Euclidean Distance
-                    - 'min' Minimum Euclidean Distance
+            :param int batch_size: The batch size which is used for training and evaluation.
+            :param int grid_width: The width of the laser grid.
+            :param int grid_height: The height of the laser grid
+            :param str loss_type: The type that can either be: \n
+                                  - 'msed' Mean Squared Euclidean Distance
+                                  - 'med' Mean Euclidean Distance
+                                  - 'max' Maximum Euclidean Distance
+                                  - 'min' Minimum Euclidean Distance
         """
         if loss_type not in ['msed', 'med', 'max', 'min']:
             raise AssertionError('Loss type "{}" not known, valid loss types '
@@ -44,19 +35,10 @@ class EuclideanLoss(keras.losses.Loss):
     def call(self, labels, prediction):
         """ Compute the euclidean distance loss.
 
-        Parameters
-        ----------
-        labels : Tensor
-            The labels forwarded by the
-            network shape = (batch, point, x-y, mov-fix)
-
-        prediction : Tensor
-            The prediction forwarded by the network
-
-        Returns
-        -------
-        float
-            The loss value
+        :param Tensor labels: The labels forwarded by the network shape = (batch, point, x-y, mov-fix)
+        :param Tensor prediction: The prediction forwarded by the network
+        :return: The loss value
+        :rtype: float
         """
         loss = 0.0
 
@@ -104,22 +86,11 @@ class EuclideanLoss(keras.losses.Loss):
         """ Use the keras backend functionality to compute the displacement in
             a vectorized way.
 
-        Parameters
-        ----------
-        u : Tensor (width, height)
-            Predicted displacement field
-
-        x : Tensor (n_keypoints)
-            x-coordinate of key point position
-
-        y : Tensor (n_keypoints)
-            y-coordinate of key point position
-
-        Returns
-        -------
-        Tensor (n_keypoints)
-            The displacement of each keypoint
-
+        :param Tensor u: Predicted displacement field, shape (width, height)
+        :param Tensor x: x-coordinate of key point position, shape (n_keypoints)
+        :param Tensor y: y-coordinate of key point position, shape (n_keypoints)
+        :return: The displacement of each keypoint, shape (n_keypoints)
+        :rtype: Tensor
         """
         length = self._grid_width * self._grid_height
         indices = [val * length + val for val in range(0, length)]

@@ -23,20 +23,12 @@ class MapInferSequence(Sequence):
             as labels. In augmentation a rotation is only applied if the first attempt did not rotate a keypoint out of
             the image.
 
-        Parameters
-        ----------
-        data : ndarray
-            An numpy array containing all images to infer from with shape (images, width, height)
-        from_frame : int
-            The frame index where to start inference
-        to_frame : int
-            The frame index where to end inference
-        batch_size : int, optional
-            The batch size
-        width : int, optional
-            Target image width, by default 512
-        height : int, optional
-            Target image height, by default 512
+        :param ndarray data: An numpy array containing all images to infer from with shape (images, width, height)
+        :param int from_frame: The frame index where to start inference
+        :param int to_frame: The frame index where to end inference
+        :param int batch_size: The batch size
+        :param int width: Target image width, by default 512
+        :param int height: Target image height, by default 512
         """
         self._data = data
         self._from_frame = from_frame

@@ -20,38 +20,23 @@ class SIMPLESequence(Sequence):
             as labels. In augmentation a rotation is only applied if the first attempt did not rotate a keypoint out of
             the image.
 
-        Parameters
-        ----------
-        path : str
-            The path to the directory where .png files are stored
-        path_fixed : str
-            The path to the .json and .png file the fixed image
-        batch_size : int, optional
-            The batch size
-        image_ids : list, optional
-            The image ids that will be regarded for this generator
-        preprocess_input : function, optional
-            Function according to the used keras model
-        augment : bool, optional
-            Whether to augment the data or not
-        shuffle : bool, optional
-            Whether to shuffle indices after each epoch
-        width : int, optional
-            Target image width, by default 512
-        height : int, optional
-            Target image height, by default 512
-        grid_width : int, optional
-            Laser grid width, by default 18
-        grid_height : int, optional
-            Laser grid height, by default 18
-        seed : int, optional
-            A seed to be set for shuffling
-        multi_channel : string, optional
-            Can be used to generate more input channels. Possible options are:
-            - 'moving' for single channel with moving image only
-            - 'fixed' for an additional fixed image
-            - 'diff' for an additional difference image
-            - 'grad' for difference and gradient
+        :param str path: The path to the directory where .png files are stored
+        :param str path_fixed: The path to the .json and .png file the fixed image
+        :param int batch_size: The batch size
+        :param list image_ids: The image ids that will be regarded for this generator
+        :param function preprocess_input: Function according to the used keras model
+        :param bool augment: Whether to augment the data or not
+        :param bool shuffle: Whether to shuffle indices after each epoch
+        :param int width: Target image width, by default 512
+        :param int height: Target image height, by default 512
+        :param int grid_width: Laser grid width, by default 18
+        :param int grid_height: Laser grid height, by default 18
+        :param int seed: A seed to be set for shuffling
+        :param string multi_channel: Can be used to generate more input channels. Possible options are: \n
+                                     - 'moving' for single channel with moving image only
+                                     - 'fixed' for an additional fixed image
+                                     - 'diff' for an additional difference image
+                                     - 'grad' for difference and gradient
         """
         random.seed(seed)
 

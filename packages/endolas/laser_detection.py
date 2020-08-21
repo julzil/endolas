@@ -6,40 +6,7 @@ import numpy as np
 
 from pdb import set_trace
 
-
-# ----------------------------------------------------------------------------------------------------------------------
-def run_inference(path, path_workdir):
-    file_extension = path.split(os.sep)[-1].split('.')[-1].lower()
-
-    predictor_container = None
-
-    if not os.path.isdir(path_workdir):
-        raise ValueError('The working directory path "{}" is not a directory'.format(path_workdir))
-
-    if file_extension in keys.ADMISSIBLE_FILE_EXTENSIONS:
-        if not os.path.isfile(path):
-            raise ValueError('The file "{}" does not exist.'.format(path))
-
-        if file_extension in keys.IMAGE_FILE_EXTENSIONS:
-            predictor_container = PredictorContainer(path, "img", path_workdir)
-
-        if file_extension in keys.VIDEO_FILE_EXTENSIONS:
-            predictor_container = PredictorContainer(path, "vid", path_workdir)
-
-    elif os.path.isdir(path):
-        predictor_container = PredictorContainer(path, "dir", path_workdir)
-
-    else:
-        raise ValueError('The path "{}" is not a directory'
-                         'or a file of the types {}.'.format(path, keys.ADMISSIBLE_FILE_EXTENSIONS))
-
-
-
-    predictor_container.predict()
-
-# ----------------------------------------------------------------------------------------------------------------------
-def run_laser_detection(data, settings=None, callbacks=None):
-    settings ={
+settings = {
     'from_frame': 4,
     'to_frame': 5,
 
@@ -65,15 +32,22 @@ def run_laser_detection(data, settings=None, callbacks=None):
     'load_laser_sorting': False,
     'load_laser_sorting_file': '...'}
 
+# ----------------------------------------------------------------------------------------------------------------------
+def run_laser_detection(data, settings=None, callbacks=None):
+    """ Perform the prediction for all steps of the laser detection.
+
+    :param ndarray data: The image data with shape (frames, width, height, 3)
+    :param dict settings: Settings object has passed by GUI.
+    :param tuple callbacks: Callbacks used by worker thread.
+    :return: A result dictionary.
+    :rtype: dict
+    """
     data = preprocess_data(data)
-
     predictor_container = PredictorContainer(data, settings)
-
     predictor_container.build_predictors()
     predictor_container.disable_gpus()
     predictor_container.predict()
     predictor_container.store_results()
-
     results = predictor_container.get_results()
 
     return results
@@ -81,8 +55,11 @@ def run_laser_detection(data, settings=None, callbacks=None):
 
 def preprocess_data(data):
     """ From the RGB image take only one channel to extract data from.
-    """
 
+    :param ndarray data: The image data with shape (frames, width, height, 3)
+    :return: The image data with shape (frames, width, height, 1)
+    :rtype: ndarray
+    """
     data = data[:, :, :, 0]
     data = data[:, :, :, np.newaxis]
 

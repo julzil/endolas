@@ -31,7 +31,7 @@ class _PredictorTemplate(object):
         raise NotImplementedError
 
     # To be implemented in the derived class
-    def predict_specific(self):
+    def _predict_specific(self):
         raise NotImplementedError
 
     def predict(self):
@@ -59,6 +59,15 @@ class _PredictorTemplate(object):
 
 class SegmentationPredictor(_PredictorTemplate):
     def __init__(self, sequence, results, load_file, from_frame, to_frame, laser_maps_network):
+        """ The segmentation predictor infers probability maps based on a pretrained U-Net.
+
+        :param Sequence sequence: A tensorflow.keras.utils.Sequence that is used for prediction.
+        :param dict results: The common results dictionary to write to.
+        :param str load_file: A path indicating where previously computed results lie.
+        :param int from_frame: The frame to start from.
+        :param int to_frame: The frame to end with.
+        :param str laser_maps_network: A path to the file where the trained model is present.
+        """
         super(SegmentationPredictor, self).__init__(sequence, results, load_file, 'laser_maps', from_frame, to_frame)
 
         self._laser_maps_network = laser_maps_network
@@ -66,7 +75,7 @@ class SegmentationPredictor(_PredictorTemplate):
     def __str__(self):
         return "Segmentation"
 
-    def predict_specific(self):
+    def _predict_specific(self):
         image_id_2_prediction = dict()
         dependencies = {'dice_loss': dice_loss, 'iou_score': iou_score}
         try:
@@ -88,6 +97,17 @@ class SegmentationPredictor(_PredictorTemplate):
 class PeakfindingPredictor(_PredictorTemplate):
     def __init__(self, sequence, results, load_file, from_frame, to_frame, laser_peaks_sigma,
                  laser_peaks_distance, laser_peaks_threshold):
+        """ A peakfinding based on the utilities from skimage is carried out.
+
+        :param Sequence sequence: A tensorflow.keras.utils.Sequence that is used for prediction.
+        :param dict results: The common results dictionary to write to.
+        :param load_file: A path indicating where previously computed results lie.
+        :param from_frame: The frame to start from.
+        :param to_frame: The frame to end with.
+        :param laser_peaks_sigma: The standard deviation used for priorly smoothing the image.
+        :param laser_peaks_distance: The minimal distance that peaks should have.
+        :param laser_peaks_threshold: The absolute lower intensity threshold.
+        """
         super(PeakfindingPredictor, self).__init__(sequence, results, load_file, 'laser_peaks', from_frame, to_frame)
 
         self._laser_peaks_sigma = laser_peaks_sigma
@@ -97,7 +117,7 @@ class PeakfindingPredictor(_PredictorTemplate):
     def __str__(self):
         return "Peakfinding"
 
-    def predict_specific(self):
+    def _predict_specific(self):
         image_id_2_prediction = dict()
         for image_id, laser_map in self._sequence.items():
             laser_map_filtered = gaussian_filter(laser_map, sigma=self._laser_peaks_sigma)
@@ -111,11 +131,18 @@ class PeakfindingPredictor(_PredictorTemplate):
 
 class RegistrationPredictor(_PredictorTemplate):
     def __init__(self, sequence, results, load_file, from_frame, to_frame):
+        """ The registration predictor infers displacement maps based on a pretrained U-Net.
+
+        :param Sequence sequence: A tensorflow.keras.utils.Sequence that is used for prediction.
+        :param dict results: The common results dictionary to write to.
+        :param load_file: A path indicating where previously computed results lie.
+        :param from_frame: The frame to start from.
+        :param to_frame: The frame to end with.
+        """
         super(RegistrationPredictor, self).__init__(sequence, results, load_file, 'laser_displacement', from_frame, to_frame)
 
-
-    def predict(self):
-        print("Predict Registration")
+    def _predict_specific(self):
+        pass
         """
         model = tf.keras.models.load_model()
 
@@ -153,15 +180,28 @@ class RegistrationPredictor(_PredictorTemplate):
 
 class NeighborPredictor(_PredictorTemplate):
     def __init__(self, sequence, results, load_file, from_frame, to_frame):
+        """ The neighbor predictor applies displacements and carries out a nearest neighbor search.
+
+        :param Sequence sequence: A tensorflow.keras.utils.Sequence that is used for prediction.
+        :param dict results: The common results dictionary to write to.
+        :param load_file: A path indicating where previously computed results lie.
+        :param from_frame: The frame to start from.
+        :param to_frame: The frame to end with.
+        """
         super(NeighborPredictor, self).__init__(sequence, results, load_file, 'laser_nearest', from_frame, to_frame)
 
 
-    def predict(self):
-        print("Predict Neighbor")
+    def _predict_specific(self):
+        pass
 
 
 class PredictorContainer(object):
     def __init__(self, data, settings):
+        """ This container class is composed by many predictors that are all managed within.
+
+        :param ndarray data: The image data with shape (frames, width, height, 1)
+        :param dict settings: Settings object has passed by GUI.
+        """
         self._data = data
         self._settings = settings
         self._results = {'laser_maps': dict(),
@@ -176,6 +216,8 @@ class PredictorContainer(object):
         self._predictors = []
 
     def build_predictors(self):
+        """ Internally registers all predictors in a common container.
+        """
         segmentation_sequence = MapInferSequence(self._data, self._from_frame, self._to_frame,
                                                  batch_size=self._settings['laser_maps_batch']) \
                                                  if not self._settings['load_laser_maps'] else None
@@ -210,6 +252,8 @@ class PredictorContainer(object):
                                                   self._to_frame))
 
     def predict(self):
+        """ Predict the results of all predictors and return result dictionary.
+        """
         for predictor in self._predictors:
             predictor.predict()
 

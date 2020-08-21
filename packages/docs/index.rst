@@ -6,7 +6,7 @@
 Welcome to endolas's documentation!
 ===================================
 
-.. automodule:: endolas.closs
+.. automodule:: endolas.unet
     :members:
 
 .. toctree::
