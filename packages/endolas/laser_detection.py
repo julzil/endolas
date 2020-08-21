@@ -40,18 +40,19 @@ def run_inference(path, path_workdir):
 # ----------------------------------------------------------------------------------------------------------------------
 def run_laser_detection(data, settings=None, callbacks=None):
     settings ={
-    'from_frame': 1,
-    'to_frame': 2,
+    'from_frame': 4,
+    'to_frame': 5,
 
     'load_laser_maps': True,
     'load_laser_maps_file': '/home/julian/Documents/Studium/MT-Masterarbeit/Workspace/endolas/scripts/results/segmentation.h5',
     'laser_maps_network': '/home/julian/Documents/Studium/MT-Masterarbeit/Workspace/endolas/experiments/results/3_2_segmentation/best_weights.hdf5',
     'laser_maps_batch': 1,
 
-    'load_laser_peaks': False,
-    'load_laser_peaks_file': '...',
-    'laser_peaks_distance': 3,
-    'laser_peaks_threshold': 0.5,
+    'load_laser_peaks': True,
+    'load_laser_peaks_file': '/home/julian/Documents/Studium/MT-Masterarbeit/Workspace/endolas/scripts/results/segmentation.h5',
+    'laser_peaks_sigma': 2,
+    'laser_peaks_distance': 5,
+    'laser_peaks_threshold': 0.1,
 
     'load_laser_displacement': False,
     'load_laser_displacement_file': '...',
