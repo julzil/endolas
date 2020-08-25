@@ -7,12 +7,14 @@ from matplotlib import pyplot as plt
 from skimage.feature import peak_local_max
 from scipy.ndimage import gaussian_filter
 from .utils import h5_file_to_dict
+from .utils import bubblesort
 
 import tensorflow as tf
 import numpy as np
 import json
 import h5py
 import os
+import math
 
 from pdb import set_trace
 
@@ -230,6 +232,8 @@ class DeformationPredictor(_PredictorTemplate):
         self._laser_peaks = self._results['laser_peaks']
         self._laser_maps = self._results['laser_maps']
         self._laser_displacement = self._results['laser_displacement']
+        self._scale_factor_x = None
+        self._scale_factor_y = None
 
     def __str__(self):
         return "Deformation"
@@ -274,39 +278,6 @@ class DeformationPredictor(_PredictorTemplate):
 
 
 class NeighborPredictor(_PredictorTemplate):
-    """
-    model = tf.keras.models.load_model()
-
-    warp_val = dict()
-    for index, val in enumerate(self._sequence):
-        image_id = self._sequence._image_ids[index]
-
-        if index % 100 == 0:
-            print(index)
-
-        X, y = val
-
-        y_pred = model.predict(X)
-        u_x = y_pred[0, :, :, 0]
-        u_y = y_pred[0, :, :, 1]
-
-        for inner_index in range(0, grid_points):
-            x_pos = int(y[0, inner_index, 0, 0])
-            y_pos = int(y[0, inner_index, 1, 0])
-
-            ux_field = y_pred[0, :, :, 0]
-            uy_field = y_pred[0, :, :, 1]
-
-            ux = ux_field[y_pos][x_pos]
-            uy = uy_field[y_pos][x_pos]
-
-            x_pos = int(round(x_pos + ux))
-            y_pos = int(round(y_pos + uy))
-
-            warp_val[str(inner_index)] = [x_pos, y_pos]
-            with open(self._path_workdir + '/{}_w.json'.format(image_id), 'w') as fp:
-                json.dump(warp_val, fp)
-    """
     def __init__(self, sequence, results, load_file, from_frame, to_frame):
         """ The neighbor predictor carries out a nearest neighbor search.
 
@@ -318,18 +289,83 @@ class NeighborPredictor(_PredictorTemplate):
         """
         super(NeighborPredictor, self).__init__(sequence, results, load_file, 'laser_nearest', from_frame, to_frame)
 
+        self._laser_maps = self._results['laser_maps']
+        self._laser_displacement = self._results['laser_displacement']
+        self._scale_factor_x = None
+        self._scale_factor_y = None
+
     def __str__(self):
         return "Neighbor"
 
+    def _get_scale_factors(self):
+        self._scale_factor_x = self._laser_displacement['width'] / self._laser_maps['width']
+        self._scale_factor_y = self._laser_displacement['height'] / self._laser_maps['height']
+
     def _predict_specific(self):
+        self._get_scale_factors()
         image_id_2_prediction = dict()
-        for image_id, disp_map in self._sequence.items():
+        fixed_key_2_fixed_val = json.loads(self._laser_displacement['fix'])
+        for image_id, warped_keypoints in self._sequence.items():
             try:
                 _ = int(image_id)
             except ValueError:
                 continue
 
-            image_id_2_prediction[image_id] = 1
+            warped_key_2_warped_val = json.loads(warped_keypoints)
+
+            # 0) Compute nearest neighbor
+            warped_key_2_fixed_key = dict()
+            is_search_finished = False
+
+            while not is_search_finished:
+                key_warped_2_nearest_neighbor = dict()
+                key_warped_2_nearest_distance = dict()
+                nearest_fixed_neighbor_2_key_warpeds = dict()
+
+                for key_warped, value_warped in warped_key_2_warped_val.items():
+                    nearest_fixed_neighbor = None
+                    nearest_distance = math.inf
+
+                    for key_fixed, value_fixed in fixed_key_2_fixed_val.items():
+                        val_fix_0 = value_fixed[0] * self._scale_factor_y
+                        val_fix_1 = value_fixed[1] * self._scale_factor_x
+
+                        distance = math.sqrt(
+                            (value_warped[0] - val_fix_0) ** 2 + (value_warped[1] - val_fix_1) ** 2)
+
+                        if distance < nearest_distance:
+                            nearest_fixed_neighbor = key_fixed
+                            nearest_distance = distance
+
+                    key_warped_2_nearest_neighbor[key_warped] = nearest_fixed_neighbor
+                    key_warped_2_nearest_distance[key_warped] = nearest_distance
+
+                    try:
+                        nearest_fixed_neighbor_2_key_warpeds[nearest_fixed_neighbor].append(key_warped)
+
+                    except KeyError:
+                        nearest_fixed_neighbor_2_key_warpeds[nearest_fixed_neighbor] = [key_warped]
+
+                # 1) Evaluate all found neighbors
+                for nearest_fixed_neighbor, key_warpeds in nearest_fixed_neighbor_2_key_warpeds.items():
+                    nearest_warped_neighbor = None
+                    nearest_distance = math.inf
+
+                    for key_warped in key_warpeds:
+                        if key_warped_2_nearest_distance[key_warped] < nearest_distance:
+                            nearest_distance = key_warped_2_nearest_distance[key_warped]
+                            nearest_warped_neighbor = key_warped
+
+                    if nearest_warped_neighbor != None:
+                        _ = warped_key_2_warped_val.pop(nearest_warped_neighbor)
+                        _ = fixed_key_2_fixed_val.pop(nearest_fixed_neighbor)
+                        warped_key_2_fixed_key[nearest_warped_neighbor] = nearest_fixed_neighbor
+
+                # 2) Determine loop criterion
+                if len(warped_key_2_warped_val) == 0:
+                    is_search_finished = True
+
+            image_id_2_prediction[image_id] = json.dumps(warped_key_2_fixed_key)
         return image_id_2_prediction
 
 
@@ -345,11 +381,95 @@ class SortingPredictor(_PredictorTemplate):
         """
         super(SortingPredictor, self).__init__(sequence, results, load_file, 'laser_sorted', from_frame, to_frame)
 
+        self._laser_deformation = self._results['laser_deformation']
+        self._laser_displacement = self._results['laser_displacement']
+
     def __str__(self):
         return "Sorting"
 
     def _predict_specific(self):
         image_id_2_prediction = dict()
+
+        grid_width = self._laser_displacement['grid_width']
+        grid_height = self._laser_displacement['grid_height']
+
+        for image_id, prediction in self._sequence.items():
+            try:
+                _ = int(image_id)
+            except ValueError:
+                continue
+
+            warped_key_2_fixed_key = json.loads(prediction)
+            warped_key_2_warped_val = json.loads(self._laser_deformation[image_id])
+
+            # 0) Determine the inverse dictionary with keys
+            fixed_key_2_warped_key = dict()
+
+            for warped_key in warped_key_2_fixed_key.keys():
+                fixed_key = warped_key_2_fixed_key[warped_key]
+                fixed_key_2_warped_key[fixed_key] = warped_key
+
+            if len(fixed_key_2_warped_key) != len(warped_key_2_fixed_key):
+                raise AssertionError('The assigment of fixed to warped keys is not unique')
+
+            # 1) row-wise bubblesort
+            for grid_height_index in range(grid_height):
+                warped_vals = []
+                fixed_keys = []
+                for grid_width_index in range(grid_width):
+                    indexer = grid_height_index * grid_height + grid_width_index
+                    fixed_key = str(indexer)
+
+                    try:
+                        x = warped_key_2_warped_val[fixed_key_2_warped_key[fixed_key]][1]
+                    except KeyError:
+                        continue
+
+                    warped_vals.append(x)
+                    fixed_keys.append(fixed_key)
+
+                _, fixed_keys_sorted = bubblesort(warped_vals, fixed_keys)
+
+                # Look up which sorted key belongs to which warped then reassign key.
+                # Do not resort fixed_key_2_warped_key as reference needed for finding warped keys previous to sorting.
+                for fixed_key, fixed_key_sorted in zip(fixed_keys, fixed_keys_sorted):
+                    warped_key = fixed_key_2_warped_key[fixed_key_sorted]
+                    warped_key_2_fixed_key[warped_key] = fixed_key
+
+            # 2) Determine the inverse dictionary with keys again after row-wise bubblesort
+            for warped_key in warped_key_2_fixed_key.keys():
+                fixed_key = warped_key_2_fixed_key[warped_key]
+                fixed_key_2_warped_key[fixed_key] = warped_key
+
+            if len(fixed_key_2_warped_key) != len(warped_key_2_fixed_key):
+                raise AssertionError('The assigment of fixed to warped keys is not unique')
+
+            # 3) column-wise bubblesort
+            for grid_width_index in range(grid_width):
+                warped_vals = []
+                fixed_keys = []
+                for grid_height_index in reversed(range(grid_height)):
+                    indexer = grid_height_index * grid_height + grid_width_index
+                    fixed_key = str(indexer)
+
+                    try:
+                        y = warped_key_2_warped_val[fixed_key_2_warped_key[fixed_key]][0]
+                    except KeyError:
+                        continue
+
+                    warped_vals.append(y)
+                    fixed_keys.append(fixed_key)
+
+                _, fixed_keys_sorted = bubblesort(warped_vals, fixed_keys)
+
+                # Look up which sorted key belongs to which warped then reassign key.
+                # Do not resort fixed_key_2_warped_key as reference needed for finding warped keys previous to sorting.
+                for fixed_key, fixed_key_sorted in zip(fixed_keys, fixed_keys_sorted):
+                    warped_key = fixed_key_2_warped_key[fixed_key_sorted]
+                    warped_key_2_fixed_key[warped_key] = fixed_key
+
+            image_id_2_prediction[image_id] = json.dumps(warped_key_2_fixed_key)
+
         return image_id_2_prediction
 
 
@@ -436,10 +556,10 @@ class PredictorContainer(object):
                                                   self._from_frame,
                                                   self._to_frame))
         self._predictors.append(SortingPredictor(sorting_sequence,
-                                                     self._results,
-                                                     self._settings['load_laser_sorting_file'],
-                                                     self._from_frame,
-                                                     self._to_frame))
+                                                 self._results,
+                                                 self._settings['load_laser_sorting_file'],
+                                                 self._from_frame,
+                                                 self._to_frame))
 
     def predict(self):
         """ Predict the results of all predictors and return result dictionary.
@@ -481,6 +601,22 @@ class PredictorContainer(object):
         if not self._settings['load_laser_deformation']:
             image_id_2_prediction = self._results['laser_deformation']
             hf_path = os.path.abspath('results/deformation.h5')
+            hf = h5py.File(hf_path, 'w')
+            for image_id, prediction in image_id_2_prediction.items():
+                hf.create_dataset(str(image_id), data=prediction)
+            hf.close()
+
+        if not self._settings['load_laser_nearest']:
+            image_id_2_prediction = self._results['laser_nearest']
+            hf_path = os.path.abspath('results/neighbor.h5')
+            hf = h5py.File(hf_path, 'w')
+            for image_id, prediction in image_id_2_prediction.items():
+                hf.create_dataset(str(image_id), data=prediction)
+            hf.close()
+
+        if not self._settings['load_laser_sorting']:
+            image_id_2_prediction = self._results['laser_sorted']
+            hf_path = os.path.abspath('results/sort.h5')
             hf = h5py.File(hf_path, 'w')
             for image_id, prediction in image_id_2_prediction.items():
                 hf.create_dataset(str(image_id), data=prediction)
