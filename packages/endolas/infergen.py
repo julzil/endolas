@@ -228,7 +228,7 @@ class RegistrationInferSequence(_InferSequenceTemplate):
         """
         self._segmentation_results = segmentation_results
         self._fixed_image = None
-        self._fixed_index_2_yx = dict()
+        self._fixed_index_2_xy = dict()
         self._segmentation_width = None
         self._segmentation_height = None
         self._foreground_smoothing = 2
@@ -258,13 +258,13 @@ class RegistrationInferSequence(_InferSequenceTemplate):
     def _get_image_from_data(self, image_id):
         """ Retrieves image from data.
         """
-        yx_coords_str = self._data[image_id]
-        yx_coords = json.loads(yx_coords_str)
+        xy_coords_str = self._data[image_id]
+        xy_coords = json.loads(xy_coords_str)
 
         moving = np.zeros((self._segmentation_height, self._segmentation_width))
-        for value in yx_coords.values():
-            y_val = value[0]
-            x_val = value[1]
+        for value in xy_coords.values():
+            x_val = value[0]
+            y_val = value[1]
 
             if x_val < 0 or x_val > self._segmentation_width:
                 raise AssertionError('Peakfinding detected point out of the image space, could not create moving image')
@@ -314,7 +314,7 @@ class RegistrationInferSequence(_InferSequenceTemplate):
                         raise AssertionError('Failed to create fixed image with keypoints out of bounds.')
 
                     fixed[y][x] = 1
-                    self._fixed_index_2_yx[str(index)] = [y, x]
+                    self._fixed_index_2_xy[str(index)] = [x, y]
 
                     index += 1
 
@@ -338,5 +338,5 @@ class RegistrationInferSequence(_InferSequenceTemplate):
         self._check_template_input()
 
     @property
-    def fixed_index_2_yx(self):
-        return self._fixed_index_2_yx
+    def fixed_index_2_xy(self):
+        return self._fixed_index_2_xy

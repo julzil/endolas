@@ -163,7 +163,7 @@ class RegistrationPredictor(_NetworkPredictorTemplate):
             for index, image_id in enumerate(image_ids):
                 image_id_2_prediction[image_id] = y_pred[index]
 
-        image_id_2_prediction['fix'] = json.dumps(self._sequence.fixed_index_2_yx)
+        image_id_2_prediction['fix'] = json.dumps(self._sequence.fixed_index_2_xy)
         image_id_2_prediction['width'] = self._sequence.width
         image_id_2_prediction['height'] = self._sequence.height
         image_id_2_prediction['grid_width'] = self._sequence.grid_width
@@ -178,7 +178,7 @@ class PeakfindingPredictor(_PredictorTemplate):
         """ A peakfinding based on the utilities from skimage is carried out. In the class-specific
             implementation of the prediction, that is _predict_specific, the returned dictionary contains predictions,
             that are mappings from a newly assigned key 'peaked_key' to a list of predicted y-coordinate and
-            x-coordinate, where the order '[y, x]' is present. The predictions are stored as strings.
+            x-coordinate, where the order '[x, y]' is present. The predictions are stored as strings.
 
         :param dict sequence: A dictionary with probability maps.
         :param dict results: The common results dictionary to write to.
@@ -210,7 +210,7 @@ class PeakfindingPredictor(_PredictorTemplate):
             prediction = peak_local_max(laser_map_filtered,
                                         min_distance=self._laser_peaks_distance,
                                         threshold_abs=self._laser_peaks_threshold)
-            prediction = {str(peaked_key): [int(val[0]), int(val[1])] for peaked_key, val in enumerate(prediction)}
+            prediction = {str(peaked_key): [int(val[1]), int(val[0])] for peaked_key, val in enumerate(prediction)}
 
             image_id_2_prediction[image_id] = json.dumps(prediction)
 
@@ -253,16 +253,16 @@ class DeformationPredictor(_PredictorTemplate):
 
             moving_keypoints_string = self._laser_peaks[image_id]
             moving_keypoints = json.loads(moving_keypoints_string)
-            warp_yx_coords = dict()
+            warp_xy_coords = dict()
 
             self._get_scale_factors()
 
             u_x = disp_map[:, :, 0]
             u_y = disp_map[:, :, 1]
-            for moving_key, moving_yx_coords in moving_keypoints.items():
+            for moving_key, moving_xy_coords in moving_keypoints.items():
                 # Round here is important!
-                x_coord_moving = int(round(moving_yx_coords[1] * self._scale_factor_x))
-                y_coord_moving = int(round(moving_yx_coords[0] * self._scale_factor_y))
+                x_coord_moving = int(round(moving_xy_coords[0] * self._scale_factor_x))
+                y_coord_moving = int(round(moving_xy_coords[1] * self._scale_factor_y))
 
                 ux = u_x[y_coord_moving][x_coord_moving]
                 uy = u_y[y_coord_moving][x_coord_moving]
@@ -270,9 +270,9 @@ class DeformationPredictor(_PredictorTemplate):
                 x_coord_warped = int(round(x_coord_moving + ux))
                 y_coord_warped = int(round(y_coord_moving + uy))
 
-                warp_yx_coords[moving_key] = [y_coord_warped, x_coord_warped]
+                warp_xy_coords[moving_key] = [x_coord_warped, y_coord_warped]
 
-            prediction = warp_yx_coords
+            prediction = warp_xy_coords
             image_id_2_prediction[image_id] = json.dumps(prediction)
         return image_id_2_prediction
 
@@ -327,8 +327,8 @@ class NeighborPredictor(_PredictorTemplate):
                     nearest_distance = math.inf
 
                     for key_fixed, value_fixed in fixed_key_2_fixed_val.items():
-                        val_fix_0 = value_fixed[0] * self._scale_factor_y
-                        val_fix_1 = value_fixed[1] * self._scale_factor_x
+                        val_fix_0 = value_fixed[0] * self._scale_factor_x
+                        val_fix_1 = value_fixed[1] * self._scale_factor_y
 
                         distance = math.sqrt(
                             (value_warped[0] - val_fix_0) ** 2 + (value_warped[1] - val_fix_1) ** 2)
@@ -421,7 +421,7 @@ class SortingPredictor(_PredictorTemplate):
                     fixed_key = str(indexer)
 
                     try:
-                        x = warped_key_2_warped_val[fixed_key_2_warped_key[fixed_key]][1]
+                        x = warped_key_2_warped_val[fixed_key_2_warped_key[fixed_key]][0]
                     except KeyError:
                         continue
 
@@ -453,7 +453,7 @@ class SortingPredictor(_PredictorTemplate):
                     fixed_key = str(indexer)
 
                     try:
-                        y = warped_key_2_warped_val[fixed_key_2_warped_key[fixed_key]][0]
+                        y = warped_key_2_warped_val[fixed_key_2_warped_key[fixed_key]][1]
                     except KeyError:
                         continue
 
