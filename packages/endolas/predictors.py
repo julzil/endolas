@@ -8,6 +8,8 @@ from skimage.feature import peak_local_max
 from scipy.ndimage import gaussian_filter
 from .utils import h5_file_to_dict
 from .utils import bubblesort
+from .utils import nearest_neighbor_kernel
+from .utils import sorting_kernel
 
 import tensorflow as tf
 import numpy as np
@@ -27,6 +29,8 @@ from pdb import set_trace
 # ----------------------------------------------------------------------------------------------------------------------
 class _PredictorTemplate(object):
     def __init__(self, sequence, results, load_file, results_key, from_frame, to_frame):
+        """ A private class that serves as base class for all Predictors.
+        """
         self._sequence = sequence
         self._results = results
         self._load_file = load_file
@@ -34,15 +38,20 @@ class _PredictorTemplate(object):
         self._from_frame = from_frame
         self._to_frame = to_frame
 
-    # To be implemented in the derived class
     def __str__(self):
+        """ To be implemented in the derived class
+        """
         raise NotImplementedError
 
     # To be implemented in the derived class
     def _predict_specific(self):
+        """ To be implemented in the derived class
+        """
         raise NotImplementedError
 
     def predict(self):
+        """ If a sequence object is present a prediction is carried out, otherwise results are loaded from file.
+        """
         if self._sequence:
             print("Predict " + str(self))
             image_id_2_prediction = self._predict_specific()
@@ -67,12 +76,16 @@ class _PredictorTemplate(object):
 
 class _NetworkPredictorTemplate(_PredictorTemplate):
     def __init__(self, sequence, results, load_file, result_key, from_frame, to_frame, network):
+        """ A private class that serves as base class for all predictors that utilize neural networks.
+        """
         super(_NetworkPredictorTemplate, self).__init__(sequence, results, load_file, result_key, from_frame, to_frame)
 
         self._network = network
         self._model = None
 
     def _retrieve_metadata(self):
+        """ The keras model contains metadata the needs to be extracted here.
+        """
         try:
             hf = h5py.File(self._network, 'r')
             self._sequence.grid_width = hf.get('grid_width')[()]
@@ -112,9 +125,13 @@ class SegmentationPredictor(_NetworkPredictorTemplate):
         super(SegmentationPredictor, self).__init__(sequence, results, load_file, 'laser_maps', from_frame, to_frame, network)
 
     def __str__(self):
+        """ Naming for the implemented class.
+        """
         return "Segmentation"
 
     def _predict_specific(self):
+        """ Class specific implementation of the prediction.
+        """
         self._retrieve_metadata()
         image_id_2_prediction = dict()
 
@@ -143,17 +160,22 @@ class RegistrationPredictor(_NetworkPredictorTemplate):
 
         :param Sequence sequence: A tensorflow.keras.utils.Sequence that is used for prediction.
         :param dict results: The common results dictionary to write to.
-        :param load_file: A path indicating where previously computed results lie.
-        :param from_frame: The frame to start from.
-        :param to_frame: The frame to end with.
+        :param str load_file: A path indicating where previously computed results lie.
+        :param int from_frame: The frame to start from.
+        :param int to_frame: The frame to end with.
         :param str network: A path to the file where the trained model is present.
         """
-        super(RegistrationPredictor, self).__init__(sequence, results, load_file, 'laser_displacement', from_frame, to_frame, network)
+        super(RegistrationPredictor, self).__init__(sequence, results, load_file, 'laser_displacement', from_frame,
+                                                    to_frame, network)
 
     def __str__(self):
+        """ Naming for the implemented class.
+        """
         return "Registration"
 
     def _predict_specific(self):
+        """ Class specific implementation of the prediction.
+        """
         self._retrieve_metadata()
         image_id_2_prediction = dict()
 
@@ -182,12 +204,12 @@ class PeakfindingPredictor(_PredictorTemplate):
 
         :param dict sequence: A dictionary with probability maps.
         :param dict results: The common results dictionary to write to.
-        :param load_file: A path indicating where previously computed results lie.
-        :param from_frame: The frame to start from.
-        :param to_frame: The frame to end with.
-        :param laser_peaks_sigma: The standard deviation used for priorly smoothing the image.
-        :param laser_peaks_distance: The minimal distance that peaks should have.
-        :param laser_peaks_threshold: The absolute lower intensity threshold.
+        :param str load_file: A path indicating where previously computed results lie.
+        :param int from_frame: The frame to start from.
+        :param int to_frame: The frame to end with.
+        :param float laser_peaks_sigma: The standard deviation used for priorly smoothing the image.
+        :param float laser_peaks_distance: The minimal distance that peaks should have.
+        :param float laser_peaks_threshold: The absolute lower intensity threshold.
         """
         super(PeakfindingPredictor, self).__init__(sequence, results, load_file, 'laser_peaks', from_frame, to_frame)
 
@@ -196,9 +218,13 @@ class PeakfindingPredictor(_PredictorTemplate):
         self._laser_peaks_threshold = laser_peaks_threshold
 
     def __str__(self):
+        """ Naming for the implemented class.
+        """
         return "Peakfinding"
 
     def _predict_specific(self):
+        """ Class specific implementation of the prediction.
+        """
         image_id_2_prediction = dict()
         for image_id, laser_map in self._sequence.items():
             try:
@@ -223,9 +249,9 @@ class DeformationPredictor(_PredictorTemplate):
 
         :param dict sequence: A dictionary with displacement maps.
         :param dict results: The common results dictionary to write to.
-        :param load_file: A path indicating where previously computed results lie.
-        :param from_frame: The frame to start from.
-        :param to_frame: The frame to end with.
+        :param str load_file: A path indicating where previously computed results lie.
+        :param int from_frame: The frame to start from.
+        :param int to_frame: The frame to end with.
         """
         super(DeformationPredictor, self).__init__(sequence, results, load_file, 'laser_deformation', from_frame, to_frame)
 
@@ -236,6 +262,8 @@ class DeformationPredictor(_PredictorTemplate):
         self._scale_factor_y = None
 
     def __str__(self):
+        """ Naming for the implemented class.
+        """
         return "Deformation"
 
     def _get_scale_factors(self):
@@ -243,6 +271,8 @@ class DeformationPredictor(_PredictorTemplate):
         self._scale_factor_y = self._laser_displacement['height'] / self._laser_maps['height']
 
     def _predict_specific(self):
+        """ Class specific implementation of the prediction.
+        """
         image_id_2_prediction = dict()
 
         for image_id, disp_map in self._sequence.items():
@@ -283,9 +313,9 @@ class NeighborPredictor(_PredictorTemplate):
 
         :param dict sequence: A dictionary with displaced keypoints.
         :param dict results: The common results dictionary to write to.
-        :param load_file: A path indicating where previously computed results lie.
-        :param from_frame: The frame to start from.
-        :param to_frame: The frame to end with.
+        :param str load_file: A path indicating where previously computed results lie.
+        :param int from_frame: The frame to start from.
+        :param int to_frame: The frame to end with.
         """
         super(NeighborPredictor, self).__init__(sequence, results, load_file, 'laser_nearest', from_frame, to_frame)
 
@@ -295,13 +325,21 @@ class NeighborPredictor(_PredictorTemplate):
         self._scale_factor_y = None
 
     def __str__(self):
+        """ Naming for the implemented class.
+        """
         return "Neighbor"
 
     def _get_scale_factors(self):
+        """ Implementation to retrieve a scaling factor for the x-coordinate that is the width of the warped image
+            space over the width of the fixed image space and a scaling factor for the y-coordinate that is the
+            height of the warped image space over the height of the fixed image space.
+        """
         self._scale_factor_x = self._laser_displacement['width'] / self._laser_maps['width']
         self._scale_factor_y = self._laser_displacement['height'] / self._laser_maps['height']
 
     def _predict_specific(self):
+        """ Class specific implementation of the prediction.
+        """
         self._get_scale_factors()
         image_id_2_prediction = dict()
         fixed_key_2_fixed_val = json.loads(self._laser_displacement['fix'])
@@ -312,60 +350,12 @@ class NeighborPredictor(_PredictorTemplate):
                 continue
 
             warped_key_2_warped_val = json.loads(warped_keypoints)
-
-            # 0) Compute nearest neighbor
-            warped_key_2_fixed_key = dict()
-            is_search_finished = False
-
-            while not is_search_finished:
-                key_warped_2_nearest_neighbor = dict()
-                key_warped_2_nearest_distance = dict()
-                nearest_fixed_neighbor_2_key_warpeds = dict()
-
-                for key_warped, value_warped in warped_key_2_warped_val.items():
-                    nearest_fixed_neighbor = None
-                    nearest_distance = math.inf
-
-                    for key_fixed, value_fixed in fixed_key_2_fixed_val.items():
-                        val_fix_0 = value_fixed[0] * self._scale_factor_x
-                        val_fix_1 = value_fixed[1] * self._scale_factor_y
-
-                        distance = math.sqrt(
-                            (value_warped[0] - val_fix_0) ** 2 + (value_warped[1] - val_fix_1) ** 2)
-
-                        if distance < nearest_distance:
-                            nearest_fixed_neighbor = key_fixed
-                            nearest_distance = distance
-
-                    key_warped_2_nearest_neighbor[key_warped] = nearest_fixed_neighbor
-                    key_warped_2_nearest_distance[key_warped] = nearest_distance
-
-                    try:
-                        nearest_fixed_neighbor_2_key_warpeds[nearest_fixed_neighbor].append(key_warped)
-
-                    except KeyError:
-                        nearest_fixed_neighbor_2_key_warpeds[nearest_fixed_neighbor] = [key_warped]
-
-                # 1) Evaluate all found neighbors
-                for nearest_fixed_neighbor, key_warpeds in nearest_fixed_neighbor_2_key_warpeds.items():
-                    nearest_warped_neighbor = None
-                    nearest_distance = math.inf
-
-                    for key_warped in key_warpeds:
-                        if key_warped_2_nearest_distance[key_warped] < nearest_distance:
-                            nearest_distance = key_warped_2_nearest_distance[key_warped]
-                            nearest_warped_neighbor = key_warped
-
-                    if nearest_warped_neighbor != None:
-                        _ = warped_key_2_warped_val.pop(nearest_warped_neighbor)
-                        _ = fixed_key_2_fixed_val.pop(nearest_fixed_neighbor)
-                        warped_key_2_fixed_key[nearest_warped_neighbor] = nearest_fixed_neighbor
-
-                # 2) Determine loop criterion
-                if len(warped_key_2_warped_val) == 0:
-                    is_search_finished = True
-
+            warped_key_2_fixed_key = nearest_neighbor_kernel(warped_key_2_warped_val,
+                                                             fixed_key_2_fixed_val,
+                                                             self._scale_factor_x,
+                                                             self._scale_factor_y)
             image_id_2_prediction[image_id] = json.dumps(warped_key_2_fixed_key)
+
         return image_id_2_prediction
 
 
@@ -375,9 +365,9 @@ class SortingPredictor(_PredictorTemplate):
 
         :param dict sequence: A dictionary with correspondences.
         :param dict results: The common results dictionary to write to.
-        :param load_file: A path indicating where previously computed results lie.
-        :param from_frame: The frame to start from.
-        :param to_frame: The frame to end with.
+        :param str load_file: A path indicating where previously computed results lie.
+        :param int from_frame: The frame to start from.
+        :param int to_frame: The frame to end with.
         """
         super(SortingPredictor, self).__init__(sequence, results, load_file, 'laser_sorted', from_frame, to_frame)
 
@@ -385,9 +375,13 @@ class SortingPredictor(_PredictorTemplate):
         self._laser_displacement = self._results['laser_displacement']
 
     def __str__(self):
+        """ Naming for the implemented class.
+        """
         return "Sorting"
 
     def _predict_specific(self):
+        """ Class specific implementation of the prediction.
+        """
         image_id_2_prediction = dict()
 
         grid_width = self._laser_displacement['grid_width']
@@ -402,71 +396,10 @@ class SortingPredictor(_PredictorTemplate):
             warped_key_2_fixed_key = json.loads(prediction)
             warped_key_2_warped_val = json.loads(self._laser_deformation[image_id])
 
-            # 0) Determine the inverse dictionary with keys
-            fixed_key_2_warped_key = dict()
-
-            for warped_key in warped_key_2_fixed_key.keys():
-                fixed_key = warped_key_2_fixed_key[warped_key]
-                fixed_key_2_warped_key[fixed_key] = warped_key
-
-            if len(fixed_key_2_warped_key) != len(warped_key_2_fixed_key):
-                raise AssertionError('The assigment of fixed to warped keys is not unique')
-
-            # 1) row-wise bubblesort
-            for grid_height_index in range(grid_height):
-                warped_vals = []
-                fixed_keys = []
-                for grid_width_index in range(grid_width):
-                    indexer = grid_height_index * grid_height + grid_width_index
-                    fixed_key = str(indexer)
-
-                    try:
-                        x = warped_key_2_warped_val[fixed_key_2_warped_key[fixed_key]][0]
-                    except KeyError:
-                        continue
-
-                    warped_vals.append(x)
-                    fixed_keys.append(fixed_key)
-
-                _, fixed_keys_sorted = bubblesort(warped_vals, fixed_keys)
-
-                # Look up which sorted key belongs to which warped then reassign key.
-                # Do not resort fixed_key_2_warped_key as reference needed for finding warped keys previous to sorting.
-                for fixed_key, fixed_key_sorted in zip(fixed_keys, fixed_keys_sorted):
-                    warped_key = fixed_key_2_warped_key[fixed_key_sorted]
-                    warped_key_2_fixed_key[warped_key] = fixed_key
-
-            # 2) Determine the inverse dictionary with keys again after row-wise bubblesort
-            for warped_key in warped_key_2_fixed_key.keys():
-                fixed_key = warped_key_2_fixed_key[warped_key]
-                fixed_key_2_warped_key[fixed_key] = warped_key
-
-            if len(fixed_key_2_warped_key) != len(warped_key_2_fixed_key):
-                raise AssertionError('The assigment of fixed to warped keys is not unique')
-
-            # 3) column-wise bubblesort
-            for grid_width_index in range(grid_width):
-                warped_vals = []
-                fixed_keys = []
-                for grid_height_index in reversed(range(grid_height)):
-                    indexer = grid_height_index * grid_height + grid_width_index
-                    fixed_key = str(indexer)
-
-                    try:
-                        y = warped_key_2_warped_val[fixed_key_2_warped_key[fixed_key]][1]
-                    except KeyError:
-                        continue
-
-                    warped_vals.append(y)
-                    fixed_keys.append(fixed_key)
-
-                _, fixed_keys_sorted = bubblesort(warped_vals, fixed_keys)
-
-                # Look up which sorted key belongs to which warped then reassign key.
-                # Do not resort fixed_key_2_warped_key as reference needed for finding warped keys previous to sorting.
-                for fixed_key, fixed_key_sorted in zip(fixed_keys, fixed_keys_sorted):
-                    warped_key = fixed_key_2_warped_key[fixed_key_sorted]
-                    warped_key_2_fixed_key[warped_key] = fixed_key
+            warped_key_2_fixed_key = sorting_kernel(warped_key_2_fixed_key,
+                                                    warped_key_2_warped_val,
+                                                    grid_width,
+                                                    grid_height)
 
             image_id_2_prediction[image_id] = json.dumps(warped_key_2_fixed_key)
 

@@ -8,8 +8,22 @@ from glob import glob
 from .closs import EuclideanLoss
 from .lastengen import LASTENSequence
 
+
 def eval_pred(path_fixed, path_validation, path_test, store_path, width, height, grid_width,
               grid_height, pre_une, weights='/weights.100.hdf5'):
+    """ Predict a validation and test set and store in file.
+
+    :param str path_fixed: Path to the fixed image.
+    :param str path_validation: Path to the validation data set.
+    :param str path_test: Path to the test data set.
+    :param str store_path: Path to where the results should be stored.
+    :param int width: Width for resizing in the generator sequence.
+    :param int height: Height for resizing in the generator sequence.
+    :param int grid_width: The width of the laser grid, for example 18 points.
+    :param int grid_height: The height of the laser grid, for example 18 points.
+    :param function pre_une: Function needed by the generators for preprocessing data.
+    :param object weights: A path to the keras network including weights.
+    """
     test_gen = LASTENSequence(path_test,
                               path_fixed,
                               batch_size=1,
@@ -117,6 +131,11 @@ def eval_pred(path_fixed, path_validation, path_test, store_path, width, height,
 
 
 def eval_nearest_neighbor(experiment_2_set_2_image_2_accuracy, store_path):
+    """ Evaluate the nearest neighbor results by writing them to a pandas dataframe.
+
+    :param dict experiment_2_set_2_image_2_accuracy: A mapping containing results of several experiments.
+    :param str store_path: The path to store the pandas dataframe to.
+    """
     accuracys = []
     images = []
     set_types = []
@@ -134,7 +153,11 @@ def eval_nearest_neighbor(experiment_2_set_2_image_2_accuracy, store_path):
     dataset.to_csv(store_path)
 
 
-def spatial_distribution(store_path, path_fixed):
+def spatial_distribution(store_path):
+    """ Evaluate the spatial distribution of warped keypoints by writing them to a pandas dataframe.
+
+    :param str store_path: A path were warped keypoints are stored and will be written to
+    """
     x_val = []
     y_val = []
     image = []
@@ -172,6 +195,12 @@ def spatial_distribution(store_path, path_fixed):
 
 
 def spatial_display(store_path, path_validation, path_test):
+    """ Evaluate the spatial distribution for displaying by writing them to a pandas dataframe.
+
+    :param str store_path: Path were warped keypoints are stored.
+    :param str path_validation: Path were moving keypoints from validation are stored.
+    :param str path_test: Path were moving keypoints from test are stored.
+    """
     x_val = []
     y_val = []
     image = []
@@ -263,6 +292,13 @@ def spatial_display(store_path, path_validation, path_test):
 
 
 def store_accuracy(accuracy_val, accuracy_test, experiment, store_path):
+    """ Store the accuracy values in a pandas dataframe.
+
+    :param dict accuracy_val: Accuracy values of the validation set.
+    :param dict accuracy_test: Accuracy values of the test set.
+    :param int experiment: Experiment id.
+    :param str store_path: Path to store the pandas dataframe.
+    """
     set_2_image_2_accuracy = dict()
     set_2_image_2_accuracy['val'] = accuracy_val
     set_2_image_2_accuracy['test'] = accuracy_test
@@ -285,6 +321,18 @@ def store_accuracy(accuracy_val, accuracy_test, experiment, store_path):
 
 def eval_history(path_fixed, path_data, store_path, width, height, grid_width,
                  grid_height, pre_une, image_id):
+    """ Evaluate the data for multiple frames.
+
+    :param str path_fixed: Path to the fixed image.
+    :param str path_data: The path were data is pulled from by generator.
+    :param str store_path: Path to where the results should be stored.
+    :param int width: Width for resizing in the generator sequence.
+    :param int height: Height for resizing in the generator sequence.
+    :param int grid_width: The width of the laser grid, for example 18 points.
+    :param int grid_height: The height of the laser grid, for example 18 points.
+    :param function pre_une: Function needed by the generators for preprocessing data.
+    :param int image_id: The ID of the respective image.
+    """
     gen = LASTENSequence(path_data,
                          path_fixed,
                          image_ids=[image_id],
@@ -343,6 +391,14 @@ def eval_history(path_fixed, path_data, store_path, width, height, grid_width,
 
 
 def spatial_history(store_path, image_id, warped_key_2_ismis, warped_key_2_fixed_key, last_epoch):
+    """ For multiple frames store results of spatial location in a pandas dataframe.
+
+    :param str store_path: A path to were the data should be stored.
+    :param int image_id: The ID of the current image.
+    :param dict warped_key_2_ismis: A mapping from warped keys to a bool if the keypoint is misclassified
+    :param dict warped_key_2_fixed_key: A mapping from warped_keys to fixed_keys
+    :param int last_epoch: The last epoch used to evaluate the misclassification
+    """
     x_val = []
     y_val = []
     point = []
