@@ -7,7 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import albumentations as albu
-import seaborn as sns
+#import seaborn as sns
 import tensorflow
 
 import os
@@ -25,8 +25,8 @@ from .styles import *
 def _init_plot():
     """ Initialize all plot settings @ default dpi=100.
     """
-    sns.set_style('white')
-    sns.set_style('ticks')
+    #sns.set_style('white')
+    #sns.set_style('ticks')
 
     plt.rcParams['svg.fonttype'] = 'none'
     plt.rcParams['axes.labelsize'] = 6
@@ -206,6 +206,7 @@ def nearest_neighbor_kernel(warped_key_2_warped_val, fixed_key_2_fixed_val, scal
     """
     # 0) Compute nearest neighbor
     warped_key_2_fixed_key = dict()
+    fixed_key_2_fixed_val = copy.deepcopy(fixed_key_2_fixed_val)
     is_search_finished = False
 
     while not is_search_finished:

@@ -114,6 +114,9 @@ class SegmentationPredictor(_NetworkPredictorTemplate):
         """ The segmentation predictor infers probability maps based on a pretrained U-Net. In the class-specific
             implementation of the prediction, that is _predict_specific, the returned dictionary contains predictions,
             that are probability maps stored as numpy arrays with the shape (image_width, image_height).
+            The predictions are accessed with the frame specific key image_id tha is for example '0'. Furthermore
+            with the keys 'width' and 'height' one can access the output image width and height. The keys
+            'grid_width' and 'grid_height' allow to access the grid width and grid height the image was trained on.
 
         :param Sequence sequence: A tensorflow.keras.utils.Sequence that is used for prediction.
         :param dict results: The common results dictionary to write to.
@@ -155,8 +158,11 @@ class RegistrationPredictor(_NetworkPredictorTemplate):
         """ The registration predictor infers displacement maps based on a pretrained U-Net. In the class-specific
             implementation of the prediction, that is _predict_specific, the returned dictionary contains predictions,
             that are the displacement maps, stored as numpy arrays with the shape (image_width, image_height, 2).
+            The predictions are accessed with the frame specific key image_id tha is for example '0'.
             The x-displacement is stored in '[:, :, 0]', whereas the y-displacement can be found in '[:, :, 1]'.
-            Furthmore via the key 'fix' one can access the keypoints of the fixed image.
+            Furthermore with the keys 'width' and 'height' one can access the output image width and height.
+            The keys 'grid_width' and 'grid_height' allow to access the grid width and grid height the image was
+            trained on. The key 'fix' allows to access keypoints of the fixed image.
 
         :param Sequence sequence: A tensorflow.keras.utils.Sequence that is used for prediction.
         :param dict results: The common results dictionary to write to.
@@ -198,9 +204,9 @@ class PeakfindingPredictor(_PredictorTemplate):
     def __init__(self, sequence, results, load_file, from_frame, to_frame, laser_peaks_sigma,
                  laser_peaks_distance, laser_peaks_threshold):
         """ A peakfinding based on the utilities from skimage is carried out. In the class-specific
-            implementation of the prediction, that is _predict_specific, the returned dictionary contains predictions,
-            that are mappings from a newly assigned key 'peaked_key' to a list of predicted y-coordinate and
-            x-coordinate, where the order '[x, y]' is present. The predictions are stored as strings.
+            implementation of the prediction, that is _predict_specific, the returned string formatted dictionary
+            contains predictions, that are mappings from a newly assigned key 'peaked_key' to a list of predicted
+            y-coordinate and x-coordinate, where the order '[x, y]' is present. The predictions are stored as strings.
 
         :param dict sequence: A dictionary with probability maps.
         :param dict results: The common results dictionary to write to.
@@ -245,7 +251,9 @@ class PeakfindingPredictor(_PredictorTemplate):
 
 class DeformationPredictor(_PredictorTemplate):
     def __init__(self, sequence, results, load_file, from_frame, to_frame):
-        """ The deformation predictor applies displacements to generate warped keypoint.
+        """ The deformation predictor applies displacements to generate warped keypoint. The returned string formatted
+            dictionary contains predictions, that are mappings from a newly assigned key 'warped_key' to a list of predicted
+            x-coordinate and y-coordinate, where the order '[x, y]' is present.
 
         :param dict sequence: A dictionary with displacement maps.
         :param dict results: The common results dictionary to write to.
@@ -310,6 +318,8 @@ class DeformationPredictor(_PredictorTemplate):
 class NeighborPredictor(_PredictorTemplate):
     def __init__(self, sequence, results, load_file, from_frame, to_frame):
         """ The neighbor predictor carries out a nearest neighbor search.
+            The returned string formatted dictionary contains mappings from 'warped_key' to 'fixed_key'.
+            The predictions are accessed with the frame specific key image_id tha is for example '0'
 
         :param dict sequence: A dictionary with displaced keypoints.
         :param dict results: The common results dictionary to write to.
@@ -362,6 +372,8 @@ class NeighborPredictor(_PredictorTemplate):
 class SortingPredictor(_PredictorTemplate):
     def __init__(self, sequence, results, load_file, from_frame, to_frame):
         """ The sorting predictor uses a grid logic, that is the ascending order of the keys within the grid.
+            The returned string formatted dictionary contains mappings from 'warped_key' to 'fixed_key'.
+            The predictions are accessed with the frame specific key image_id tha is for example '0'
 
         :param dict sequence: A dictionary with correspondences.
         :param dict results: The common results dictionary to write to.
