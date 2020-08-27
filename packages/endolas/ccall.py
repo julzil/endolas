@@ -71,3 +71,35 @@ class ValidationHistory(keras.callbacks.Callback):
                 wr.writerow([self.epoch, validation])
 
         self.epoch += 1
+
+
+class ProgLogger(keras.callbacks.Callback):
+    """
+    A copy of the implementation in :mod:`nn.suture_detection`
+
+    :param progress_callback: PyqtSignal which is used to emit a single `1` every time inference has finished processing
+        a batch.
+    :type progress_callback: PyQt5.QtCore.pyqtBoundSignal.pyqtBoundSignal
+    :param cancel_callback: Callback used for triggering interupt of the inference process.
+    :type cancel_callback: Any
+    """
+    def __init__(self, progress_callback, cancel_callback):
+        super(ProgLogger, self).__init__()
+        self.prog_clbk = progress_callback
+        self.cancel_clbk = False  #: TODO: Not implemented yet!
+
+    def on_predict_batch_end(self, batch, logs=None):
+        """
+        A copy of the implementation in :mod:`nn.suture_detection`
+
+        :param batch: Index of the finished batch.
+        :type batch: int
+        :param logs: Dictionary with metric results for this batch.
+        :type logs: dict
+        """
+        if self.cancel_clbk:
+            self.model.stop_training = True
+        elif self.prog_clbk:
+            self.prog_clbk.emit(1)
+        else:
+            pass

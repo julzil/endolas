@@ -57,13 +57,12 @@ def detect_laser_keypoints(data, settings=None, callbacks=None):
     """
     #settings = SETTINGS
 
-
     data = preprocess_data(data)
-    predictor_container = PredictorContainer(data, settings)
+    predictor_container = PredictorContainer(data, settings, callbacks=callbacks)
     predictor_container.build_predictors()
     predictor_container.disable_gpus()
     predictor_container.predict()
-    predictor_container.store_results()
+    #predictor_container.store_results()
     results = predictor_container.get_results()
 
     return results

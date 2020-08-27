@@ -18,7 +18,13 @@ from pdb import set_trace
 
 from matplotlib import pyplot as plt
 
+def debug_trace():
+  '''Set a tracepoint in the Python debugger that works with Qt'''
+  from PyQt5.QtCore import pyqtRemoveInputHook
 
+  from pdb import set_trace
+  pyqtRemoveInputHook()
+  set_trace()
 # ----------------------------------------------------------------------------------------------------------------------
 # --- Private Part of the Module ---------------------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------------------------------
@@ -163,6 +169,10 @@ class _InferSequenceTemplate(Sequence):
     def grid_height(self, val):
         self._grid_height = val
 
+    @property
+    def batch_size(self):
+        return self._batch_size
+
 
 # ----------------------------------------------------------------------------------------------------------------------
 # --- Public Part of the Module ----------------------------------------------------------------------------------------
@@ -186,6 +196,8 @@ class SegmentationInferSequence(_InferSequenceTemplate):
 
         image_ids = []
         for batch_index, image_id in enumerate(range(index_start, index_end+1)):
+            image_id = str(image_id)
+
             image = self._get_image_from_data(image_id)
 
             X[batch_index] = image
@@ -196,7 +208,7 @@ class SegmentationInferSequence(_InferSequenceTemplate):
     def _get_image_from_data(self, image_id):
         """ Retrieves image from data.
         """
-        image = self._data[str(image_id)]
+        image = self._data[image_id]
         image = Image.fromarray(image[:, :, 0])
         image = self._preprocess_image(image, image_id=image_id)
 
@@ -247,6 +259,8 @@ class RegistrationInferSequence(_InferSequenceTemplate):
 
         image_ids = []
         for batch_index, image_id in enumerate(range(index_start, index_end+1)):
+            image_id = str(image_id)
+
             image = self._get_image_from_data(image_id)
             fixed_image = self._get_fixed_image()
 
