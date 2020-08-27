@@ -1,3 +1,8 @@
+""" This package contains the laser-based keypoint prediction.
+
+.. todo:: Put more description here?
+"""
+
 from .laser_detection import detect_laser_keypoints
 from .lastengen import LASTENSequence
 from .infergen import RegistrationInferSequence

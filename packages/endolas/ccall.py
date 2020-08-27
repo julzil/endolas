@@ -6,6 +6,8 @@ import os
 
 class TimeHistory(keras.callbacks.Callback):
     """ Custom callback object to store time spend for epoch in .csv file
+
+    :param str path: A path where to store the log.
     """
     def __init__(self, path):
         super(TimeHistory, self).__init__()
@@ -15,14 +17,20 @@ class TimeHistory(keras.callbacks.Callback):
         self.epoch_time_start = 0
 
     def on_train_begin(self, logs={}):
+        """ Reimplementation from inherited class :class:`keras.callbacks.Callback`.
+        """
         with open(self.file_path, 'w', newline='') as myfile:
             wr = csv.writer(myfile)
             wr.writerow(['epoch', 'time'])
 
     def on_epoch_begin(self, epoch, logs={}):
+        """ Reimplementation from inherited class :class:`keras.callbacks.Callback`.
+        """
         self.epoch_time_start = time.time()
 
     def on_epoch_end(self, epoch, logs={}):
+        """ Reimplementation from inherited class :class:`keras.callbacks.Callback`.
+        """
         elapsed_time = time.time() - self.epoch_time_start
 
         with open(self.file_path, 'a', newline='') as myfile:
@@ -34,6 +42,9 @@ class TimeHistory(keras.callbacks.Callback):
 
 class ValidationHistory(keras.callbacks.Callback):
     """ Custom callback object to run evaluation after epoch on arbitrary validation generator
+
+    :param str path: A path where to store the log.
+    :param object validation_set: The validation set used to evaluate the model.
     """
     def __init__(self, path, validation_set):
         super(ValidationHistory, self).__init__()
@@ -43,6 +54,8 @@ class ValidationHistory(keras.callbacks.Callback):
         self.epoch = 0
 
     def on_epoch_end(self, epoch, logs={}):
+        """ Reimplementation from inherited class :class:`keras.callbacks.Callback`.
+        """
         if self.epoch == 0:
             with open(self.file_path, 'w', newline='') as myfile:
                 wr = csv.writer(myfile)

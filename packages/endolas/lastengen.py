@@ -17,44 +17,44 @@ from pdb import set_trace
 
 
 class LASTENSequence(Sequence):
+    """ Object for fitting to a sequence of data of the LASTEN dataset. Laser points are considered
+        as labels. In augmentation a rotation is only applied if the first attempt did not rotate a keypoint out of
+        the image.
+
+    :param str path: The path to the directory where .png files are stored
+    :param str path_fixed: The path to the .json and .png file the fixed image
+    :param int batch_size: The batch size
+    :param list image_ids: The image ids that will be regarded for this generator
+    :param function preprocess_input: Function according to the used keras model
+    :param bool augment: Whether to augment the data or not. Augmentation is only carried out when
+                         label=='mask' and channel=='physical'
+    :param bool shuffle: Whether to shuffle indices after each epoch
+    :param int width: Target image width, by default 512
+    :param int height: Target image height, by default 512
+    :param int grid_width: Laser grid width, by default 18
+    :param int grid_height: Laser grid height, by default 18
+    :param int seed: A seed to be set for shuffling
+    :param string label: Decide which label to return. Possible options are: \n
+                         - 'mask' for returning a mask as labels
+                         - 'keypoints' for returning keypoints as labels
+                         - 'predict' for returning None as label
+    :param string channel: Can be used to generate more input channels. When input is 'vid' or 'img' there is no
+                           difference between 'physical' or 'moving'. Type then depends only on provided input.
+                           Possible options are: \n
+                           - 'physical' for single channel with physical image only
+                           - 'moving' for single channel with moving image only
+                           - 'moving+fixed' for an additional fixed image
+
+    :param string input: Is needed to decide which and how data is read. Possible options are: \n
+                         - 'dir' for reading all images from a directory
+                         - 'img' for reading a single image from file
+                         - 'vid' for reading a video from file
+    :param int lower_frame: Index for identifying the lower frame to be selected from video, only when input=='vid'
+    :param int upper_frame: Index for identifying the upper frame to be selected from video, only when input=='vid'
+    """
     def __init__(self, path, path_fixed=None, batch_size=1, image_ids=None, preprocess_input=None, augment=False,
                  shuffle=False, width=768, height=768, grid_width=18, grid_height=18, seed=42, label="mask",
                  channel="physical", input="dir", lower_frame=0, upper_frame=19):
-        """ Object for fitting to a sequence of data of the LASTEN dataset. Laser points are considered
-            as labels. In augmentation a rotation is only applied if the first attempt did not rotate a keypoint out of
-            the image.
-
-        :param str path: The path to the directory where .png files are stored
-        :param str path_fixed: The path to the .json and .png file the fixed image
-        :param int batch_size: The batch size
-        :param list image_ids: The image ids that will be regarded for this generator
-        :param function preprocess_input: Function according to the used keras model
-        :param bool augment: Whether to augment the data or not. Augmentation is only carried out when
-                             label=='mask' and channel=='physical'
-        :param bool shuffle: Whether to shuffle indices after each epoch
-        :param int width: Target image width, by default 512
-        :param int height: Target image height, by default 512
-        :param int grid_width: Laser grid width, by default 18
-        :param int grid_height: Laser grid height, by default 18
-        :param int seed: A seed to be set for shuffling
-        :param string label: Decide which label to return. Possible options are: \n
-                             - 'mask' for returning a mask as labels
-                             - 'keypoints' for returning keypoints as labels
-                             - 'predict' for returning None as label
-        :param string channel: Can be used to generate more input channels. When input is 'vid' or 'img' there is no
-                               difference between 'physical' or 'moving'. Type then depends only on provided input.
-                               Possible options are: \n
-                               - 'physical' for single channel with physical image only
-                               - 'moving' for single channel with moving image only
-                               - 'moving+fixed' for an additional fixed image
-
-        :param string input: Is needed to decide which and how data is read. Possible options are: \n
-                             - 'dir' for reading all images from a directory
-                             - 'img' for reading a single image from file
-                             - 'vid' for reading a video from file
-        :param int lower_frame: Index for identifying the lower frame to be selected from video, only when input=='vid'
-        :param int upper_frame: Index for identifying the upper frame to be selected from video, only when input=='vid'
-        """
         random.seed(seed)
 
         self._path = path

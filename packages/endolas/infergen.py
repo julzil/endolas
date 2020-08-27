@@ -168,15 +168,15 @@ class _InferSequenceTemplate(Sequence):
 # --- Public Part of the Module ----------------------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------------------------------
 class SegmentationInferSequence(_InferSequenceTemplate):
+    """ Object for infering based on a sequence of data.
+
+    :param ndarray data: An numpy array containing all images to infer from with shape (images, width, height)
+    :param int from_frame: The frame index where to start inference
+    :param int to_frame: The frame index where to end inference
+    :param int batch_size: The batch size
+    """
     def __init__(self, data, from_frame, to_frame, batch_size=2):
         super(SegmentationInferSequence, self).__init__(data, from_frame, to_frame, batch_size)
-        """ Object for infering based on a sequence of data.
-
-        :param ndarray data: An numpy array containing all images to infer from with shape (images, width, height)
-        :param int from_frame: The frame index where to start inference
-        :param int to_frame: The frame index where to end inference
-        :param int batch_size: The batch size
-        """
 
     def _get_batch_from_data(self, index_start, index_end):
         """ Retrieves a batch from the data object path.
@@ -215,17 +215,17 @@ class SegmentationInferSequence(_InferSequenceTemplate):
 
 
 class RegistrationInferSequence(_InferSequenceTemplate):
+    """ Object for infering based on a sequence of data.
+
+    :param dict data: A dictionary containing image_id_2_prediction, where prediction is a string formatted
+                      dictionary that contains x- and y-coordinates.
+    :param int from_frame: The frame index where to start inference
+    :param int to_frame: The frame index where to end inference
+    :param Sequence segmentation_sequence: An instance of a segmentation sequence
+    :param int batch_size: The batch size
+    """
     def __init__(self, data, from_frame, to_frame, segmentation_results, batch_size=1):
         super(RegistrationInferSequence, self).__init__(data, from_frame, to_frame, batch_size)
-        """ Object for infering based on a sequence of data.
-
-        :param dict data: A dictionary containing image_id_2_prediction, where prediction is a string formatted 
-                          dictionary that contains x- and y-coordinates.
-        :param int from_frame: The frame index where to start inference
-        :param int to_frame: The frame index where to end inference
-        :param Sequence segmentation_sequence: An instance of a segmentation sequence
-        :param int batch_size: The batch size
-        """
         self._segmentation_results = segmentation_results
         self._fixed_image = None
         self._fixed_index_2_xy = dict()

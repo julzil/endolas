@@ -14,30 +14,30 @@ from skimage.morphology import disk
 
 
 class SIMPLESequence(Sequence):
+    """ Object for fitting to a sequence of data of the SIMPLE dataset. Laser points are considered
+        as labels. In augmentation a rotation is only applied if the first attempt did not rotate a keypoint out of
+        the image.
+
+    :param str path: The path to the directory where .png files are stored
+    :param str path_fixed: The path to the .json and .png file the fixed image
+    :param int batch_size: The batch size
+    :param list image_ids: The image ids that will be regarded for this generator
+    :param function preprocess_input: Function according to the used keras model
+    :param bool augment: Whether to augment the data or not
+    :param bool shuffle: Whether to shuffle indices after each epoch
+    :param int width: Target image width, by default 512
+    :param int height: Target image height, by default 512
+    :param int grid_width: Laser grid width, by default 18
+    :param int grid_height: Laser grid height, by default 18
+    :param int seed: A seed to be set for shuffling
+    :param string multi_channel: Can be used to generate more input channels. Possible options are: \n
+                                 - 'moving' for single channel with moving image only
+                                 - 'fixed' for an additional fixed image
+                                 - 'diff' for an additional difference image
+                                 - 'grad' for difference and gradient
+    """
     def __init__(self, path, path_fixed, batch_size=32, image_ids=None, preprocess_input=None, augment=False, shuffle=False,
                  width=224, height=224, grid_width=5, grid_height=5, seed=42, multi_channel='moving'):
-        """ Object for fitting to a sequence of data of the SIMPLE dataset. Laser points are considered
-            as labels. In augmentation a rotation is only applied if the first attempt did not rotate a keypoint out of
-            the image.
-
-        :param str path: The path to the directory where .png files are stored
-        :param str path_fixed: The path to the .json and .png file the fixed image
-        :param int batch_size: The batch size
-        :param list image_ids: The image ids that will be regarded for this generator
-        :param function preprocess_input: Function according to the used keras model
-        :param bool augment: Whether to augment the data or not
-        :param bool shuffle: Whether to shuffle indices after each epoch
-        :param int width: Target image width, by default 512
-        :param int height: Target image height, by default 512
-        :param int grid_width: Laser grid width, by default 18
-        :param int grid_height: Laser grid height, by default 18
-        :param int seed: A seed to be set for shuffling
-        :param string multi_channel: Can be used to generate more input channels. Possible options are: \n
-                                     - 'moving' for single channel with moving image only
-                                     - 'fixed' for an additional fixed image
-                                     - 'diff' for an additional difference image
-                                     - 'grad' for difference and gradient
-        """
         random.seed(seed)
 
         self._path = path

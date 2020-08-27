@@ -7,20 +7,20 @@ from tensorflow import keras
 
 # ----------------------------------------------------------------------------------------------------------------------
 class EuclideanLoss(keras.losses.Loss):
+    """ Object used to define a custom loss for predicting
+        a displacement field.
+
+        :param int batch_size: The batch size which is used for training and evaluation.
+        :param int grid_width: The width of the laser grid.
+        :param int grid_height: The height of the laser grid
+        :param str loss_type: The type that can either be: \n
+                              - 'msed' Mean Squared Euclidean Distance
+                              - 'med' Mean Euclidean Distance
+                              - 'max' Maximum Euclidean Distance
+                              - 'min' Minimum Euclidean Distance
+    """
     def __init__(self, batch_size=4, grid_width=5, grid_height=5,
                  loss_type='msed'):
-        """ Object used to define a custom loss for predicting
-            a displacement field.
-
-            :param int batch_size: The batch size which is used for training and evaluation.
-            :param int grid_width: The width of the laser grid.
-            :param int grid_height: The height of the laser grid
-            :param str loss_type: The type that can either be: \n
-                                  - 'msed' Mean Squared Euclidean Distance
-                                  - 'med' Mean Euclidean Distance
-                                  - 'max' Maximum Euclidean Distance
-                                  - 'min' Minimum Euclidean Distance
-        """
         if loss_type not in ['msed', 'med', 'max', 'min']:
             raise AssertionError('Loss type "{}" not known, valid loss types '
                                  'are "med", "msed, "max" and '
@@ -54,8 +54,8 @@ class EuclideanLoss(keras.losses.Loss):
             x_fix = labels[batch_index, :, 0, 1]
             y_fix = labels[batch_index, :, 1, 1]
 
-            ux_mov = self._get_displacement(ux, x_mov_int, y_mov_int)
-            uy_mov = self._get_displacement(uy, x_mov_int, y_mov_int)
+            ux_mov = self.get_displacement(ux, x_mov_int, y_mov_int)
+            uy_mov = self.get_displacement(uy, x_mov_int, y_mov_int)
 
             x_squared = keras.backend.square(x_mov + ux_mov - x_fix)
             y_squared = keras.backend.square(y_mov + uy_mov - y_fix)
@@ -82,7 +82,7 @@ class EuclideanLoss(keras.losses.Loss):
 
         return loss
 
-    def _get_displacement(self, u, x, y):
+    def get_displacement(self, u, x, y):
         """ Use the keras backend functionality to compute the displacement in
             a vectorized way.
 

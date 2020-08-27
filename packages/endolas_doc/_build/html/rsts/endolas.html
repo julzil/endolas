@@ -1,0 +1,1213 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>endolas package &mdash; endolas 0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="endolas.listing package" href="endolas.listing.html" />
+    <link rel="prev" title="Welcome to endolas’s documentation!" href="../index.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> endolas
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">endolas package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="endolas.listing.html">endolas.listing package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="endolas.test.html">endolas.test package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-endolas.ccall">endolas.ccall module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-endolas.closs">endolas.closs module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-endolas.evalutils">endolas.evalutils module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-endolas.infergen">endolas.infergen module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-endolas.keys">endolas.keys module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-endolas.laser_detection">endolas.laser_detection module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-endolas.lastengen">endolas.lastengen module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-endolas.predictors">endolas.predictors module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-endolas.simplegen">endolas.simplegen module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-endolas.styles">endolas.styles module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-endolas.unet">endolas.unet module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-endolas.utils">endolas.utils module</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">endolas</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>endolas package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/rsts/endolas.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-endolas">
+<span id="endolas-package"></span><h1>endolas package<a class="headerlink" href="#module-endolas" title="Permalink to this headline">¶</a></h1>
+<p>This package contains the laser-based keypoint prediction.</p>
+<div class="admonition-todo admonition" id="id1">
+<p class="admonition-title">Todo</p>
+<p>Put more description here?</p>
+</div>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="endolas.listing.html">endolas.listing package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="endolas.listing.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="endolas.listing.html#module-endolas.listing.bubblesort_listing">endolas.listing.bubblesort_listing module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="endolas.listing.html#module-endolas.listing.closs_listing">endolas.listing.closs_listing module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="endolas.test.html">endolas.test package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="endolas.test.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="endolas.test.html#module-endolas.test.test_utils">endolas.test.test_utils module</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-endolas.ccall">
+<span id="endolas-ccall-module"></span><h2>endolas.ccall module<a class="headerlink" href="#module-endolas.ccall" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="endolas.ccall.TimeHistory">
+<em class="property">class </em><code class="sig-prename descclassname">endolas.ccall.</code><code class="sig-name descname">TimeHistory</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/endolas/ccall.html#TimeHistory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#endolas.ccall.TimeHistory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tensorflow.python.keras.callbacks.Callback</span></code></p>
+<p>Custom callback object to store time spend for epoch in .csv file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em>) – A path where to store the log.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="endolas.ccall.TimeHistory.on_epoch_begin">
+<code class="sig-name descname">on_epoch_begin</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">epoch</span></em>, <em class="sig-param"><span class="n">logs</span><span class="o">=</span><span class="default_value">{}</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/endolas/ccall.html#TimeHistory.on_epoch_begin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#endolas.ccall.TimeHistory.on_epoch_begin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reimplementation from inherited class <code class="xref py py-class docutils literal notranslate"><span class="pre">keras.callbacks.Callback</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="endolas.ccall.TimeHistory.on_epoch_end">
+<code class="sig-name descname">on_epoch_end</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">epoch</span></em>, <em class="sig-param"><span class="n">logs</span><span class="o">=</span><span class="default_value">{}</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/endolas/ccall.html#TimeHistory.on_epoch_end"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#endolas.ccall.TimeHistory.on_epoch_end" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reimplementation from inherited class <code class="xref py py-class docutils literal notranslate"><span class="pre">keras.callbacks.Callback</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="endolas.ccall.TimeHistory.on_train_begin">
+<code class="sig-name descname">on_train_begin</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">logs</span><span class="o">=</span><span class="default_value">{}</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/endolas/ccall.html#TimeHistory.on_train_begin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#endolas.ccall.TimeHistory.on_train_begin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reimplementation from inherited class <code class="xref py py-class docutils literal notranslate"><span class="pre">keras.callbacks.Callback</span></code>.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="endolas.ccall.ValidationHistory">
+<em class="property">class </em><code class="sig-prename descclassname">endolas.ccall.</code><code class="sig-name descname">ValidationHistory</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span></em>, <em class="sig-param"><span class="n">validation_set</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/endolas/ccall.html#ValidationHistory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#endolas.ccall.ValidationHistory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tensorflow.python.keras.callbacks.Callback</span></code></p>
+<p>Custom callback object to run evaluation after epoch on arbitrary validation generator</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> (<em>str</em>) – A path where to store the log.</p></li>
+<li><p><strong>validation_set</strong> (<em>object</em>) – The validation set used to evaluate the model.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="endolas.ccall.ValidationHistory.on_epoch_end">
+<code class="sig-name descname">on_epoch_end</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">epoch</span></em>, <em class="sig-param"><span class="n">logs</span><span class="o">=</span><span class="default_value">{}</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/endolas/ccall.html#ValidationHistory.on_epoch_end"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#endolas.ccall.ValidationHistory.on_epoch_end" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reimplementation from inherited class <code class="xref py py-class docutils literal notranslate"><span class="pre">keras.callbacks.Callback</span></code>.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-endolas.closs">
+<span id="endolas-closs-module"></span><h2>endolas.closs module<a class="headerlink" href="#module-endolas.closs" title="Permalink to this headline">¶</a></h2>
+<p>Module used to define a custom loss.</p>
+<dl class="py class">
+<dt id="endolas.closs.EuclideanLoss">
+<em class="property">class </em><code class="sig-prename descclassname">endolas.closs.</code><code class="sig-name descname">EuclideanLoss</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">batch_size</span><span class="o">=</span><span class="default_value">4</span></em>, <em class="sig-param"><span class="n">grid_width</span><span class="o">=</span><span class="default_value">5</span></em>, <em class="sig-param"><span class="n">grid_height</span><span class="o">=</span><span class="default_value">5</span></em>, <em class="sig-param"><span class="n">loss_type</span><span class="o">=</span><span class="default_value">'msed'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/endolas/closs.html#EuclideanLoss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#endolas.closs.EuclideanLoss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tensorflow.python.keras.losses.Loss</span></code></p>
+<p>Object used to define a custom loss for predicting
+a displacement field.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>batch_size</strong> (<em>int</em>) – The batch size which is used for training and evaluation.</p></li>
+<li><p><strong>grid_width</strong> (<em>int</em>) – The width of the laser grid.</p></li>
+<li><p><strong>grid_height</strong> (<em>int</em>) – The height of the laser grid</p></li>
+<li><p><strong>loss_type</strong> (<em>str</em>) – <p>The type that can either be:</p>
+<ul>
+<li><p>’msed’ Mean Squared Euclidean Distance</p></li>
+<li><p>’med’ Mean Euclidean Distance</p></li>
+<li><p>’max’ Maximum Euclidean Distance</p></li>
+<li><p>’min’ Minimum Euclidean Distance</p></li>
+</ul>
+</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="endolas.closs.EuclideanLoss.call">
+<code class="sig-name descname">call</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">labels</span></em>, <em class="sig-param"><span class="n">prediction</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/endolas/closs.html#EuclideanLoss.call"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#endolas.closs.EuclideanLoss.call" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the euclidean distance loss.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>labels</strong> (<em>Tensor</em>) – The labels forwarded by the network shape = (batch, point, x-y, mov-fix)</p></li>
+<li><p><strong>prediction</strong> (<em>Tensor</em>) – The prediction forwarded by the network</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The loss value</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="endolas.closs.EuclideanLoss.get_displacement">
+<code class="sig-name descname">get_displacement</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">u</span></em>, <em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">y</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/endolas/closs.html#EuclideanLoss.get_displacement"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#endolas.closs.EuclideanLoss.get_displacement" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Use the keras backend functionality to compute the displacement in</dt><dd><p>a vectorized way.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>u</strong> (<em>Tensor</em>) – Predicted displacement field, shape (width, height)</p></li>
+<li><p><strong>x</strong> (<em>Tensor</em>) – x-coordinate of key point position, shape (n_keypoints)</p></li>
+<li><p><strong>y</strong> (<em>Tensor</em>) – y-coordinate of key point position, shape (n_keypoints)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The displacement of each keypoint, shape (n_keypoints)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-endolas.evalutils">
+<span id="endolas-evalutils-module"></span><h2>endolas.evalutils module<a class="headerlink" href="#module-endolas.evalutils" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt id="endolas.evalutils.eval_history">
+<code class="sig-prename descclassname">endolas.evalutils.</code><code class="sig-name descname">eval_history</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path_fixed</span></em>, <em class="sig-param"><span class="n">path_data</span></em>, <em class="sig-param"><span class="n">store_path</span></em>, <em class="sig-param"><span class="n">width</span></em>, <em class="sig-param"><span class="n">height</span></em>, <em class="sig-param"><span class="n">grid_width</span></em>, <em class="sig-param"><span class="n">grid_height</span></em>, <em class="sig-param"><span class="n">pre_une</span></em>, <em class="sig-param"><span class="n">image_id</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/endolas/evalutils.html#eval_history"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#endolas.evalutils.eval_history" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the data for multiple frames.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path_fixed</strong> (<em>str</em>) – Path to the fixed image.</p></li>
+<li><p><strong>path_data</strong> (<em>str</em>) – The path were data is pulled from by generator.</p></li>
+<li><p><strong>store_path</strong> (<em>str</em>) – Path to where the results should be stored.</p></li>
+<li><p><strong>width</strong> (<em>int</em>) – Width for resizing in the generator sequence.</p></li>
+<li><p><strong>height</strong> (<em>int</em>) – Height for resizing in the generator sequence.</p></li>
+<li><p><strong>grid_width</strong> (<em>int</em>) – The width of the laser grid, for example 18 points.</p></li>
+<li><p><strong>grid_height</strong> (<em>int</em>) – The height of the laser grid, for example 18 points.</p></li>
+<li><p><strong>pre_une</strong> (<em>function</em>) – Function needed by the generators for preprocessing data.</p></li>
+<li><p><strong>image_id</strong> (<em>int</em>) – The ID of the respective image.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="endolas.evalutils.eval_nearest_neighbor">
+<code class="sig-prename descclassname">endolas.evalutils.</code><code class="sig-name descname">eval_nearest_neighbor</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">experiment_2_set_2_image_2_accuracy</span></em>, <em class="sig-param"><span class="n">store_path</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/endolas/evalutils.html#eval_nearest_neighbor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#endolas.evalutils.eval_nearest_neighbor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the nearest neighbor results by writing them to a pandas dataframe.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>experiment_2_set_2_image_2_accuracy</strong> (<em>dict</em>) – A mapping containing results of several experiments.</p></li>
+<li><p><strong>store_path</strong> (<em>str</em>) – The path to store the pandas dataframe to.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="endolas.evalutils.eval_pred">
+<code class="sig-prename descclassname">endolas.evalutils.</code><code class="sig-name descname">eval_pred</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path_fixed</span></em>, <em class="sig-param"><span class="n">path_validation</span></em>, <em class="sig-param"><span class="n">path_test</span></em>, <em class="sig-param"><span class="n">store_path</span></em>, <em class="sig-param"><span class="n">width</span></em>, <em class="sig-param"><span class="n">height</span></em>, <em class="sig-param"><span class="n">grid_width</span></em>, <em class="sig-param"><span class="n">grid_height</span></em>, <em class="sig-param"><span class="n">pre_une</span></em>, <em class="sig-param"><span class="n">weights</span><span class="o">=</span><span class="default_value">'/weights.100.hdf5'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/endolas/evalutils.html#eval_pred"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#endolas.evalutils.eval_pred" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predict a validation and test set and store in file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path_fixed</strong> (<em>str</em>) – Path to the fixed image.</p></li>
+<li><p><strong>path_validation</strong> (<em>str</em>) – Path to the validation data set.</p></li>
+<li><p><strong>path_test</strong> (<em>str</em>) – Path to the test data set.</p></li>
+<li><p><strong>store_path</strong> (<em>str</em>) – Path to where the results should be stored.</p></li>
+<li><p><strong>width</strong> (<em>int</em>) – Width for resizing in the generator sequence.</p></li>
+<li><p><strong>height</strong> (<em>int</em>) – Height for resizing in the generator sequence.</p></li>
+<li><p><strong>grid_width</strong> (<em>int</em>) – The width of the laser grid, for example 18 points.</p></li>
+<li><p><strong>grid_height</strong> (<em>int</em>) – The height of the laser grid, for example 18 points.</p></li>
+<li><p><strong>pre_une</strong> (<em>function</em>) – Function needed by the generators for preprocessing data.</p></li>
+<li><p><strong>weights</strong> (<em>object</em>) – A path to the keras network including weights.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="endolas.evalutils.spatial_display">
+<code class="sig-prename descclassname">endolas.evalutils.</code><code class="sig-name descname">spatial_display</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">store_path</span></em>, <em class="sig-param"><span class="n">path_validation</span></em>, <em class="sig-param"><span class="n">path_test</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/endolas/evalutils.html#spatial_display"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#endolas.evalutils.spatial_display" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the spatial distribution for displaying by writing them to a pandas dataframe.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>store_path</strong> (<em>str</em>) – Path were warped keypoints are stored.</p></li>
+<li><p><strong>path_validation</strong> (<em>str</em>) – Path were moving keypoints from validation are stored.</p></li>
+<li><p><strong>path_test</strong> (<em>str</em>) – Path were moving keypoints from test are stored.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="endolas.evalutils.spatial_distribution">
+<code class="sig-prename descclassname">endolas.evalutils.</code><code class="sig-name descname">spatial_distribution</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">store_path</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/endolas/evalutils.html#spatial_distribution"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#endolas.evalutils.spatial_distribution" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the spatial distribution of warped keypoints by writing them to a pandas dataframe.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>store_path</strong> (<em>str</em>) – A path were warped keypoints are stored and will be written to</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="endolas.evalutils.spatial_history">
+<code class="sig-prename descclassname">endolas.evalutils.</code><code class="sig-name descname">spatial_history</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">store_path</span></em>, <em class="sig-param"><span class="n">image_id</span></em>, <em class="sig-param"><span class="n">warped_key_2_ismis</span></em>, <em class="sig-param"><span class="n">warped_key_2_fixed_key</span></em>, <em class="sig-param"><span class="n">last_epoch</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/endolas/evalutils.html#spatial_history"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#endolas.evalutils.spatial_history" title="Permalink to this definition">¶</a></dt>
+<dd><p>For multiple frames store results of spatial location in a pandas dataframe.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>store_path</strong> (<em>str</em>) – A path to were the data should be stored.</p></li>
+<li><p><strong>image_id</strong> (<em>int</em>) – The ID of the current image.</p></li>
+<li><p><strong>warped_key_2_ismis</strong> (<em>dict</em>) – A mapping from warped keys to a bool if the keypoint is misclassified</p></li>
+<li><p><strong>warped_key_2_fixed_key</strong> (<em>dict</em>) – A mapping from warped_keys to fixed_keys</p></li>
+<li><p><strong>last_epoch</strong> (<em>int</em>) – The last epoch used to evaluate the misclassification</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="endolas.evalutils.store_accuracy">
+<code class="sig-prename descclassname">endolas.evalutils.</code><code class="sig-name descname">store_accuracy</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">accuracy_val</span></em>, <em class="sig-param"><span class="n">accuracy_test</span></em>, <em class="sig-param"><span class="n">experiment</span></em>, <em class="sig-param"><span class="n">store_path</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/endolas/evalutils.html#store_accuracy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#endolas.evalutils.store_accuracy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Store the accuracy values in a pandas dataframe.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>accuracy_val</strong> (<em>dict</em>) – Accuracy values of the validation set.</p></li>
+<li><p><strong>accuracy_test</strong> (<em>dict</em>) – Accuracy values of the test set.</p></li>
+<li><p><strong>experiment</strong> (<em>int</em>) – Experiment id.</p></li>
+<li><p><strong>store_path</strong> (<em>str</em>) – Path to store the pandas dataframe.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-endolas.infergen">
+<span id="endolas-infergen-module"></span><h2>endolas.infergen module<a class="headerlink" href="#module-endolas.infergen" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="endolas.infergen.RegistrationInferSequence">
+<em class="property">class </em><code class="sig-prename descclassname">endolas.infergen.</code><code class="sig-name descname">RegistrationInferSequence</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">from_frame</span></em>, <em class="sig-param"><span class="n">to_frame</span></em>, <em class="sig-param"><span class="n">segmentation_results</span></em>, <em class="sig-param"><span class="n">batch_size</span><span class="o">=</span><span class="default_value">1</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/endolas/infergen.html#RegistrationInferSequence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#endolas.infergen.RegistrationInferSequence" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">endolas.infergen._InferSequenceTemplate</span></code></p>
+<p>Object for infering based on a sequence of data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>dict</em>) – A dictionary containing image_id_2_prediction, where prediction is a string formatted
+dictionary that contains x- and y-coordinates.</p></li>
+<li><p><strong>from_frame</strong> (<em>int</em>) – The frame index where to start inference</p></li>
+<li><p><strong>to_frame</strong> (<em>int</em>) – The frame index where to end inference</p></li>
+<li><p><strong>segmentation_sequence</strong> (<em>Sequence</em>) – An instance of a segmentation sequence</p></li>
+<li><p><strong>batch_size</strong> (<em>int</em>) – The batch size</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="endolas.infergen.RegistrationInferSequence.fixed_index_2_xy">
+<em class="property">property </em><code class="sig-name descname">fixed_index_2_xy</code><a class="headerlink" href="#endolas.infergen.RegistrationInferSequence.fixed_index_2_xy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="endolas.infergen.SegmentationInferSequence">
+<em class="property">class </em><code class="sig-prename descclassname">endolas.infergen.</code><code class="sig-name descname">SegmentationInferSequence</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">from_frame</span></em>, <em class="sig-param"><span class="n">to_frame</span></em>, <em class="sig-param"><span class="n">batch_size</span><span class="o">=</span><span class="default_value">2</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/endolas/infergen.html#SegmentationInferSequence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#endolas.infergen.SegmentationInferSequence" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">endolas.infergen._InferSequenceTemplate</span></code></p>
+<p>Object for infering based on a sequence of data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>ndarray</em>) – An numpy array containing all images to infer from with shape (images, width, height)</p></li>
+<li><p><strong>from_frame</strong> (<em>int</em>) – The frame index where to start inference</p></li>
+<li><p><strong>to_frame</strong> (<em>int</em>) – The frame index where to end inference</p></li>
+<li><p><strong>batch_size</strong> (<em>int</em>) – The batch size</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-endolas.keys">
+<span id="endolas-keys-module"></span><h2>endolas.keys module<a class="headerlink" href="#module-endolas.keys" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-endolas.laser_detection">
+<span id="endolas-laser-detection-module"></span><h2>endolas.laser_detection module<a class="headerlink" href="#module-endolas.laser_detection" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt id="endolas.laser_detection.debug_trace">
+<code class="sig-prename descclassname">endolas.laser_detection.</code><code class="sig-name descname">debug_trace</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/endolas/laser_detection.html#debug_trace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#endolas.laser_detection.debug_trace" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set a tracepoint in the Python debugger that works with Qt</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="endolas.laser_detection.detect_laser_keypoints">
+<code class="sig-prename descclassname">endolas.laser_detection.</code><code class="sig-name descname">detect_laser_keypoints</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">settings</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">callbacks</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/endolas/laser_detection.html#detect_laser_keypoints"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#endolas.laser_detection.detect_laser_keypoints" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform the prediction for all steps of the laser detection.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>ndarray</em>) – The image data with shape (frames, width, height, 3)</p></li>
+<li><p><strong>settings</strong> (<em>dict</em>) – Settings object has passed by GUI.</p></li>
+<li><p><strong>callbacks</strong> (<em>tuple</em>) – Callbacks used by worker thread.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A result dictionary.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="endolas.laser_detection.preprocess_data">
+<code class="sig-prename descclassname">endolas.laser_detection.</code><code class="sig-name descname">preprocess_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/endolas/laser_detection.html#preprocess_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#endolas.laser_detection.preprocess_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>From the RGB image take only one channel to extract data from.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>ndarray</em>) – The image data with shape (frames, width, height, 3)</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The image data with shape (width, height, 1) in a dictionary.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-endolas.lastengen">
+<span id="endolas-lastengen-module"></span><h2>endolas.lastengen module<a class="headerlink" href="#module-endolas.lastengen" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="endolas.lastengen.LASTENSequence">
+<em class="property">class </em><code class="sig-prename descclassname">endolas.lastengen.</code><code class="sig-name descname">LASTENSequence</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span></em>, <em class="sig-param"><span class="n">path_fixed</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">batch_size</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">image_ids</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">preprocess_input</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">augment</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">shuffle</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">width</span><span class="o">=</span><span class="default_value">768</span></em>, <em class="sig-param"><span class="n">height</span><span class="o">=</span><span class="default_value">768</span></em>, <em class="sig-param"><span class="n">grid_width</span><span class="o">=</span><span class="default_value">18</span></em>, <em class="sig-param"><span class="n">grid_height</span><span class="o">=</span><span class="default_value">18</span></em>, <em class="sig-param"><span class="n">seed</span><span class="o">=</span><span class="default_value">42</span></em>, <em class="sig-param"><span class="n">label</span><span class="o">=</span><span class="default_value">'mask'</span></em>, <em class="sig-param"><span class="n">channel</span><span class="o">=</span><span class="default_value">'physical'</span></em>, <em class="sig-param"><span class="n">input</span><span class="o">=</span><span class="default_value">'dir'</span></em>, <em class="sig-param"><span class="n">lower_frame</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">upper_frame</span><span class="o">=</span><span class="default_value">19</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/endolas/lastengen.html#LASTENSequence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#endolas.lastengen.LASTENSequence" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tensorflow.python.keras.utils.data_utils.Sequence</span></code></p>
+<dl class="simple">
+<dt>Object for fitting to a sequence of data of the LASTEN dataset. Laser points are considered</dt><dd><p>as labels. In augmentation a rotation is only applied if the first attempt did not rotate a keypoint out of
+the image.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> (<em>str</em>) – The path to the directory where .png files are stored</p></li>
+<li><p><strong>path_fixed</strong> (<em>str</em>) – The path to the .json and .png file the fixed image</p></li>
+<li><p><strong>batch_size</strong> (<em>int</em>) – The batch size</p></li>
+<li><p><strong>image_ids</strong> (<em>list</em>) – The image ids that will be regarded for this generator</p></li>
+<li><p><strong>preprocess_input</strong> (<em>function</em>) – Function according to the used keras model</p></li>
+<li><p><strong>augment</strong> (<em>bool</em>) – Whether to augment the data or not. Augmentation is only carried out when
+label==’mask’ and channel==’physical’</p></li>
+<li><p><strong>shuffle</strong> (<em>bool</em>) – Whether to shuffle indices after each epoch</p></li>
+<li><p><strong>width</strong> (<em>int</em>) – Target image width, by default 512</p></li>
+<li><p><strong>height</strong> (<em>int</em>) – Target image height, by default 512</p></li>
+<li><p><strong>grid_width</strong> (<em>int</em>) – Laser grid width, by default 18</p></li>
+<li><p><strong>grid_height</strong> (<em>int</em>) – Laser grid height, by default 18</p></li>
+<li><p><strong>seed</strong> (<em>int</em>) – A seed to be set for shuffling</p></li>
+<li><p><strong>label</strong> (<em>string</em>) – <p>Decide which label to return. Possible options are:</p>
+<ul>
+<li><p>’mask’ for returning a mask as labels</p></li>
+<li><p>’keypoints’ for returning keypoints as labels</p></li>
+<li><p>’predict’ for returning None as label</p></li>
+</ul>
+</p></li>
+<li><p><strong>channel</strong> (<em>string</em>) – <p>Can be used to generate more input channels. When input is ‘vid’ or ‘img’ there is no
+difference between ‘physical’ or ‘moving’. Type then depends only on provided input.
+Possible options are:</p>
+<ul>
+<li><p>’physical’ for single channel with physical image only</p></li>
+<li><p>’moving’ for single channel with moving image only</p></li>
+<li><p>’moving+fixed’ for an additional fixed image</p></li>
+</ul>
+</p></li>
+<li><p><strong>input</strong> (<em>string</em>) – <p>Is needed to decide which and how data is read. Possible options are:</p>
+<ul>
+<li><p>’dir’ for reading all images from a directory</p></li>
+<li><p>’img’ for reading a single image from file</p></li>
+<li><p>’vid’ for reading a video from file</p></li>
+</ul>
+</p></li>
+<li><p><strong>lower_frame</strong> (<em>int</em>) – Index for identifying the lower frame to be selected from video, only when input==’vid’</p></li>
+<li><p><strong>upper_frame</strong> (<em>int</em>) – Index for identifying the upper frame to be selected from video, only when input==’vid’</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="endolas.lastengen.LASTENSequence.image_id_2_scaling">
+<em class="property">property </em><code class="sig-name descname">image_id_2_scaling</code><a class="headerlink" href="#endolas.lastengen.LASTENSequence.image_id_2_scaling" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the scaling that was applied when loading images.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="endolas.lastengen.LASTENSequence.on_epoch_end">
+<code class="sig-name descname">on_epoch_end</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/endolas/lastengen.html#LASTENSequence.on_epoch_end"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#endolas.lastengen.LASTENSequence.on_epoch_end" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prepare next epoch</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-endolas.predictors">
+<span id="endolas-predictors-module"></span><h2>endolas.predictors module<a class="headerlink" href="#module-endolas.predictors" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="endolas.predictors.DeformationPredictor">
+<em class="property">class </em><code class="sig-prename descclassname">endolas.predictors.</code><code class="sig-name descname">DeformationPredictor</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sequence</span></em>, <em class="sig-param"><span class="n">results</span></em>, <em class="sig-param"><span class="n">load_file</span></em>, <em class="sig-param"><span class="n">from_frame</span></em>, <em class="sig-param"><span class="n">to_frame</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/endolas/predictors.html#DeformationPredictor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#endolas.predictors.DeformationPredictor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">endolas.predictors._PredictorTemplate</span></code></p>
+<dl class="simple">
+<dt>The deformation predictor applies displacements to generate warped keypoint. The returned string formatted</dt><dd><p>dictionary contains predictions, that are mappings from a newly assigned key ‘warped_key’ to a list of predicted
+x-coordinate and y-coordinate, where the order ‘[x, y]’ is present.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sequence</strong> (<em>dict</em>) – A dictionary with displacement maps.</p></li>
+<li><p><strong>results</strong> (<em>dict</em>) – The common results dictionary to write to.</p></li>
+<li><p><strong>load_file</strong> (<em>str</em>) – A path indicating where previously computed results lie.</p></li>
+<li><p><strong>from_frame</strong> (<em>int</em>) – The frame to start from.</p></li>
+<li><p><strong>to_frame</strong> (<em>int</em>) – The frame to end with.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt id="endolas.predictors.NeighborPredictor">
+<em class="property">class </em><code class="sig-prename descclassname">endolas.predictors.</code><code class="sig-name descname">NeighborPredictor</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sequence</span></em>, <em class="sig-param"><span class="n">results</span></em>, <em class="sig-param"><span class="n">load_file</span></em>, <em class="sig-param"><span class="n">from_frame</span></em>, <em class="sig-param"><span class="n">to_frame</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/endolas/predictors.html#NeighborPredictor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#endolas.predictors.NeighborPredictor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">endolas.predictors._PredictorTemplate</span></code></p>
+<dl class="simple">
+<dt>The neighbor predictor carries out a nearest neighbor search.</dt><dd><p>The returned string formatted dictionary contains mappings from ‘warped_key’ to ‘fixed_key’.
+The predictions are accessed with the frame specific key image_id that is for example ‘0’</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sequence</strong> (<em>dict</em>) – A dictionary with displaced keypoints.</p></li>
+<li><p><strong>results</strong> (<em>dict</em>) – The common results dictionary to write to.</p></li>
+<li><p><strong>load_file</strong> (<em>str</em>) – A path indicating where previously computed results lie.</p></li>
+<li><p><strong>from_frame</strong> (<em>int</em>) – The frame to start from.</p></li>
+<li><p><strong>to_frame</strong> (<em>int</em>) – The frame to end with.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt id="endolas.predictors.PeakfindingPredictor">
+<em class="property">class </em><code class="sig-prename descclassname">endolas.predictors.</code><code class="sig-name descname">PeakfindingPredictor</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sequence</span></em>, <em class="sig-param"><span class="n">results</span></em>, <em class="sig-param"><span class="n">load_file</span></em>, <em class="sig-param"><span class="n">from_frame</span></em>, <em class="sig-param"><span class="n">to_frame</span></em>, <em class="sig-param"><span class="n">laser_peaks_sigma</span></em>, <em class="sig-param"><span class="n">laser_peaks_distance</span></em>, <em class="sig-param"><span class="n">laser_peaks_threshold</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/endolas/predictors.html#PeakfindingPredictor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#endolas.predictors.PeakfindingPredictor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">endolas.predictors._PredictorTemplate</span></code></p>
+<dl class="simple">
+<dt>A peakfinding based on the utilities from skimage is carried out. In the class-specific</dt><dd><p>implementation of the prediction, that is _predict_specific, the returned string formatted dictionary
+contains predictions, that are mappings from a newly assigned key ‘peaked_key’ to a list of predicted
+y-coordinate and x-coordinate, where the order ‘[x, y]’ is present. The predictions are stored as strings.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sequence</strong> (<em>dict</em>) – A dictionary with probability maps.</p></li>
+<li><p><strong>results</strong> (<em>dict</em>) – The common results dictionary to write to.</p></li>
+<li><p><strong>load_file</strong> (<em>str</em>) – A path indicating where previously computed results lie.</p></li>
+<li><p><strong>from_frame</strong> (<em>int</em>) – The frame to start from.</p></li>
+<li><p><strong>to_frame</strong> (<em>int</em>) – The frame to end with.</p></li>
+<li><p><strong>laser_peaks_sigma</strong> (<em>float</em>) – The standard deviation used for priorly smoothing the image.</p></li>
+<li><p><strong>laser_peaks_distance</strong> (<em>float</em>) – The minimal distance that peaks should have.</p></li>
+<li><p><strong>laser_peaks_threshold</strong> (<em>float</em>) – The absolute lower intensity threshold.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt id="endolas.predictors.PredictorContainer">
+<em class="property">class </em><code class="sig-prename descclassname">endolas.predictors.</code><code class="sig-name descname">PredictorContainer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">settings</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/endolas/predictors.html#PredictorContainer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#endolas.predictors.PredictorContainer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This container class is composed by many predictors that are all managed within.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>ndarray</em>) – The image data with shape (frames, width, height, 1)</p></li>
+<li><p><strong>settings</strong> (<em>dict</em>) – Settings object has passed by GUI.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="endolas.predictors.PredictorContainer.build_predictors">
+<code class="sig-name descname">build_predictors</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/endolas/predictors.html#PredictorContainer.build_predictors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#endolas.predictors.PredictorContainer.build_predictors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Internally registers all predictors in a common container.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="endolas.predictors.PredictorContainer.disable_gpus">
+<code class="sig-name descname">disable_gpus</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/endolas/predictors.html#PredictorContainer.disable_gpus"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#endolas.predictors.PredictorContainer.disable_gpus" title="Permalink to this definition">¶</a></dt>
+<dd><p>Disables GPUs if present and infers on CPU.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="endolas.predictors.PredictorContainer.get_results">
+<code class="sig-name descname">get_results</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/endolas/predictors.html#PredictorContainer.get_results"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#endolas.predictors.PredictorContainer.get_results" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return results.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="endolas.predictors.PredictorContainer.predict">
+<code class="sig-name descname">predict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/endolas/predictors.html#PredictorContainer.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#endolas.predictors.PredictorContainer.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predict the results of all predictors and return result dictionary.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="endolas.predictors.PredictorContainer.store_results">
+<code class="sig-name descname">store_results</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/endolas/predictors.html#PredictorContainer.store_results"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#endolas.predictors.PredictorContainer.store_results" title="Permalink to this definition">¶</a></dt>
+<dd><p>Intermediate purpose only. Once package is finished, results will be handled by GUI.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="endolas.predictors.RegistrationPredictor">
+<em class="property">class </em><code class="sig-prename descclassname">endolas.predictors.</code><code class="sig-name descname">RegistrationPredictor</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sequence</span></em>, <em class="sig-param"><span class="n">results</span></em>, <em class="sig-param"><span class="n">load_file</span></em>, <em class="sig-param"><span class="n">from_frame</span></em>, <em class="sig-param"><span class="n">to_frame</span></em>, <em class="sig-param"><span class="n">network</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/endolas/predictors.html#RegistrationPredictor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#endolas.predictors.RegistrationPredictor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">endolas.predictors._NetworkPredictorTemplate</span></code></p>
+<dl class="simple">
+<dt>The registration predictor infers displacement maps based on a pretrained U-Net. In the class-specific</dt><dd><p>implementation of the prediction, that is _predict_specific, the returned dictionary contains predictions,
+that are the displacement maps, stored as numpy arrays with the shape (image_width, image_height, 2).
+The predictions are accessed with the frame specific key image_id tha is for example ‘0’.
+The x-displacement is stored in ‘[:, :, 0]’, whereas the y-displacement can be found in ‘[:, :, 1]’.
+Furthermore with the keys ‘width’ and ‘height’ one can access the output image width and height.
+The keys ‘grid_width’ and ‘grid_height’ allow to access the grid width and grid height the image was
+trained on. The key ‘fix’ allows to access keypoints of the fixed image.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sequence</strong> (<em>Sequence</em>) – A tensorflow.keras.utils.Sequence that is used for prediction.</p></li>
+<li><p><strong>results</strong> (<em>dict</em>) – The common results dictionary to write to.</p></li>
+<li><p><strong>load_file</strong> (<em>str</em>) – A path indicating where previously computed results lie.</p></li>
+<li><p><strong>from_frame</strong> (<em>int</em>) – The frame to start from.</p></li>
+<li><p><strong>to_frame</strong> (<em>int</em>) – The frame to end with.</p></li>
+<li><p><strong>network</strong> (<em>str</em>) – A path to the file where the trained model is present.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt id="endolas.predictors.SegmentationPredictor">
+<em class="property">class </em><code class="sig-prename descclassname">endolas.predictors.</code><code class="sig-name descname">SegmentationPredictor</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sequence</span></em>, <em class="sig-param"><span class="n">results</span></em>, <em class="sig-param"><span class="n">load_file</span></em>, <em class="sig-param"><span class="n">from_frame</span></em>, <em class="sig-param"><span class="n">to_frame</span></em>, <em class="sig-param"><span class="n">network</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/endolas/predictors.html#SegmentationPredictor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#endolas.predictors.SegmentationPredictor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">endolas.predictors._NetworkPredictorTemplate</span></code></p>
+<dl class="simple">
+<dt>The segmentation predictor infers probability maps based on a pretrained U-Net. In the class-specific</dt><dd><p>implementation of the prediction, that is _predict_specific, the returned dictionary contains predictions,
+that are probability maps stored as numpy arrays with the shape (image_width, image_height).
+The predictions are accessed with the frame specific key image_id tha is for example ‘0’. Furthermore
+with the keys ‘width’ and ‘height’ one can access the output image width and height. The keys
+‘grid_width’ and ‘grid_height’ allow to access the grid width and grid height the image was trained on.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sequence</strong> (<em>Sequence</em>) – A tensorflow.keras.utils.Sequence that is used for prediction.</p></li>
+<li><p><strong>results</strong> (<em>dict</em>) – The common results dictionary to write to.</p></li>
+<li><p><strong>load_file</strong> (<em>str</em>) – A path indicating where previously computed results lie.</p></li>
+<li><p><strong>from_frame</strong> (<em>int</em>) – The frame to start from.</p></li>
+<li><p><strong>to_frame</strong> (<em>int</em>) – The frame to end with.</p></li>
+<li><p><strong>network</strong> (<em>str</em>) – A path to the file where the trained model is present.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt id="endolas.predictors.SortingPredictor">
+<em class="property">class </em><code class="sig-prename descclassname">endolas.predictors.</code><code class="sig-name descname">SortingPredictor</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sequence</span></em>, <em class="sig-param"><span class="n">results</span></em>, <em class="sig-param"><span class="n">load_file</span></em>, <em class="sig-param"><span class="n">from_frame</span></em>, <em class="sig-param"><span class="n">to_frame</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/endolas/predictors.html#SortingPredictor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#endolas.predictors.SortingPredictor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">endolas.predictors._PredictorTemplate</span></code></p>
+<dl class="simple">
+<dt>The sorting predictor uses a grid logic, that is the ascending order of the keys within the grid.</dt><dd><p>The returned string formatted dictionary contains mappings from ‘warped_key’ to ‘fixed_key’.
+The predictions are accessed with the frame specific key image_id that is for example ‘0’.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sequence</strong> (<em>dict</em>) – A dictionary with correspondences.</p></li>
+<li><p><strong>results</strong> (<em>dict</em>) – The common results dictionary to write to.</p></li>
+<li><p><strong>load_file</strong> (<em>str</em>) – A path indicating where previously computed results lie.</p></li>
+<li><p><strong>from_frame</strong> (<em>int</em>) – The frame to start from.</p></li>
+<li><p><strong>to_frame</strong> (<em>int</em>) – The frame to end with.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-endolas.simplegen">
+<span id="endolas-simplegen-module"></span><h2>endolas.simplegen module<a class="headerlink" href="#module-endolas.simplegen" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="endolas.simplegen.SIMPLESequence">
+<em class="property">class </em><code class="sig-prename descclassname">endolas.simplegen.</code><code class="sig-name descname">SIMPLESequence</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span></em>, <em class="sig-param"><span class="n">path_fixed</span></em>, <em class="sig-param"><span class="n">batch_size</span><span class="o">=</span><span class="default_value">32</span></em>, <em class="sig-param"><span class="n">image_ids</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">preprocess_input</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">augment</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">shuffle</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">width</span><span class="o">=</span><span class="default_value">224</span></em>, <em class="sig-param"><span class="n">height</span><span class="o">=</span><span class="default_value">224</span></em>, <em class="sig-param"><span class="n">grid_width</span><span class="o">=</span><span class="default_value">5</span></em>, <em class="sig-param"><span class="n">grid_height</span><span class="o">=</span><span class="default_value">5</span></em>, <em class="sig-param"><span class="n">seed</span><span class="o">=</span><span class="default_value">42</span></em>, <em class="sig-param"><span class="n">multi_channel</span><span class="o">=</span><span class="default_value">'moving'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/endolas/simplegen.html#SIMPLESequence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#endolas.simplegen.SIMPLESequence" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tensorflow.python.keras.utils.data_utils.Sequence</span></code></p>
+<dl class="simple">
+<dt>Object for fitting to a sequence of data of the SIMPLE dataset. Laser points are considered</dt><dd><p>as labels. In augmentation a rotation is only applied if the first attempt did not rotate a keypoint out of
+the image.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> (<em>str</em>) – The path to the directory where .png files are stored</p></li>
+<li><p><strong>path_fixed</strong> (<em>str</em>) – The path to the .json and .png file the fixed image</p></li>
+<li><p><strong>batch_size</strong> (<em>int</em>) – The batch size</p></li>
+<li><p><strong>image_ids</strong> (<em>list</em>) – The image ids that will be regarded for this generator</p></li>
+<li><p><strong>preprocess_input</strong> (<em>function</em>) – Function according to the used keras model</p></li>
+<li><p><strong>augment</strong> (<em>bool</em>) – Whether to augment the data or not</p></li>
+<li><p><strong>shuffle</strong> (<em>bool</em>) – Whether to shuffle indices after each epoch</p></li>
+<li><p><strong>width</strong> (<em>int</em>) – Target image width, by default 512</p></li>
+<li><p><strong>height</strong> (<em>int</em>) – Target image height, by default 512</p></li>
+<li><p><strong>grid_width</strong> (<em>int</em>) – Laser grid width, by default 18</p></li>
+<li><p><strong>grid_height</strong> (<em>int</em>) – Laser grid height, by default 18</p></li>
+<li><p><strong>seed</strong> (<em>int</em>) – A seed to be set for shuffling</p></li>
+<li><p><strong>multi_channel</strong> (<em>string</em>) – <p>Can be used to generate more input channels. Possible options are:</p>
+<ul>
+<li><p>’moving’ for single channel with moving image only</p></li>
+<li><p>’fixed’ for an additional fixed image</p></li>
+<li><p>’diff’ for an additional difference image</p></li>
+<li><p>’grad’ for difference and gradient</p></li>
+</ul>
+</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="endolas.simplegen.SIMPLESequence.image_id_2_scaling">
+<em class="property">property </em><code class="sig-name descname">image_id_2_scaling</code><a class="headerlink" href="#endolas.simplegen.SIMPLESequence.image_id_2_scaling" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the scaling that was applied when loading images.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="endolas.simplegen.SIMPLESequence.on_epoch_end">
+<code class="sig-name descname">on_epoch_end</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/endolas/simplegen.html#SIMPLESequence.on_epoch_end"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#endolas.simplegen.SIMPLESequence.on_epoch_end" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prepare next epoch</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-endolas.styles">
+<span id="endolas-styles-module"></span><h2>endolas.styles module<a class="headerlink" href="#module-endolas.styles" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-endolas.unet">
+<span id="endolas-unet-module"></span><h2>endolas.unet module<a class="headerlink" href="#module-endolas.unet" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt id="endolas.unet.UNet">
+<code class="sig-prename descclassname">endolas.unet.</code><code class="sig-name descname">UNet</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filters</span><span class="o">=</span><span class="default_value">64</span></em>, <em class="sig-param"><span class="n">layers</span><span class="o">=</span><span class="default_value">4</span></em>, <em class="sig-param"><span class="n">activation</span><span class="o">=</span><span class="default_value">'sigmoid'</span></em>, <em class="sig-param"><span class="n">classes</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">input_shape</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">kernel_regularizer</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/endolas/unet.html#UNet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#endolas.unet.UNet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Building a U-Net <a class="footnote-reference brackets" href="#ronneberger" id="id2">1</a>. Implementation from <a class="footnote-reference brackets" href="#ankigit" id="id3">2</a> modified.</p>
+<dl class="footnote brackets">
+<dt class="label" id="ronneberger"><span class="brackets"><a class="fn-backref" href="#id2">1</a></span></dt>
+<dd><p>‘Ronneberger, O., Fischer, P., &amp; Brox, T. (2015, October). U-net: Convolutional networks for
+biomedical image segmentation. In International Conference on Medical image computing and
+computer-assisted intervention (pp. 234-241). Springer, Cham.’</p>
+</dd>
+<dt class="label" id="ankigit"><span class="brackets"><a class="fn-backref" href="#id3">2</a></span></dt>
+<dd><p><a class="reference external" href="https://github.com/anki-xyz/bagls/blob/master">Github</a> Repository from Anki</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filters</strong> (<em>int</em>) – The number of filters in the first layer.
+The subsequent layers have multiples of this filter number. Default is 64.</p></li>
+<li><p><strong>layers</strong> (<em>int</em>) – The number of encoding and decoding layers. Default is 4.</p></li>
+<li><p><strong>activation</strong> (<em>str</em>) – The activation function in the last layer. Default is sigmoid.</p></li>
+<li><p><strong>classes</strong> (<em>int</em>) – The number of classes in the last layer. Default is 1.</p></li>
+<li><p><strong>input_shape</strong> (<em>tuple</em>) – The input shape of the data. We train the network to have arbitrary
+input shapes, default is None. Otherwise, the tuple has to follow
+the following criterion: (X, Y, channels)</p></li>
+<li><p><strong>kernel_regularizer</strong> (<em>str</em>) – The kernel regularizer used for all Conv2D layers.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A Keras Model containing the U-Net structure.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>keras model</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="endolas.unet.preprocess_input">
+<code class="sig-prename descclassname">endolas.unet.</code><code class="sig-name descname">preprocess_input</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/endolas/unet.html#preprocess_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#endolas.unet.preprocess_input" title="Permalink to this definition">¶</a></dt>
+<dd><p>Preprocesses a numpy array encoding a batch of images.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>ndarray</em>) – a 4D numpy array consists of RGB values within [0, 255].</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Preprocessed array</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-endolas.utils">
+<span id="endolas-utils-module"></span><h2>endolas.utils module<a class="headerlink" href="#module-endolas.utils" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt id="endolas.utils.apply_smoothing">
+<code class="sig-prename descclassname">endolas.utils.</code><code class="sig-name descname">apply_smoothing</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image</span></em>, <em class="sig-param"><span class="n">sigma</span><span class="o">=</span><span class="default_value">1.0</span></em>, <em class="sig-param"><span class="n">sigma_back</span><span class="o">=</span><span class="default_value">10.0</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/endolas/utils.html#apply_smoothing"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#endolas.utils.apply_smoothing" title="Permalink to this definition">¶</a></dt>
+<dd><p>Smooth an image with two gaussian kernels.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image</strong> (<em>ndarray</em>) – The image to be smoothed</p></li>
+<li><p><strong>sigma</strong> (<em>float</em>) – The standard deviation for the kernel</p></li>
+<li><p><strong>sigma_back</strong> (<em>float</em>) – The standard deviation for the kernel in the background</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The smoothed image</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="endolas.utils.bubblesort">
+<code class="sig-prename descclassname">endolas.utils.</code><code class="sig-name descname">bubblesort</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">list1</span></em>, <em class="sig-param"><span class="n">list2</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/endolas/utils.html#bubblesort"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#endolas.utils.bubblesort" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes two list and sorts both in ascending order according to the values in list1 with a bubblesort algorithm.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>list1</strong> (<em>list</em>) – A list on whose content the sorting is based.</p></li>
+<li><p><strong>list2</strong> (<em>list</em>) – A list that is sorted based on list1.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A tuple containing the sorted list1 and list2</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="endolas.utils.check_misclassification">
+<code class="sig-prename descclassname">endolas.utils.</code><code class="sig-name descname">check_misclassification</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image_id_2_warped_key_2_fixed_key</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/endolas/utils.html#check_misclassification"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#endolas.utils.check_misclassification" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Computes the accuracy of an image, how many in total are misclassified and whether a point is</dt><dd><p>misclassified or not.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>image_id_2_warped_key_2_fixed_key</strong> (<em>dict</em>) – Contains the mapping from global keys (warped) to predicted keys (fixed).</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Tuple that contains the accuracy, the misclassification per image and the if a point is miscalssified.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="endolas.utils.get_augmenter">
+<code class="sig-prename descclassname">endolas.utils.</code><code class="sig-name descname">get_augmenter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">rotation</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">flip</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">keypoints</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/endolas/utils.html#get_augmenter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#endolas.utils.get_augmenter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get an augmenter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rotation</strong> (<em>bool</em>) – Property whether to include rotation or not</p></li>
+<li><p><strong>rotation</strong> – Property whether to include flipping or not</p></li>
+<li><p><strong>keypoints</strong> (<em>bool</em>) – Property whether to augment keypoints or not</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A Compose object of the albumentations package</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="endolas.utils.h5_file_to_dict">
+<code class="sig-prename descclassname">endolas.utils.</code><code class="sig-name descname">h5_file_to_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">load_file</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/endolas/utils.html#h5_file_to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#endolas.utils.h5_file_to_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transfer a h5 file to a dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>load_file</strong> (<em>str</em>) – The string to a h5 file.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dictionary containing the content of the h5 file</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="endolas.utils.nearest_neighbor">
+<code class="sig-prename descclassname">endolas.utils.</code><code class="sig-name descname">nearest_neighbor</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data_path</span></em>, <em class="sig-param"><span class="n">path_fixed</span></em>, <em class="sig-param"><span class="n">scale_factor</span><span class="o">=</span><span class="default_value">1</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/endolas/utils.html#nearest_neighbor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#endolas.utils.nearest_neighbor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the nearest neighbors and returns an accuracy.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data_path</strong> (<em>str</em>) – The path in which the data is stored, can be a directory or a file</p></li>
+<li><p><strong>path_fixed</strong> (<em>str</em>) – The path in which the fixed image json is stored</p></li>
+<li><p><strong>scale_factor</strong> (<em>float</em>) – Scales the fixed data up or down</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dictionary that maps image ids to an accuracy</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="endolas.utils.nearest_neighbor_kernel">
+<code class="sig-prename descclassname">endolas.utils.</code><code class="sig-name descname">nearest_neighbor_kernel</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">warped_key_2_warped_val</span></em>, <em class="sig-param"><span class="n">fixed_key_2_fixed_val</span></em>, <em class="sig-param"><span class="n">scale_factor_x</span></em>, <em class="sig-param"><span class="n">scale_factor_y</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/endolas/utils.html#nearest_neighbor_kernel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#endolas.utils.nearest_neighbor_kernel" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Based on x- and y-coordinates of two different sets of points find a mapping between both that is based</dt><dd><p>on the nearest neighbor.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>warped_key_2_warped_val</strong> (<em>dict</em>) – Warped keypoints and their x,y-coordinates stored as ‘[x,y]’.</p></li>
+<li><p><strong>fixed_key_2_fixed_val</strong> (<em>dict</em>) – Fixed keypoints and their x,y-coordinates stored as ‘[x,y]’.</p></li>
+<li><p><strong>scale_factor_x</strong> (<em>float</em>) – A scaling factor for the x-coordinate that is the width of the warped image
+space over the width of the fixed image space.</p></li>
+<li><p><strong>scale_factor_y</strong> (<em>float</em>) – A scaling factor for the y-coordinate that is the height of the warped image
+space over the height of the fixed image space.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A mapping from warped_keys, that are identifiers for detected keypoints,
+to fixed_keys, that are the identifiers in the regular spaced grid and can be interpreted as classes.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="endolas.utils.plot_convergence">
+<code class="sig-prename descclassname">endolas.utils.</code><code class="sig-name descname">plot_convergence</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">paths</span></em>, <em class="sig-param"><span class="n">series</span></em>, <em class="sig-param"><span class="n">epochs</span><span class="o">=</span><span class="default_value">300</span></em>, <em class="sig-param"><span class="n">sigma</span><span class="o">=</span><span class="default_value">3</span></em>, <em class="sig-param"><span class="n">append</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">plot1</span><span class="o">=</span><span class="default_value">- 1</span></em>, <em class="sig-param"><span class="n">plot2</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">ylabel</span><span class="o">=</span><span class="default_value">'MED'</span></em>, <em class="sig-param"><span class="n">log</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">lower_limit</span><span class="o">=</span><span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">upper_limit</span><span class="o">=</span><span class="default_value">1.0</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/endolas/utils.html#plot_convergence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#endolas.utils.plot_convergence" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a convergence plot.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>paths</strong> (<em>dictionary</em>) – All experiment ids mapped to corresponding path including data</p></li>
+<li><p><strong>series</strong> (<em>int</em>) – The series which was selected</p></li>
+<li><p><strong>epochs</strong> (<em>int</em>) – Number of epochs to plot</p></li>
+<li><p><strong>sigma</strong> (<em>float</em>) – Parameter for convolution filter</p></li>
+<li><p><strong>normalize</strong> (<em>bool</em>) – Whether to normalize the data or not</p></li>
+<li><p><strong>test</strong> (<em>bool</em>) – Whether data is based on test or validation set</p></li>
+<li><p><strong>plot</strong> (<em>int</em>) – The index of the row to be plotted</p></li>
+<li><p><strong>label</strong> (<em>str</em>) – The label to be displayed for y axis</p></li>
+<li><p><strong>log</strong> (<em>bool</em>) – Whether to plot as semilog or not</p></li>
+<li><p><strong>upper_limit</strong> (<em>int</em>) – The upper limit to plot on the y-axis</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="endolas.utils.regular_grid_logic">
+<code class="sig-prename descclassname">endolas.utils.</code><code class="sig-name descname">regular_grid_logic</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image_id_2_warped_key_2_fixed_key</span></em>, <em class="sig-param"><span class="n">image_id_2_warped_key_2_warped_val</span></em>, <em class="sig-param"><span class="n">grid_width</span><span class="o">=</span><span class="default_value">18</span></em>, <em class="sig-param"><span class="n">grid_height</span><span class="o">=</span><span class="default_value">18</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/endolas/utils.html#regular_grid_logic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#endolas.utils.regular_grid_logic" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Takes the assignment of warped_keys, that are the keys for globally identifying a point, to fixed_keys,</dt><dd><p>that are the predicted keys. Based on the values of the warped state as given in warped_val the points
+are first sorted row-wise and then column-wise, both with a bubblesort algorithm.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image_id_2_warped_key_2_fixed_key</strong> (<em>dict</em>) – Contains the mapping from global keys (warped) to predicted keys (fixed).</p></li>
+<li><p><strong>image_id_2_warped_key_2_warped_val</strong> (<em>dict</em>) – Contains the x-y-values of a point given its global key (warped).</p></li>
+<li><p><strong>grid_width</strong> (<em>int</em>) – Describes the width of the grid.</p></li>
+<li><p><strong>grid_height</strong> (<em>int</em>) – Describes the height of the grid.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dict that is a mapping from image_id to a dictionary mapping the warped_keys to the fixed_keys.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="endolas.utils.show">
+<code class="sig-prename descclassname">endolas.utils.</code><code class="sig-name descname">show</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/endolas/utils.html#show"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#endolas.utils.show" title="Permalink to this definition">¶</a></dt>
+<dd><p>Display only an image.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>image</strong> (<em>PIL</em>) – Single image to be displayed</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="endolas.utils.sorting_kernel">
+<code class="sig-prename descclassname">endolas.utils.</code><code class="sig-name descname">sorting_kernel</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">warped_key_2_fixed_key</span></em>, <em class="sig-param"><span class="n">warped_key_2_warped_val</span></em>, <em class="sig-param"><span class="n">grid_width</span></em>, <em class="sig-param"><span class="n">grid_height</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/endolas/utils.html#sorting_kernel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#endolas.utils.sorting_kernel" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Takes the assignment of warped_keys, that are the keys for globally identifying a point, to fixed_keys,</dt><dd><p>that are the predicted keys. Based on the values of the warped state as given in warped_val the points
+are first sorted row-wise and then column-wise, both with a bubblesort algorithm.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>warped_key_2_fixed_key</strong> (<em>dict</em>) – A mapping from warped_keys, that are identifiers for detected keypoints,
+to fixed_keys, that are the identifiers in the regular spaced grid and
+can be interpreted as classes.</p></li>
+<li><p><strong>warped_key_2_warped_val</strong> (<em>dict</em>) – Warped keypoints and their x,y-coordinates stored as ‘[x,y]’.</p></li>
+<li><p><strong>grid_width</strong> (<em>int</em>) – The width of the laser grid, for example 18 points.</p></li>
+<li><p><strong>grid_height</strong> (<em>int</em>) – The height of the laser grid, for example 18 points.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The sorted mapping warped_key_2_fixed_key that was input.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="endolas.listing.html" class="btn btn-neutral float-right" title="endolas.listing package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="../index.html" class="btn btn-neutral float-left" title="Welcome to endolas’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Julian Zilker
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

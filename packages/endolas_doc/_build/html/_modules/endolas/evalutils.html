@@ -1,0 +1,640 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>endolas.evalutils &mdash; endolas 0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home" alt="Documentation Home"> endolas
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../rsts/endolas.html">endolas package</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">endolas</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>endolas.evalutils</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for endolas.evalutils</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+
+<span class="kn">from</span> <span class="nn">glob</span> <span class="kn">import</span> <span class="n">glob</span>
+<span class="kn">from</span> <span class="nn">.closs</span> <span class="kn">import</span> <span class="n">EuclideanLoss</span>
+<span class="kn">from</span> <span class="nn">.lastengen</span> <span class="kn">import</span> <span class="n">LASTENSequence</span>
+
+
+<div class="viewcode-block" id="eval_pred"><a class="viewcode-back" href="../../rsts/endolas.html#endolas.evalutils.eval_pred">[docs]</a><span class="k">def</span> <span class="nf">eval_pred</span><span class="p">(</span><span class="n">path_fixed</span><span class="p">,</span> <span class="n">path_validation</span><span class="p">,</span> <span class="n">path_test</span><span class="p">,</span> <span class="n">store_path</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">grid_width</span><span class="p">,</span>
+              <span class="n">grid_height</span><span class="p">,</span> <span class="n">pre_une</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="s1">&#39;/weights.100.hdf5&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Predict a validation and test set and store in file.</span>
+
+<span class="sd">    :param str path_fixed: Path to the fixed image.</span>
+<span class="sd">    :param str path_validation: Path to the validation data set.</span>
+<span class="sd">    :param str path_test: Path to the test data set.</span>
+<span class="sd">    :param str store_path: Path to where the results should be stored.</span>
+<span class="sd">    :param int width: Width for resizing in the generator sequence.</span>
+<span class="sd">    :param int height: Height for resizing in the generator sequence.</span>
+<span class="sd">    :param int grid_width: The width of the laser grid, for example 18 points.</span>
+<span class="sd">    :param int grid_height: The height of the laser grid, for example 18 points.</span>
+<span class="sd">    :param function pre_une: Function needed by the generators for preprocessing data.</span>
+<span class="sd">    :param object weights: A path to the keras network including weights.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">test_gen</span> <span class="o">=</span> <span class="n">LASTENSequence</span><span class="p">(</span><span class="n">path_test</span><span class="p">,</span>
+                              <span class="n">path_fixed</span><span class="p">,</span>
+                              <span class="n">batch_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                              <span class="n">width</span><span class="o">=</span><span class="n">width</span><span class="p">,</span>
+                              <span class="n">height</span><span class="o">=</span><span class="n">height</span><span class="p">,</span>
+                              <span class="n">grid_width</span><span class="o">=</span><span class="n">grid_width</span><span class="p">,</span>
+                              <span class="n">grid_height</span><span class="o">=</span><span class="n">grid_height</span><span class="p">,</span>
+                              <span class="n">preprocess_input</span><span class="o">=</span><span class="n">pre_une</span><span class="p">,</span>
+                              <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                              <span class="n">label</span><span class="o">=</span><span class="s2">&quot;keypoints&quot;</span><span class="p">,</span>
+                              <span class="n">channel</span><span class="o">=</span><span class="s2">&quot;moving+fixed&quot;</span><span class="p">)</span>
+
+    <span class="n">validation_gen</span> <span class="o">=</span> <span class="n">LASTENSequence</span><span class="p">(</span><span class="n">path_validation</span><span class="p">,</span>
+                                    <span class="n">path_fixed</span><span class="p">,</span>
+                                    <span class="n">batch_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                                    <span class="n">width</span><span class="o">=</span><span class="n">width</span><span class="p">,</span>
+                                    <span class="n">height</span><span class="o">=</span><span class="n">height</span><span class="p">,</span>
+                                    <span class="n">grid_width</span><span class="o">=</span><span class="n">grid_width</span><span class="p">,</span>
+                                    <span class="n">grid_height</span><span class="o">=</span><span class="n">grid_height</span><span class="p">,</span>
+                                    <span class="n">preprocess_input</span><span class="o">=</span><span class="n">pre_une</span><span class="p">,</span>
+                                    <span class="n">shuffle</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;keypoints&quot;</span><span class="p">,</span>
+                                    <span class="n">channel</span><span class="o">=</span><span class="s2">&quot;moving+fixed&quot;</span><span class="p">)</span>
+
+    <span class="n">eu_loss</span> <span class="o">=</span> <span class="n">EuclideanLoss</span><span class="p">(</span><span class="n">batch_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">grid_width</span><span class="o">=</span><span class="n">grid_width</span><span class="p">,</span> <span class="n">grid_height</span><span class="o">=</span><span class="n">grid_height</span><span class="p">,</span> <span class="n">loss_type</span><span class="o">=</span><span class="s1">&#39;maed&#39;</span><span class="p">)</span>
+
+    <span class="c1">#dependencies = {&#39;loss&#39;: eu_loss}</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">load_model</span><span class="p">(</span><span class="n">store_path</span> <span class="o">+</span> <span class="n">weights</span><span class="p">,</span> <span class="nb">compile</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">loss</span><span class="o">=</span><span class="n">eu_loss</span><span class="p">)</span>
+
+    <span class="n">grid_points</span> <span class="o">=</span> <span class="n">grid_width</span> <span class="o">*</span> <span class="n">grid_height</span>
+
+    <span class="n">warp_val</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="n">maed_val_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">validation_gen</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">validation_gen</span><span class="p">):</span>
+        <span class="n">image_id</span> <span class="o">=</span> <span class="n">validation_gen</span><span class="o">.</span><span class="n">_image_ids</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">index</span> <span class="o">%</span> <span class="mi">100</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+        <span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="n">maed</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">X</span> <span class="p">,</span><span class="n">y</span> <span class="p">,</span><span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">maed_val_array</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">maed</span>
+
+        <span class="n">y_pred</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+        <span class="n">u_x</span> <span class="o">=</span> <span class="n">y_pred</span><span class="p">[</span><span class="mi">0</span> <span class="p">,:</span> <span class="p">,:</span> <span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">u_y</span> <span class="o">=</span> <span class="n">y_pred</span><span class="p">[</span><span class="mi">0</span> <span class="p">,:</span> <span class="p">,:</span> <span class="p">,</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">inner_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span> <span class="p">,</span><span class="n">grid_points</span><span class="p">):</span>
+            <span class="n">x_pos</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">inner_index</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+            <span class="n">y_pos</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">inner_index</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+
+            <span class="n">ux_field</span> <span class="o">=</span> <span class="n">y_pred</span><span class="p">[</span><span class="mi">0</span> <span class="p">,:</span> <span class="p">,:</span> <span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">uy_field</span> <span class="o">=</span> <span class="n">y_pred</span><span class="p">[</span><span class="mi">0</span> <span class="p">,:</span> <span class="p">,:</span> <span class="p">,</span><span class="mi">1</span><span class="p">]</span>
+
+            <span class="n">ux</span> <span class="o">=</span> <span class="n">ux_field</span><span class="p">[</span><span class="n">y_pos</span><span class="p">][</span><span class="n">x_pos</span><span class="p">]</span>
+            <span class="n">uy</span> <span class="o">=</span> <span class="n">uy_field</span><span class="p">[</span><span class="n">y_pos</span><span class="p">][</span><span class="n">x_pos</span><span class="p">]</span>
+
+            <span class="n">x_pos</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">x_pos</span> <span class="o">+</span> <span class="n">ux</span><span class="p">))</span>
+            <span class="n">y_pos</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">y_pos</span> <span class="o">+</span> <span class="n">uy</span><span class="p">))</span>
+
+            <span class="n">warp_val</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">inner_index</span><span class="p">)]</span> <span class="o">=</span> <span class="p">[</span><span class="n">x_pos</span><span class="p">,</span> <span class="n">y_pos</span><span class="p">]</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">store_path</span> <span class="o">+</span><span class="s1">&#39;/val/</span><span class="si">{}</span><span class="s1">_w.json&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">image_id</span><span class="p">),</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
+                <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">warp_val</span><span class="p">,</span> <span class="n">fp</span><span class="p">)</span>
+
+    <span class="n">warp_test</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="n">maed_test_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">test_gen</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">test_gen</span><span class="p">):</span>
+        <span class="n">image_id</span> <span class="o">=</span> <span class="n">test_gen</span><span class="o">.</span><span class="n">_image_ids</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">index</span> <span class="o">%</span> <span class="mi">100</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+        <span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="n">maed</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">maed_test_array</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">maed</span>
+
+        <span class="n">y_pred</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+        <span class="n">u_x</span> <span class="o">=</span> <span class="n">y_pred</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">u_y</span> <span class="o">=</span> <span class="n">y_pred</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="mi">1</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">inner_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">grid_points</span><span class="p">):</span>
+            <span class="n">x_pos</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">inner_index</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+            <span class="n">y_pos</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">inner_index</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+
+            <span class="n">ux_field</span> <span class="o">=</span> <span class="n">y_pred</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">]</span>
+            <span class="n">uy_field</span> <span class="o">=</span> <span class="n">y_pred</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="mi">1</span><span class="p">]</span>
+
+            <span class="n">ux</span> <span class="o">=</span> <span class="n">ux_field</span><span class="p">[</span><span class="n">y_pos</span><span class="p">][</span><span class="n">x_pos</span><span class="p">]</span>
+            <span class="n">uy</span> <span class="o">=</span> <span class="n">uy_field</span><span class="p">[</span><span class="n">y_pos</span><span class="p">][</span><span class="n">x_pos</span><span class="p">]</span>
+
+            <span class="n">x_pos</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">x_pos</span> <span class="o">+</span> <span class="n">ux</span><span class="p">))</span>
+            <span class="n">y_pos</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">y_pos</span> <span class="o">+</span> <span class="n">uy</span><span class="p">))</span>
+
+            <span class="n">warp_test</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">inner_index</span><span class="p">)]</span> <span class="o">=</span> <span class="p">[</span><span class="n">x_pos</span><span class="p">,</span> <span class="n">y_pos</span><span class="p">]</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">store_path</span> <span class="o">+</span> <span class="s1">&#39;/test/</span><span class="si">{}</span><span class="s1">_w.json&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">image_id</span><span class="p">),</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
+                <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">warp_test</span><span class="p">,</span> <span class="n">fp</span><span class="p">)</span>
+
+    <span class="n">maed_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">maed_val_array</span><span class="p">,</span> <span class="n">maed_test_array</span><span class="p">))</span>
+    <span class="n">val_set</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;val&#39;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">validation_gen</span><span class="p">))]</span>
+    <span class="n">test_set</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;test&#39;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">test_gen</span><span class="p">))]</span>
+    <span class="n">set_type</span> <span class="o">=</span> <span class="n">val_set</span> <span class="o">+</span> <span class="n">test_set</span>
+    <span class="n">image_id</span> <span class="o">=</span> <span class="n">validation_gen</span><span class="o">.</span><span class="n">_image_ids</span> <span class="o">+</span> <span class="n">test_gen</span><span class="o">.</span><span class="n">_image_ids</span>
+
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;MAED&#39;</span><span class="p">:</span> <span class="n">maed_array</span><span class="p">,</span> <span class="s1">&#39;Set&#39;</span><span class="p">:</span> <span class="n">set_type</span><span class="p">,</span> <span class="s1">&#39;Image&#39;</span><span class="p">:</span> <span class="n">image_id</span><span class="p">})</span>
+    <span class="n">dataset</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">store_path</span> <span class="o">+</span> <span class="s1">&#39;/evaluation.csv&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="eval_nearest_neighbor"><a class="viewcode-back" href="../../rsts/endolas.html#endolas.evalutils.eval_nearest_neighbor">[docs]</a><span class="k">def</span> <span class="nf">eval_nearest_neighbor</span><span class="p">(</span><span class="n">experiment_2_set_2_image_2_accuracy</span><span class="p">,</span> <span class="n">store_path</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Evaluate the nearest neighbor results by writing them to a pandas dataframe.</span>
+
+<span class="sd">    :param dict experiment_2_set_2_image_2_accuracy: A mapping containing results of several experiments.</span>
+<span class="sd">    :param str store_path: The path to store the pandas dataframe to.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">accuracys</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">images</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">set_types</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">experiments</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">experiment</span><span class="p">,</span> <span class="n">set_2_image_2_accuracy</span> <span class="ow">in</span> <span class="n">experiment_2_set_2_image_2_accuracy</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">set_type</span><span class="p">,</span> <span class="n">image_2_accuracy</span> <span class="ow">in</span> <span class="n">set_2_image_2_accuracy</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">image</span><span class="p">,</span> <span class="n">accuracy</span> <span class="ow">in</span> <span class="n">image_2_accuracy</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">accuracys</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">accuracy</span><span class="p">)</span>
+                <span class="n">images</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+                <span class="n">set_types</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">set_type</span><span class="p">)</span>
+                <span class="n">experiments</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">experiment</span><span class="p">)</span>
+
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;Accuracy&#39;</span><span class="p">:</span> <span class="n">accuracys</span><span class="p">,</span> <span class="s1">&#39;Image&#39;</span><span class="p">:</span> <span class="n">images</span><span class="p">,</span> <span class="s1">&#39;Set&#39;</span><span class="p">:</span> <span class="n">set_types</span><span class="p">,</span> <span class="s1">&#39;Experiment&#39;</span><span class="p">:</span> <span class="n">experiments</span><span class="p">})</span>
+    <span class="n">dataset</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">store_path</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="spatial_distribution"><a class="viewcode-back" href="../../rsts/endolas.html#endolas.evalutils.spatial_distribution">[docs]</a><span class="k">def</span> <span class="nf">spatial_distribution</span><span class="p">(</span><span class="n">store_path</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Evaluate the spatial distribution of warped keypoints by writing them to a pandas dataframe.</span>
+
+<span class="sd">    :param str store_path: A path were warped keypoints are stored and will be written to</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">x_val</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">y_val</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">image</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">point</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">set_types</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">set_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;val&#39;</span><span class="p">,</span> <span class="s1">&#39;test&#39;</span><span class="p">]:</span>
+        <span class="n">data_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">store_path</span><span class="p">,</span> <span class="n">set_type</span><span class="p">)</span>
+        <span class="n">globs</span> <span class="o">=</span> <span class="n">glob</span><span class="p">(</span><span class="n">data_path</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">sep</span> <span class="o">+</span> <span class="s2">&quot;*_w.json&quot;</span><span class="p">)</span>
+        <span class="n">globs</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">globs</span><span class="p">]</span>
+        <span class="n">image_ids</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">globs</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">image_id</span> <span class="ow">in</span> <span class="n">image_ids</span><span class="p">:</span>
+            <span class="c1"># 0)Load data</span>
+            <span class="n">warp_path</span> <span class="o">=</span> <span class="n">data_path</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">sep</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">_w.json&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">image_id</span><span class="p">)</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">warp_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">warped_file</span><span class="p">:</span>
+                <span class="n">warped_json</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">warped_file</span><span class="p">)</span>
+
+            <span class="c1"># 1) Sort out all obsolete points</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">warped_json</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+                <span class="k">if</span> <span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mf">2.0</span> <span class="ow">and</span> <span class="n">value</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mf">2.0</span><span class="p">:</span>
+                    <span class="n">_</span> <span class="o">=</span> <span class="n">warped_json</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+
+            <span class="c1"># 2) Build arrays</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">warped_json</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+                <span class="n">x_val</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="n">y_val</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="n">image</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">image_id</span><span class="p">)</span>
+                <span class="n">point</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+                <span class="n">set_types</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">set_type</span><span class="p">)</span>
+
+    <span class="c1"># 3) Build dataframe</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="n">x_val</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">:</span> <span class="n">y_val</span><span class="p">,</span> <span class="s1">&#39;Set&#39;</span><span class="p">:</span> <span class="n">set_types</span><span class="p">,</span> <span class="s1">&#39;Image&#39;</span><span class="p">:</span> <span class="n">image</span><span class="p">,</span> <span class="s1">&#39;Point&#39;</span><span class="p">:</span> <span class="n">point</span><span class="p">})</span>
+    <span class="n">dataset</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">store_path</span> <span class="o">+</span> <span class="s1">&#39;/evaluation_spatial.csv&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="spatial_display"><a class="viewcode-back" href="../../rsts/endolas.html#endolas.evalutils.spatial_display">[docs]</a><span class="k">def</span> <span class="nf">spatial_display</span><span class="p">(</span><span class="n">store_path</span><span class="p">,</span> <span class="n">path_validation</span><span class="p">,</span> <span class="n">path_test</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Evaluate the spatial distribution for displaying by writing them to a pandas dataframe.</span>
+
+<span class="sd">    :param str store_path: Path were warped keypoints are stored.</span>
+<span class="sd">    :param str path_validation: Path were moving keypoints from validation are stored.</span>
+<span class="sd">    :param str path_test: Path were moving keypoints from test are stored.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">x_val</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">y_val</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">image</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">point</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">set_types</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">image_types</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># Warp</span>
+    <span class="k">for</span> <span class="n">set_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;val&#39;</span><span class="p">,</span> <span class="s1">&#39;test&#39;</span><span class="p">]:</span>
+        <span class="n">data_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">store_path</span><span class="p">,</span> <span class="n">set_type</span><span class="p">)</span>
+        <span class="n">globs</span> <span class="o">=</span> <span class="n">glob</span><span class="p">(</span><span class="n">data_path</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">sep</span> <span class="o">+</span> <span class="s2">&quot;*_w.json&quot;</span><span class="p">)</span>
+        <span class="n">globs</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">globs</span><span class="p">]</span>
+        <span class="n">image_ids</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">globs</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">image_id</span> <span class="ow">in</span> <span class="n">image_ids</span><span class="p">:</span>
+            <span class="c1"># 0)Load data</span>
+            <span class="n">warp_path</span> <span class="o">=</span> <span class="n">data_path</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">sep</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">_w.json&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">image_id</span><span class="p">)</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">warp_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">warped_file</span><span class="p">:</span>
+                <span class="n">warped_json</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">warped_file</span><span class="p">)</span>
+
+            <span class="c1"># 1) Sort out all obsolete points</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">warped_json</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+                <span class="k">if</span> <span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mf">2.0</span> <span class="ow">and</span> <span class="n">value</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mf">2.0</span><span class="p">:</span>
+                    <span class="n">_</span> <span class="o">=</span> <span class="n">warped_json</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+
+            <span class="c1"># 2) Build arrays</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">warped_json</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+                <span class="n">x_val</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="n">y_val</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="n">image</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">image_id</span><span class="p">)</span>
+                <span class="n">point</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+                <span class="n">set_types</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">set_type</span><span class="p">)</span>
+                <span class="n">image_types</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;warped&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Moving validation</span>
+    <span class="n">globs</span> <span class="o">=</span> <span class="n">glob</span><span class="p">(</span><span class="n">path_validation</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">sep</span> <span class="o">+</span> <span class="s2">&quot;*.json&quot;</span><span class="p">)</span>
+    <span class="n">globs</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">globs</span><span class="p">]</span>
+    <span class="n">image_ids</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">globs</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">image_id</span> <span class="ow">in</span> <span class="n">image_ids</span><span class="p">:</span>
+        <span class="c1"># 0)Load data</span>
+        <span class="n">moving_path</span> <span class="o">=</span> <span class="n">path_validation</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">sep</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">.json&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">image_id</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">moving_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">moving_file</span><span class="p">:</span>
+            <span class="n">moving_json</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">moving_file</span><span class="p">)</span>
+
+        <span class="c1"># 1) Sort out all obsolete points</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">moving_json</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+            <span class="k">if</span> <span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mf">2.0</span> <span class="ow">and</span> <span class="n">value</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mf">2.0</span><span class="p">:</span>
+                <span class="n">_</span> <span class="o">=</span> <span class="n">warped_json</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+
+        <span class="c1"># 2) Build arrays</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">moving_json</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+            <span class="n">x_val</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">y_val</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">image</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">image_id</span><span class="p">)</span>
+            <span class="n">point</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+            <span class="n">set_types</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;val&#39;</span><span class="p">)</span>
+            <span class="n">image_types</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;moving&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Moving test</span>
+    <span class="n">globs</span> <span class="o">=</span> <span class="n">glob</span><span class="p">(</span><span class="n">path_test</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">sep</span> <span class="o">+</span> <span class="s2">&quot;*.json&quot;</span><span class="p">)</span>
+    <span class="n">globs</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">globs</span><span class="p">]</span>
+    <span class="n">image_ids</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">globs</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">image_id</span> <span class="ow">in</span> <span class="n">image_ids</span><span class="p">:</span>
+        <span class="c1"># 0)Load data</span>
+        <span class="n">moving_path</span> <span class="o">=</span> <span class="n">path_test</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">sep</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">.json&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">image_id</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">moving_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">moving_file</span><span class="p">:</span>
+            <span class="n">moving_json</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">moving_file</span><span class="p">)</span>
+
+        <span class="c1"># 1) Sort out all obsolete points</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">moving_json</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+            <span class="k">if</span> <span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mf">2.0</span> <span class="ow">and</span> <span class="n">value</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mf">2.0</span><span class="p">:</span>
+                <span class="n">_</span> <span class="o">=</span> <span class="n">warped_json</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+
+        <span class="c1"># 2) Build arrays</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">moving_json</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+            <span class="n">x_val</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">y_val</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">image</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">image_id</span><span class="p">)</span>
+            <span class="n">point</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+            <span class="n">set_types</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;test&#39;</span><span class="p">)</span>
+            <span class="n">image_types</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;moving&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Build dataframe</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+        <span class="p">{</span><span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="n">x_val</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">:</span> <span class="n">y_val</span><span class="p">,</span> <span class="s1">&#39;Set&#39;</span><span class="p">:</span> <span class="n">set_types</span><span class="p">,</span> <span class="s1">&#39;Image&#39;</span><span class="p">:</span> <span class="n">image</span><span class="p">,</span> <span class="s1">&#39;Point&#39;</span><span class="p">:</span> <span class="n">point</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="n">image_types</span><span class="p">})</span>
+    <span class="n">dataset</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">store_path</span> <span class="o">+</span> <span class="s1">&#39;/evaluation_display.csv&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="store_accuracy"><a class="viewcode-back" href="../../rsts/endolas.html#endolas.evalutils.store_accuracy">[docs]</a><span class="k">def</span> <span class="nf">store_accuracy</span><span class="p">(</span><span class="n">accuracy_val</span><span class="p">,</span> <span class="n">accuracy_test</span><span class="p">,</span> <span class="n">experiment</span><span class="p">,</span> <span class="n">store_path</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Store the accuracy values in a pandas dataframe.</span>
+
+<span class="sd">    :param dict accuracy_val: Accuracy values of the validation set.</span>
+<span class="sd">    :param dict accuracy_test: Accuracy values of the test set.</span>
+<span class="sd">    :param int experiment: Experiment id.</span>
+<span class="sd">    :param str store_path: Path to store the pandas dataframe.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">set_2_image_2_accuracy</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="n">set_2_image_2_accuracy</span><span class="p">[</span><span class="s1">&#39;val&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">accuracy_val</span>
+    <span class="n">set_2_image_2_accuracy</span><span class="p">[</span><span class="s1">&#39;test&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">accuracy_test</span>
+
+    <span class="n">accuracys</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">images</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">set_types</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">experiments</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">set_type</span><span class="p">,</span> <span class="n">image_2_accuracy</span> <span class="ow">in</span> <span class="n">set_2_image_2_accuracy</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">image</span><span class="p">,</span> <span class="n">accuracy</span> <span class="ow">in</span> <span class="n">image_2_accuracy</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">accuracys</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">accuracy</span><span class="p">)</span>
+            <span class="n">images</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+            <span class="n">set_types</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">set_type</span><span class="p">)</span>
+            <span class="n">experiments</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">experiment</span><span class="p">)</span>
+
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;Accuracy&#39;</span><span class="p">:</span> <span class="n">accuracys</span><span class="p">,</span> <span class="s1">&#39;Image&#39;</span><span class="p">:</span> <span class="n">images</span><span class="p">,</span> <span class="s1">&#39;Set&#39;</span><span class="p">:</span> <span class="n">set_types</span><span class="p">,</span> <span class="s1">&#39;Experiment&#39;</span><span class="p">:</span> <span class="n">experiments</span><span class="p">})</span>
+    <span class="n">dataset</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">store_path</span><span class="o">+</span><span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="o">+</span><span class="s2">&quot;accuracy.csv&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="eval_history"><a class="viewcode-back" href="../../rsts/endolas.html#endolas.evalutils.eval_history">[docs]</a><span class="k">def</span> <span class="nf">eval_history</span><span class="p">(</span><span class="n">path_fixed</span><span class="p">,</span> <span class="n">path_data</span><span class="p">,</span> <span class="n">store_path</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">grid_width</span><span class="p">,</span>
+                 <span class="n">grid_height</span><span class="p">,</span> <span class="n">pre_une</span><span class="p">,</span> <span class="n">image_id</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Evaluate the data for multiple frames.</span>
+
+<span class="sd">    :param str path_fixed: Path to the fixed image.</span>
+<span class="sd">    :param str path_data: The path were data is pulled from by generator.</span>
+<span class="sd">    :param str store_path: Path to where the results should be stored.</span>
+<span class="sd">    :param int width: Width for resizing in the generator sequence.</span>
+<span class="sd">    :param int height: Height for resizing in the generator sequence.</span>
+<span class="sd">    :param int grid_width: The width of the laser grid, for example 18 points.</span>
+<span class="sd">    :param int grid_height: The height of the laser grid, for example 18 points.</span>
+<span class="sd">    :param function pre_une: Function needed by the generators for preprocessing data.</span>
+<span class="sd">    :param int image_id: The ID of the respective image.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">gen</span> <span class="o">=</span> <span class="n">LASTENSequence</span><span class="p">(</span><span class="n">path_data</span><span class="p">,</span>
+                         <span class="n">path_fixed</span><span class="p">,</span>
+                         <span class="n">image_ids</span><span class="o">=</span><span class="p">[</span><span class="n">image_id</span><span class="p">],</span>
+                         <span class="n">batch_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                         <span class="n">width</span><span class="o">=</span><span class="n">width</span><span class="p">,</span>
+                         <span class="n">height</span><span class="o">=</span><span class="n">height</span><span class="p">,</span>
+                         <span class="n">grid_width</span><span class="o">=</span><span class="n">grid_width</span><span class="p">,</span>
+                         <span class="n">grid_height</span><span class="o">=</span><span class="n">grid_height</span><span class="p">,</span>
+                         <span class="n">preprocess_input</span><span class="o">=</span><span class="n">pre_une</span><span class="p">,</span>
+                         <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                         <span class="n">label</span><span class="o">=</span><span class="s2">&quot;keypoints&quot;</span><span class="p">,</span>
+                         <span class="n">channel</span><span class="o">=</span><span class="s2">&quot;moving+fixed&quot;</span><span class="p">)</span>
+
+    <span class="n">eu_loss</span> <span class="o">=</span> <span class="n">EuclideanLoss</span><span class="p">(</span><span class="n">batch_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">grid_width</span><span class="o">=</span><span class="n">grid_width</span><span class="p">,</span> <span class="n">grid_height</span><span class="o">=</span><span class="n">grid_height</span><span class="p">,</span> <span class="n">loss_type</span><span class="o">=</span><span class="s1">&#39;maed&#39;</span><span class="p">)</span>
+
+    <span class="n">epochs</span> <span class="o">=</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">60</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="n">epochs</span><span class="p">:</span>
+        <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">clear_session</span><span class="p">()</span>
+
+        <span class="n">model</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">load_model</span><span class="p">(</span><span class="n">store_path</span> <span class="o">+</span> <span class="s2">&quot;/weights.</span><span class="si">{}</span><span class="s2">.hdf5&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">epoch</span><span class="p">),</span> <span class="nb">compile</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">loss</span><span class="o">=</span><span class="n">eu_loss</span><span class="p">)</span>
+
+        <span class="n">grid_points</span> <span class="o">=</span> <span class="n">grid_width</span> <span class="o">*</span> <span class="n">grid_height</span>
+
+        <span class="n">warp_test</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">maed_test_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">gen</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">gen</span><span class="p">):</span>
+            <span class="n">image_id</span> <span class="o">=</span> <span class="n">gen</span><span class="o">.</span><span class="n">_image_ids</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="n">index</span> <span class="o">%</span> <span class="mi">100</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+            <span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">val</span>
+            <span class="n">maed</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">maed_test_array</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">maed</span>
+
+            <span class="n">y_pred</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+            <span class="n">u_x</span> <span class="o">=</span> <span class="n">y_pred</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">]</span>
+            <span class="n">u_y</span> <span class="o">=</span> <span class="n">y_pred</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="mi">1</span><span class="p">]</span>
+
+            <span class="k">for</span> <span class="n">inner_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">grid_points</span><span class="p">):</span>
+                <span class="n">x_pos</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">inner_index</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+                <span class="n">y_pos</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">inner_index</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+
+                <span class="n">ux_field</span> <span class="o">=</span> <span class="n">y_pred</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">]</span>
+                <span class="n">uy_field</span> <span class="o">=</span> <span class="n">y_pred</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="mi">1</span><span class="p">]</span>
+
+                <span class="n">ux</span> <span class="o">=</span> <span class="n">ux_field</span><span class="p">[</span><span class="n">y_pos</span><span class="p">][</span><span class="n">x_pos</span><span class="p">]</span>
+                <span class="n">uy</span> <span class="o">=</span> <span class="n">uy_field</span><span class="p">[</span><span class="n">y_pos</span><span class="p">][</span><span class="n">x_pos</span><span class="p">]</span>
+
+                <span class="n">x_pos</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">x_pos</span> <span class="o">+</span> <span class="n">ux</span><span class="p">))</span>
+                <span class="n">y_pos</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">y_pos</span> <span class="o">+</span> <span class="n">uy</span><span class="p">))</span>
+
+                <span class="n">warp_test</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">inner_index</span><span class="p">)]</span> <span class="o">=</span> <span class="p">[</span><span class="n">x_pos</span><span class="p">,</span> <span class="n">y_pos</span><span class="p">]</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">store_path</span> <span class="o">+</span> <span class="s1">&#39;/history/</span><span class="si">{}</span><span class="s1">_w_</span><span class="si">{}</span><span class="s1">.json&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">image_id</span><span class="p">,</span> <span class="n">epoch</span><span class="p">),</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
+                    <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">warp_test</span><span class="p">,</span> <span class="n">fp</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="spatial_history"><a class="viewcode-back" href="../../rsts/endolas.html#endolas.evalutils.spatial_history">[docs]</a><span class="k">def</span> <span class="nf">spatial_history</span><span class="p">(</span><span class="n">store_path</span><span class="p">,</span> <span class="n">image_id</span><span class="p">,</span> <span class="n">warped_key_2_ismis</span><span class="p">,</span> <span class="n">warped_key_2_fixed_key</span><span class="p">,</span> <span class="n">last_epoch</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; For multiple frames store results of spatial location in a pandas dataframe.</span>
+
+<span class="sd">    :param str store_path: A path to were the data should be stored.</span>
+<span class="sd">    :param int image_id: The ID of the current image.</span>
+<span class="sd">    :param dict warped_key_2_ismis: A mapping from warped keys to a bool if the keypoint is misclassified</span>
+<span class="sd">    :param dict warped_key_2_fixed_key: A mapping from warped_keys to fixed_keys</span>
+<span class="sd">    :param int last_epoch: The last epoch used to evaluate the misclassification</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">x_val</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">y_val</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">point</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">epoch_write</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">is_mis</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">fixed_key</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">store_path</span> <span class="o">=</span> <span class="n">store_path</span> <span class="o">+</span> <span class="s1">&#39;/history&#39;</span>
+
+    <span class="c1"># Warp</span>
+    <span class="n">epochs</span> <span class="o">=</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">60</span><span class="p">]</span>
+
+    <span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="n">epochs</span><span class="p">:</span>
+        <span class="c1"># 0)Load data</span>
+        <span class="n">warp_path</span> <span class="o">=</span> <span class="n">store_path</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">sep</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">_w_</span><span class="si">{}</span><span class="s2">.json&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">image_id</span><span class="p">,</span> <span class="n">epoch</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">warp_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">warped_file</span><span class="p">:</span>
+            <span class="n">warped_json</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">warped_file</span><span class="p">)</span>
+
+        <span class="c1"># 1) Sort out all obsolete points</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">warped_json</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+            <span class="k">if</span> <span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mf">2.0</span> <span class="ow">and</span> <span class="n">value</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mf">2.0</span><span class="p">:</span>
+                <span class="n">_</span> <span class="o">=</span> <span class="n">warped_json</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+
+        <span class="c1"># 2) Build arrays</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">warped_json</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+            <span class="n">x_val</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">y_val</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">point</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+            <span class="n">epoch_write</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">epoch</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">epoch</span><span class="o">==</span><span class="n">last_epoch</span><span class="p">:</span>
+                <span class="n">is_mis</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">warped_key_2_ismis</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">key</span><span class="p">)])</span>
+                <span class="n">fixed_key</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">warped_key_2_fixed_key</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">key</span><span class="p">)])</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">is_mis</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">fixed_key</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="c1"># Build dataframe</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+        <span class="p">{</span><span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="n">x_val</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">:</span> <span class="n">y_val</span><span class="p">,</span> <span class="s1">&#39;Point&#39;</span><span class="p">:</span> <span class="n">point</span><span class="p">,</span> <span class="s1">&#39;Epoch&#39;</span><span class="p">:</span> <span class="n">epoch_write</span><span class="p">,</span> <span class="s1">&#39;Miss&#39;</span><span class="p">:</span> <span class="n">is_mis</span><span class="p">,</span> <span class="s1">&#39;Fixed&#39;</span><span class="p">:</span> <span class="n">fixed_key</span><span class="p">})</span>
+    <span class="n">dataset</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">store_path</span> <span class="o">+</span> <span class="s1">&#39;/evaluation_history.csv&#39;</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Julian Zilker
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
