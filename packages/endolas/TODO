@@ -1,0 +1,20 @@
+# TODO -----------------------------------------------------------------------------------------------------------------
+- glabel:
+    - Ask Tobi about toggle shortcut, why is not in shortcuts?
+    - Displaying many ROIS takes much time!
+
+- endolas:
+
+# DO -------------------------------------------------------------------------------------------------------------------
+
+# DONE -----------------------------------------------------------------------------------------------------------------
+- glabel:
+    - Smoothing enhancement
+    - Contorl feature to jump in grid with up, down, left, right
+    - Tracking for lightest pixel
+    - XY-position view and frame
+    - Crosshair
+	- Introduced a state "self._current_inference" in main_window that checks what problem the current inference is
+	  based on.
+	- Automated laser labeling widget
+	- Alpha channel for probability maps

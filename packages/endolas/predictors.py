@@ -63,14 +63,22 @@ class _PredictorTemplate(object):
         raise NotImplementedError
 
     def predict(self):
-        """ If a sequence object is present a prediction is carried out, otherwise results are loaded from file.
+        """ If a sequence object is present a prediction is carried out, otherwise results are loaded from file
+            only in the interval given by from and to frame.
         """
         if self._sequence:
-            self._message_callback.emit("Predict " + str(self))
+            if self._message_callback:
+                self._message_callback.emit("Predict " + str(self))
+            else:
+                print("Predict " + str(self))
             image_id_2_prediction = self._predict_specific()
 
         else:
-            self._message_callback.emit("Load " + str(self))
+            if self._message_callback:
+                self._message_callback.emit("Load " + str(self))
+            else:
+                print("Load " + str(self))
+
             try:
                 image_id_2_prediction = h5_file_to_dict(self._load_file)
             except Exception:
@@ -83,6 +91,20 @@ class _PredictorTemplate(object):
                 raise ValueError('The frame "{}" or "{}" does not exist in loaded data "{}"'.format(self._from_frame,
                                                                                                     self._to_frame,
                                                                                                     self._load_file))
+
+            from_to_list = list(range(self._from_frame, self._to_frame + 1))
+            image_ids = list(image_id_2_prediction.keys())
+            for image_id in image_ids:
+                try:
+                    _ = int(image_id)
+                except ValueError:
+                    continue
+
+                if int(image_id) not in from_to_list:
+                    _ = image_id_2_prediction.pop(image_id)
+
+            if self._progress_callback:
+                self._progress_callback.emit(1)
 
         self._results[self._results_key].update(image_id_2_prediction)
 
