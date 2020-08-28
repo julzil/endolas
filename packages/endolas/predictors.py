@@ -11,6 +11,7 @@ from .utils import h5_file_to_dict
 from .utils import bubblesort
 from .utils import nearest_neighbor_kernel
 from .utils import sorting_kernel
+from .exceptions import EndolasError
 
 import tensorflow as tf
 import numpy as np
@@ -36,10 +37,13 @@ def debug_trace():
 # --- Private Part of the Module ---------------------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------------------------------
 class _PredictorTemplate(object):
-    def __init__(self, sequence, results, load_file, results_key, from_frame, to_frame, callbacks=None):
+    def __init__(self, sequence, grid_width, grid_height, results, load_file, results_key,
+                 from_frame, to_frame, callbacks=None):
         """ A private class that serves as base class for all Predictors.
         """
         self._sequence = sequence
+        self._grid_width = grid_width
+        self._grid_height = grid_height
         self._results = results
         self._load_file = load_file
         self._results_key = results_key
@@ -110,11 +114,12 @@ class _PredictorTemplate(object):
 
 
 class _NetworkPredictorTemplate(_PredictorTemplate):
-    def __init__(self, sequence, results, load_file, result_key, from_frame, to_frame, network, callbacks=None):
+    def __init__(self, sequence, grid_width, grid_height, results, load_file, result_key, from_frame, to_frame,
+                 network, callbacks=None):
         """ A private class that serves as base class for all predictors that utilize neural networks.
         """
-        super(_NetworkPredictorTemplate, self).__init__(sequence, results, load_file, result_key, from_frame, to_frame,
-                                                        callbacks=callbacks)
+        super(_NetworkPredictorTemplate, self).__init__(sequence, grid_width, grid_height, results, load_file,
+                                                        result_key, from_frame, to_frame, callbacks=callbacks)
 
         self._network = network
         self._model = None
@@ -130,6 +135,10 @@ class _NetworkPredictorTemplate(_PredictorTemplate):
             hf.close()
         except Exception:
             raise ValueError('No additional metadata is present in the keras model "{}"'.format(self._network))
+
+        if self._sequence.grid_width != self._grid_width or self._sequence.grid_height != self._grid_height:
+            raise EndolasError('The selected grid width "{}" or grid height "{}" does not correspond to loaded'
+                               'or desired prediction. Please set accordingly!'.format(self._grid_width, self._grid_height))
 
         try:
             self._model = tf.keras.models.load_model(self._network, compile=False)
@@ -162,9 +171,9 @@ class SegmentationPredictor(_NetworkPredictorTemplate):
     :param int to_frame: The frame to end with.
     :param str network: A path to the file where the trained model is present.
     """
-    def __init__(self, sequence, results, load_file, from_frame, to_frame, network, callbacks=None):
-        super(SegmentationPredictor, self).__init__(sequence, results, load_file, 'laser_maps', from_frame, to_frame,
-                                                    network, callbacks=callbacks)
+    def __init__(self, sequence, grid_width, grid_height, results, load_file, from_frame, to_frame, network, callbacks=None):
+        super(SegmentationPredictor, self).__init__(sequence, grid_width, grid_height, results, load_file, 'laser_maps',
+                                                    from_frame, to_frame, network, callbacks=callbacks)
 
     def __str__(self):
         """ Naming for the implemented class.
@@ -213,9 +222,9 @@ class RegistrationPredictor(_NetworkPredictorTemplate):
     :param int to_frame: The frame to end with.
     :param str network: A path to the file where the trained model is present.
     """
-    def __init__(self, sequence, results, load_file, from_frame, to_frame, network, callbacks=None):
-        super(RegistrationPredictor, self).__init__(sequence, results, load_file, 'laser_displacement', from_frame,
-                                                    to_frame, network, callbacks=callbacks)
+    def __init__(self, sequence, grid_width, grid_height, results, load_file, from_frame, to_frame, network, callbacks=None):
+        super(RegistrationPredictor, self).__init__(sequence, grid_width, grid_height, results, load_file,
+                                                    'laser_displacement', from_frame, to_frame, network, callbacks=callbacks)
 
     def __str__(self):
         """ Naming for the implemented class.
@@ -261,10 +270,10 @@ class PeakfindingPredictor(_PredictorTemplate):
     :param float laser_peaks_distance: The minimal distance that peaks should have.
     :param float laser_peaks_threshold: The absolute lower intensity threshold.
     """
-    def __init__(self, sequence, results, load_file, from_frame, to_frame, laser_peaks_sigma,
+    def __init__(self, sequence, grid_width, grid_height, results, load_file, from_frame, to_frame, laser_peaks_sigma,
                  laser_peaks_distance, laser_peaks_threshold, callbacks=None):
-        super(PeakfindingPredictor, self).__init__(sequence, results, load_file, 'laser_peaks', from_frame, to_frame,
-                                                   callbacks=callbacks)
+        super(PeakfindingPredictor, self).__init__(sequence, grid_width, grid_height, results, load_file, 'laser_peaks',
+                                                   from_frame, to_frame, callbacks=callbacks)
 
         self._laser_peaks_sigma = laser_peaks_sigma
         self._laser_peaks_distance = laser_peaks_distance
@@ -314,9 +323,9 @@ class DeformationPredictor(_PredictorTemplate):
     :param int from_frame: The frame to start from.
     :param int to_frame: The frame to end with.
     """
-    def __init__(self, sequence, results, load_file, from_frame, to_frame, callbacks=None):
-        super(DeformationPredictor, self).__init__(sequence, results, load_file, 'laser_deformation', from_frame,
-                                                   to_frame, callbacks=callbacks)
+    def __init__(self, sequence, grid_width, grid_height, results, load_file, from_frame, to_frame, callbacks=None):
+        super(DeformationPredictor, self).__init__(sequence, grid_width, grid_height, results, load_file,
+                                                   'laser_deformation', from_frame, to_frame, callbacks=callbacks)
 
         self._laser_peaks = self._results['laser_peaks']
         self._laser_maps = self._results['laser_maps']
@@ -388,9 +397,9 @@ class NeighborPredictor(_PredictorTemplate):
     :param int from_frame: The frame to start from.
     :param int to_frame: The frame to end with.
     """
-    def __init__(self, sequence, results, load_file, from_frame, to_frame, callbacks=None):
-        super(NeighborPredictor, self).__init__(sequence, results, load_file, 'laser_nearest', from_frame, to_frame,
-                                                callbacks=callbacks)
+    def __init__(self, sequence, grid_width, grid_height, results, load_file, from_frame, to_frame, callbacks=None):
+        super(NeighborPredictor, self).__init__(sequence, grid_width, grid_height, results, load_file,
+                                                'laser_nearest', from_frame, to_frame, callbacks=callbacks)
 
         self._laser_maps = self._results['laser_maps']
         self._laser_displacement = self._results['laser_displacement']
@@ -449,9 +458,9 @@ class SortingPredictor(_PredictorTemplate):
     :param int from_frame: The frame to start from.
     :param int to_frame: The frame to end with.
     """
-    def __init__(self, sequence, results, load_file, from_frame, to_frame, callbacks=None):
-        super(SortingPredictor, self).__init__(sequence, results, load_file, 'laser_sorted', from_frame, to_frame,
-                                               callbacks=callbacks)
+    def __init__(self, sequence, grid_width, grid_height, results, load_file, from_frame, to_frame, callbacks=None):
+        super(SortingPredictor, self).__init__(sequence, grid_width, grid_height, results, load_file, 'laser_sorted',
+                                               from_frame, to_frame, callbacks=callbacks)
 
         self._laser_deformation = self._results['laser_deformation']
         self._laser_displacement = self._results['laser_displacement']
@@ -499,10 +508,12 @@ class PredictorContainer(object):
     :param ndarray data: The image data with shape (frames, width, height, 1)
     :param dict settings: Settings object has passed by GUI.
     """
-    def __init__(self, data, settings, callbacks=None):
+    def __init__(self, data, grid_width, grid_height, settings, callbacks=None):
         self._data = data
         self._settings = settings
         self._callbacks = callbacks
+        self._grid_width = grid_width
+        self._grid_height = grid_height
 
         self._results = {'laser_maps': dict(),
                          'laser_peaks': dict(),
@@ -548,6 +559,8 @@ class PredictorContainer(object):
         sorting_sequence = self._results['laser_nearest'] if not self._settings['load_laser_sorting'] else None
 
         self._predictors.append(SegmentationPredictor(segmentation_sequence,
+                                                      self._grid_width,
+                                                      self._grid_height,
                                                       self._results,
                                                       self._settings['load_laser_maps_file'],
                                                       self._from_frame,
@@ -555,6 +568,8 @@ class PredictorContainer(object):
                                                       self._settings['laser_maps_network'],
                                                       callbacks=self._callbacks))
         self._predictors.append(PeakfindingPredictor(peakfinding_sequence,
+                                                     self._grid_width,
+                                                     self._grid_height,
                                                      self._results,
                                                      self._settings['load_laser_peaks_file'],
                                                      self._from_frame,
@@ -564,6 +579,8 @@ class PredictorContainer(object):
                                                      self._settings['laser_peaks_threshold'],
                                                      callbacks=self._callbacks))
         self._predictors.append(RegistrationPredictor(registration_sequence,
+                                                      self._grid_width,
+                                                      self._grid_height,
                                                       self._results,
                                                       self._settings['load_laser_displacement_file'],
                                                       self._from_frame,
@@ -571,18 +588,24 @@ class PredictorContainer(object):
                                                       self._settings['laser_displacement_network'],
                                                       callbacks=self._callbacks))
         self._predictors.append(DeformationPredictor(deformation_sequence,
+                                                     self._grid_width,
+                                                     self._grid_height,
                                                      self._results,
                                                      self._settings['load_laser_deformation_file'],
                                                      self._from_frame,
                                                      self._to_frame,
                                                      callbacks=self._callbacks))
         self._predictors.append(NeighborPredictor(neighbor_sequence,
+                                                  self._grid_width,
+                                                  self._grid_height,
                                                   self._results,
                                                   self._settings['load_laser_nearest_file'],
                                                   self._from_frame,
                                                   self._to_frame,
                                                   callbacks=self._callbacks))
         self._predictors.append(SortingPredictor(sorting_sequence,
+                                                 self._grid_width,
+                                                 self._grid_height,
                                                  self._results,
                                                  self._settings['load_laser_sorting_file'],
                                                  self._from_frame,

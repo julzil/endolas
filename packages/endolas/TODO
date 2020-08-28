@@ -2,6 +2,7 @@
 - glabel:
     - Ask Tobi about toggle shortcut, why is not in shortcuts?
     - Displaying many ROIS takes much time!
+    - A 7th module that again finds outliers based on the assignments
 
 - endolas:
 
@@ -18,3 +19,4 @@
 	  based on.
 	- Automated laser labeling widget
 	- Alpha channel for probability maps
+	- enabled error messaging from thread

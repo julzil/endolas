@@ -3,6 +3,7 @@ from . import keys
 import os
 import sys
 import numpy as np
+from .exceptions import EndolasError
 
 from pdb import set_trace
 
@@ -46,7 +47,7 @@ SETTINGS = {
 
 
 # ----------------------------------------------------------------------------------------------------------------------
-def detect_laser_keypoints(data, settings=None, callbacks=None):
+def detect_laser_keypoints(data, grid_width, grid_height, settings=None, callbacks=None):
     """ Perform the prediction for all steps of the laser detection.
 
     :param ndarray data: The image data with shape (frames, width, height, 3)
@@ -58,7 +59,7 @@ def detect_laser_keypoints(data, settings=None, callbacks=None):
     #settings = SETTINGS
 
     data = preprocess_data(data)
-    predictor_container = PredictorContainer(data, settings, callbacks=callbacks)
+    predictor_container = PredictorContainer(data, grid_width, grid_height, settings, callbacks=callbacks)
     predictor_container.build_predictors()
     predictor_container.disable_gpus()
     predictor_container.predict()
