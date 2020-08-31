@@ -70,6 +70,9 @@ class _PredictorTemplate(object):
         """ If a sequence object is present a prediction is carried out, otherwise results are loaded from file
             only in the interval given by from and to frame.
         """
+        if self._cancel_callback and self._cancel_callback():
+            return
+
         if self._sequence:
             if self._message_callback:
                 self._message_callback.emit("Predict " + str(self))
@@ -514,6 +517,7 @@ class PredictorContainer(object):
         self._callbacks = callbacks
         self._grid_width = grid_width
         self._grid_height = grid_height
+        self._cancel_callback = callbacks['cancel_callback'] if callbacks else None
 
         self._results = {'laser_maps': dict(),
                          'laser_peaks': dict(),
@@ -530,6 +534,15 @@ class PredictorContainer(object):
     def _check_results(self):
         """ Do some checks on the results.
         """
+        if self._cancel_callback and self._cancel_callback():
+            self._results = {'laser_maps': None,
+                             'laser_peaks': None,
+                             'laser_displacement': None,
+                             'laser_deformation': None,
+                             'laser_nearest': None,
+                             'laser_sorted': None}
+            return
+
         if self._results['laser_maps']['grid_width'] != self._results['laser_displacement']['grid_width']:
             raise ValueError('The grid widths from the trained segmentation "{}" and registration "{}" network '
                              'are not the same.'.format(self._results['laser_maps']['grid_width'],

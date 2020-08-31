@@ -11,7 +11,7 @@
 # DONE -----------------------------------------------------------------------------------------------------------------
 - glabel:
     - Smoothing enhancement
-    - Contorl feature to jump in grid with up, down, left, right
+    - Control feature to jump in grid with up, down, left, right
     - Tracking for lightest pixel
     - XY-position view and frame
     - Crosshair

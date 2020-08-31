@@ -85,8 +85,8 @@ class ProgLogger(keras.callbacks.Callback):
     """
     def __init__(self, progress_callback, cancel_callback):
         super(ProgLogger, self).__init__()
-        self.prog_clbk = progress_callback
-        self.cancel_clbk = False  #: TODO: Not implemented yet!
+        self.progress_callback = progress_callback
+        self.cancel_callback = cancel_callback
 
     def on_predict_batch_end(self, batch, logs=None):
         """
@@ -97,9 +97,9 @@ class ProgLogger(keras.callbacks.Callback):
         :param logs: Dictionary with metric results for this batch.
         :type logs: dict
         """
-        if self.cancel_clbk:
+        if self.cancel_callback and self.cancel_callback():
             self.model.stop_training = True
-        elif self.prog_clbk:
-            self.prog_clbk.emit(1)
+        elif self.progress_callback:
+            self.progress_callback.emit(1)
         else:
             pass

@@ -56,6 +56,7 @@ def detect_laser_keypoints(data, grid_width, grid_height, settings=None, callbac
     :return: A result dictionary.
     :rtype: dict
     """
+
     #settings = SETTINGS
 
     data = preprocess_data(data)
