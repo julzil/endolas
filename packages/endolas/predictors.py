@@ -33,6 +33,7 @@ def debug_trace():
   pyqtRemoveInputHook()
   set_trace()
 
+
 # ----------------------------------------------------------------------------------------------------------------------
 # --- Private Part of the Module ---------------------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------------------------------
@@ -89,13 +90,13 @@ class _PredictorTemplate(object):
             try:
                 image_id_2_prediction = h5_file_to_dict(self._load_file)
             except Exception:
-                raise IOError('The file "{}" does not exist or is not a valid .h5 file'.format(self._load_file))
+                raise EndolasError('The file "{}" does not exist or is not a valid .h5 file'.format(self._load_file))
 
             try:
                 _ = image_id_2_prediction[str(self._from_frame)]
                 _ = image_id_2_prediction[str(self._to_frame)]
             except KeyError:
-                raise ValueError('The frame "{}" or "{}" does not exist in loaded data "{}"'.format(self._from_frame,
+                raise EndolasError('The frame "{}" or "{}" does not exist in loaded data "{}"'.format(self._from_frame,
                                                                                                     self._to_frame,
                                                                                                     self._load_file))
 
@@ -133,11 +134,15 @@ class _NetworkPredictorTemplate(_PredictorTemplate):
         """
         try:
             hf = h5py.File(self._network, 'r')
+        except Exception:
+            raise EndolasError('The file "{}" could not be interpreted as h5 format.'.format(self._network))
+
+        try:
             self._sequence.grid_width = hf.get('grid_width')[()]
             self._sequence.grid_height = hf.get('grid_height')[()]
             hf.close()
         except Exception:
-            raise ValueError('No additional metadata is present in the keras model "{}"'.format(self._network))
+            raise EndolasError('No additional metadata is present in the keras model "{}".'.format(self._network))
 
         if self._sequence.grid_width != self._grid_width or self._sequence.grid_height != self._grid_height:
             raise EndolasError('The selected grid width "{}" or grid height "{}" does not correspond to loaded'
@@ -146,13 +151,13 @@ class _NetworkPredictorTemplate(_PredictorTemplate):
         try:
             self._model = tf.keras.models.load_model(self._network, compile=False)
         except Exception:
-            raise IOError(
+            raise EndolasError(
                 'The file "{}" could not be properly loaded as a keras model'.format(self._network))
         try:
             self._sequence.width = self._model.layers[0].input_shape[0][1]
             self._sequence.height = self._model.layers[0].input_shape[0][2]
         except Exception:
-            raise ValueError('The Keras model does not contain a well defined input layer.')
+            raise EndolasError('The Keras model does not contain a well defined input layer.')
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -190,7 +195,10 @@ class SegmentationPredictor(_NetworkPredictorTemplate):
         image_id_2_prediction = dict()
 
         for X, image_ids in self._sequence:
-            y_pred = self._model.predict(X, callbacks=self._network_callbacks)
+            try:
+                y_pred = self._model.predict(X, callbacks=self._network_callbacks)
+            except Exception:
+                raise EndolasError("Prediction segmentation failed! Ensure loading a well-formed network for prediction!")
 
             for index, image_id in enumerate(image_ids):
                 image_id_2_prediction[image_id] = y_pred[index][:, :, 0]
@@ -241,7 +249,10 @@ class RegistrationPredictor(_NetworkPredictorTemplate):
         image_id_2_prediction = dict()
 
         for X, image_ids in self._sequence:
-            y_pred = self._model.predict(X, callbacks=self._network_callbacks)
+            try:
+                y_pred = self._model.predict(X, callbacks=self._network_callbacks)
+            except Exception:
+                raise EndolasError("Predicting registration failed! Ensure loading a well-formed network for prediction!")
 
             for index, image_id in enumerate(image_ids):
                 image_id_2_prediction[image_id] = y_pred[index]
@@ -544,14 +555,14 @@ class PredictorContainer(object):
             return
 
         if self._results['laser_maps']['grid_width'] != self._results['laser_displacement']['grid_width']:
-            raise ValueError('The grid widths from the trained segmentation "{}" and registration "{}" network '
-                             'are not the same.'.format(self._results['laser_maps']['grid_width'],
-                                                        self._results['laser_displacement']['grid_width']))
+            raise EndolasError('The grid widths from the trained segmentation "{}" and registration "{}" network '
+                               'are not the same.'.format(self._results['laser_maps']['grid_width'],
+                                                          self._results['laser_displacement']['grid_width']))
 
         if self._results['laser_maps']['grid_height'] != self._results['laser_displacement']['grid_height']:
-            raise ValueError('The grid heights from the trained segmentation "{}" and registration "{}" network '
-                             'are not the same.'.format(self._results['laser_maps']['grid_height'],
-                                                        self._results['laser_displacement']['grid_height']))
+            raise EndolasError('The grid heights from the trained segmentation "{}" and registration "{}" network '
+                               'are not the same.'.format(self._results['laser_maps']['grid_height'],
+                                                          self._results['laser_displacement']['grid_height']))
 
     def build_predictors(self):
         """ Internally registers all predictors in a common container.
