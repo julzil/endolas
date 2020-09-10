@@ -206,6 +206,7 @@ def nearest_neighbor_kernel(warped_key_2_warped_val, fixed_key_2_fixed_val, scal
     """
     # 0) Compute nearest neighbor
     warped_key_2_fixed_key = dict()
+    warped_key_2_warped_val = copy.deepcopy(warped_key_2_warped_val)
     fixed_key_2_fixed_val = copy.deepcopy(fixed_key_2_fixed_val)
     is_search_finished = False
 
@@ -254,7 +255,7 @@ def nearest_neighbor_kernel(warped_key_2_warped_val, fixed_key_2_fixed_val, scal
                 warped_key_2_fixed_key[nearest_warped_neighbor] = nearest_fixed_neighbor
 
         # 2) Determine loop criterion
-        if len(warped_key_2_warped_val) == 0:
+        if len(warped_key_2_warped_val) == 0 or len(fixed_key_2_fixed_val) == 0 :
             is_search_finished = True
 
     return warped_key_2_fixed_key
@@ -493,6 +494,9 @@ def h5_file_to_dict(load_file):
     hf.close()
 
     return keys_2_values
+
+def reconstruct_film(points, camera_calibration, laser_calibration):
+    pass
 
 if __name__ == "__main__":
     pass

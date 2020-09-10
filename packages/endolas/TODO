@@ -1,8 +1,15 @@
 # TODO -----------------------------------------------------------------------------------------------------------------
 - glabel:
-    - Ask Tobi about toggle shortcut, why is not in shortcuts?
-    - Displaying many ROIS takes much time!
-    - A 7th module that again finds outliers based on the assignments
+    - Displaying many ROIS takes much time! Even if we just add a new one. This could come from color coding.
+    - Bugs:
+        - When removing ROI sometimes something can go wrong
+        - The overlay of the position labels should be top layer
+        - ROIs are slow
+        - Check if evaluation panel runs in stereo as well
+
+    - Reconstruction
+        - Check the mathematics behind and decide if to implement or use existing module.
+
 
 - endolas:
 
@@ -19,4 +26,9 @@
 	  based on.
 	- Automated laser labeling widget
 	- Alpha channel for probability maps
-	- enabled error messaging from thread
+	- Enabled error messaging from thread
+	- Added and synchronized laser inference results (left panel)
+	- Implemented refit functionality
+	- Implemented the display of each ROI's ID (Toggle with Key Y)
+	- Implemented an evaluation panel that allows to evaluate predictions with reference ROIs
+
