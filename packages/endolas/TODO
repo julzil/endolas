@@ -31,4 +31,5 @@
 	- Implemented refit functionality
 	- Implemented the display of each ROI's ID (Toggle with Key Y)
 	- Implemented an evaluation panel that allows to evaluate predictions with reference ROIs
+	- Fixed bug in surface reconstruction
 
