@@ -16,7 +16,8 @@ def preprocess_input(x, **kwargs):
     return imagenet_utils.preprocess_input(x, mode='tf', **kwargs)
 
 
-def UNet(filters=64, layers=4, activation='sigmoid', classes=1, input_shape=None, kernel_regularizer=None):
+def UNet(filters=64, layers=4, activation='sigmoid', classes=1, input_shape=None,
+         kernel_regularizer=None, gap_filling=False):
     """
     Building a U-Net [#ronneberger]_. Implementation from [#ankigit]_ modified.
 
@@ -34,6 +35,7 @@ def UNet(filters=64, layers=4, activation='sigmoid', classes=1, input_shape=None
                               input shapes, default is None. Otherwise, the tuple has to follow
                               the following criterion: (X, Y, channels)
     :param str kernel_regularizer: The kernel regularizer used for all Conv2D layers.
+    :param bool gap_filling: Whether gap filling technique should be used or not.
     :return: A Keras Model containing the U-Net structure.
     :rtype: keras model
     """
@@ -50,7 +52,16 @@ def UNet(filters=64, layers=4, activation='sigmoid', classes=1, input_shape=None
     for block in range(layers):
         x = _convblock(x, filters * (2 ** block), kernel_regularizer)
         x = _convblock(x, filters * (2 ** block), kernel_regularizer)
-        to_concat.append(x)
+
+        if gap_filling:
+            gap_layer = _convblock(x, filters * (2 ** block), kernel_regularizer)
+            additional_gap_layers = 4 * (layers - block - 1)
+            for index in range(additional_gap_layers):
+                gap_layer = _convblock(gap_layer, filters * (2 ** block), kernel_regularizer)
+            to_concat.append(gap_layer)
+            
+        else:
+            to_concat.append(x)
 
         x = MaxPooling2D(pool_size=(2, 2))(x)
 

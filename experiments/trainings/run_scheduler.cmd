@@ -1,6 +1,4 @@
-papermill 8_2_5_euclidean.ipynb 8_2_5_euclidean_res.ipynb
-papermill 8_6_9_euclidean.ipynb 8_6_9_euclidean_res.ipynb
-papermill 8_7_8_euclidean.ipynb 8_7_8_euclidean_res.ipynb
-papermill 7_7_8_euclidean.ipynb 7_7_8_euclidean_res.ipynb
-papermill 7_9_10_euclidean.ipynb 7_9_10_euclidean_res.ipynb
-
+papermill 8_10_11_euclidean.ipynb 8_10_11_euclidean_res.ipynb
+papermill 9_1_2_euclidean.ipynb 9_1_2_euclidean_res.ipynb
+papermill 9_3_4_euclidean.ipynb 9_3_4_euclidean_res.ipynb
+papermill 9_5_euclidean.ipynb 9_5_euclidean_res.ipynb
