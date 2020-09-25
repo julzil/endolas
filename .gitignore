@@ -4,3 +4,4 @@ __pycache__
 *.idea
 experiments/results/*
 experiments/tf_logs/*
+jupyter/weights/*
