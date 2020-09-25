@@ -2,6 +2,5 @@ __pycache__
 *.hdf5
 *.ipynb_checkpoints
 *.idea
-experiments/results/*/test/*
-experiments/results/*/val/*
+experiments/results/*
 experiments/tf_logs/*
