@@ -2,6 +2,7 @@ COLOR_POSTERIOR = '#4cb2cf'
 COLOR_ANTERIOR = '#87bf4b'
 COLOR_TRUE = '#f78002'
 COLOR_PREDICTION = '#2269b3'
+COLOR_NEW = '#d119bfff'
 
 # ----------------------------------------------------------------------------------------------------------------------
 ID_2_LABEL_2_1 = {1: '1) coarse 32 filter train',
@@ -67,28 +68,28 @@ ID_2_COLOR_3_2 = {1: COLOR_POSTERIOR,
 ID_2_LABEL_6_1 = {1: '1) Mov+Fix train',
                   2: '2) Mov train',
                   3: '3) Small train',
-                  4: '4) SIMPLE train',
-                  5: '5) SIMPLEN train',
-                  6: '6) No Reg train',
-                  7: '7) MAED train',
-                  8: '8) Mov+Fix train',
+                  4: 'Affine train',
+                  5: 'Non-linear train',
+                  6: 'Moving train',
+                  7: 'MED-trained train',
+                  8: 'Moving+Fixed train',
                   9: '9) Mov+Diff train',
-                  10: '10) Mov+Diff+Grad train',
-                  11: '11) L1 Reg train',
-                  12: '12) L2 Reg train'}
+                  10: 'Moving+Diff+Grad train',
+                  11: 'L1 Regularization train',
+                  12: 'L2 Regularization train'}
 
 ID_2_LABEL_6_2 = {1: '1) Mov+Fix val',
                   2: '2) Mov val',
                   3: '3) Small val',
-                  4: '4) SIMPLEA val',
-                  5: '5) SIMPLEN val',
-                  6: '6) No Reg val',
-                  7: '7) MAED val',
-                  8: '8) Mov+Fix val',
+                  4: 'Affine val',
+                  5: 'Non-linear val',
+                  6: 'Moving val',
+                  7: 'MED-trained val',
+                  8: 'Moving+Fixed val',
                   9: '9) Mov+Diff val',
-                  10: '10) Mov+Diff+Grad val',
-                  11: '11) L1 Reg val',
-                  12: '12) L2 Reg val'}
+                  10: 'Moving+Diff+Grad val',
+                  11: 'L1 Regularization train',
+                  12: 'L2 Regularization train'}
 
 ID_2_STYLE_6_1 = {1: '-',
                   2: '-',
@@ -125,9 +126,9 @@ ID_2_COLOR_6_1 = {1: COLOR_POSTERIOR,
                   7: COLOR_PREDICTION,
                   8: COLOR_POSTERIOR,
                   9: COLOR_ANTERIOR,
-                  10: COLOR_TRUE,
+                  10: COLOR_NEW,
                   11: COLOR_PREDICTION,
-                  12: COLOR_POSTERIOR}
+                  12: COLOR_ANTERIOR}
 
 ID_2_COLOR_6_2 = {1: COLOR_POSTERIOR,
                   2: COLOR_ANTERIOR,
@@ -138,9 +139,9 @@ ID_2_COLOR_6_2 = {1: COLOR_POSTERIOR,
                   7: COLOR_PREDICTION,
                   8: COLOR_POSTERIOR,
                   9: COLOR_ANTERIOR,
-                  10: COLOR_TRUE,
+                  10: COLOR_NEW,
                   11: COLOR_PREDICTION,
-                  12: COLOR_POSTERIOR}
+                  12: COLOR_ANTERIOR}
 
 # ----------------------------------------------------------------------------------------------------------------------
 ID_2_LABEL_7_1 = {1: '1) BS2 train',

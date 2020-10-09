@@ -29,15 +29,15 @@ def _init_plot():
     #sns.set_style('ticks')
 
     plt.rcParams['svg.fonttype'] = 'none'
-    plt.rcParams['axes.labelsize'] = 6
+    plt.rcParams['axes.labelsize'] = 8
     #plt.rcParams['axes.titlesize'] = 12
-    plt.rcParams['xtick.labelsize'] = 6
-    plt.rcParams['ytick.labelsize'] = 6
-    plt.rcParams['legend.fontsize'] = 6
-    plt.rcParams['font.family'] = 'sans-serif'
-    plt.rcParams['font.sans-serif'] = ['Arial']
-    plt.rcParams['figure.figsize'] = 2, 1.5 # 3,2
-    plt.rcParams['lines.linewidth'] = 0.8
+    plt.rcParams['xtick.labelsize'] = 8
+    plt.rcParams['ytick.labelsize'] = 8
+    plt.rcParams['legend.fontsize'] = 8
+    plt.rcParams['font.family'] = 'serif'
+    #plt.rcParams['font.sans-serif'] = ['Times New Roman']
+    plt.rcParams['figure.figsize'] = 3, 1.5 # 3,2
+    plt.rcParams['lines.linewidth'] = 1.
     # INFO: Default dpi = 100
 
 
@@ -55,7 +55,7 @@ def show(image):
 
 
 def plot_convergence(paths, series, epochs=300, sigma=3, append='', plot1=-1, plot2=0, ylabel='MED', log=False,
-                     lower_limit=0.0, upper_limit=1.0):
+                     lower_limit=0.0, upper_limit=100.0):
     """ Create a convergence plot.
 
     :param dictionary paths: All experiment ids mapped to corresponding path including data
@@ -123,9 +123,38 @@ def plot_convergence(paths, series, epochs=300, sigma=3, append='', plot1=-1, pl
     plt.xlabel('Epoch')
     #plt.legend(loc='upper right')
 
-    plt.legend(loc=(1.0, 0.0), frameon=False)
+    plt.gca().spines['left'].set_position(('outward', 5))
+    plt.gca().spines['bottom'].set_position(('outward', 5))
 
-    #plt.xticks([0, 100, 200, 300])
+    plt.gca().spines['right'].set_visible(False)
+    plt.gca().spines['top'].set_visible(False)
+
+
+    handles, labels = plt.gca().get_legend_handles_labels()
+    
+    new_handles = []
+    new_handles.append(handles[0])
+    new_handles.append(handles[2])
+    new_handles.append(handles[4])
+    new_handles.append(handles[1])
+    new_handles.append(handles[3])
+    new_handles.append(handles[5])
+
+    new_labels = []
+    new_labels.append(labels[0])
+    new_labels.append(labels[2])
+    new_labels.append(labels[4])
+    new_labels.append(labels[1])
+    new_labels.append(labels[3])
+    new_labels.append(labels[5])
+
+    plt.legend(new_handles, new_labels, loc=(0.0, 1.05), ncol=2, frameon=False, borderpad=0.0, labelspacing=0.2, handlelength=1.0, columnspacing=0.5)
+
+
+    #plt.legend(loc=(0.0, 1.05), ncol=2, frameon=False, borderpad=0.0, labelspacing=0.2, handlelength=1.0, columnspacing=0.5)
+
+    plt.xlim([0, 100])
+    plt.xticks([0, 20, 40, 60, 80, 100])
     plt.ylim([lower_limit, upper_limit])
 
     save_title = 'convergence'
@@ -138,7 +167,7 @@ def plot_convergence(paths, series, epochs=300, sigma=3, append='', plot1=-1, pl
 
     save_title += append
 
-    plt.savefig(save_title + '.png', format='png', bbox_inches='tight', dpi=100)
+    #plt.savefig(save_title + '.png', format='png', bbox_inches='tight', dpi=200)
     plt.savefig(save_title + '.svg', format='svg', bbox_inches='tight')
 
 
