@@ -129,29 +129,26 @@ def plot_convergence(paths, series, epochs=300, sigma=3, append='', plot1=-1, pl
     plt.gca().spines['right'].set_visible(False)
     plt.gca().spines['top'].set_visible(False)
 
-
-    handles, labels = plt.gca().get_legend_handles_labels()
-    
-    new_handles = []
-    new_handles.append(handles[0])
-    new_handles.append(handles[2])
-    new_handles.append(handles[4])
-    new_handles.append(handles[1])
-    new_handles.append(handles[3])
-    new_handles.append(handles[5])
-
-    new_labels = []
-    new_labels.append(labels[0])
-    new_labels.append(labels[2])
-    new_labels.append(labels[4])
-    new_labels.append(labels[1])
-    new_labels.append(labels[3])
-    new_labels.append(labels[5])
-
-    plt.legend(new_handles, new_labels, loc=(0.0, 1.05), ncol=2, frameon=False, borderpad=0.0, labelspacing=0.2, handlelength=1.0, columnspacing=0.5)
+    # handles, labels = plt.gca().get_legend_handles_labels()
+    # new_handles = []
+    # new_handles.append(handles[0])
+    # new_handles.append(handles[2])
+    # new_handles.append(handles[4])
+    # new_handles.append(handles[1])
+    # new_handles.append(handles[3])
+    # new_handles.append(handles[5])
+    # new_labels = []
+    # new_labels.append(labels[0])
+    # new_labels.append(labels[2])
+    # new_labels.append(labels[4])
+    # new_labels.append(labels[1])
+    # new_labels.append(labels[3])
+    # new_labels.append(labels[5])
+    # plt.legend(new_handles, new_labels, loc=(-0.1, 1.05), ncol=2, frameon=False, borderpad=0.0, labelspacing=0.2, handlelength=1.0, columnspacing=0.5)
 
 
-    #plt.legend(loc=(0.0, 1.05), ncol=2, frameon=False, borderpad=0.0, labelspacing=0.2, handlelength=1.0, columnspacing=0.5)
+
+    plt.legend(loc=(0.0, 1.05), ncol=2, frameon=False, borderpad=0.0, labelspacing=0.2, handlelength=1.0, columnspacing=0.5)
 
     plt.xlim([0, 100])
     plt.xticks([0, 20, 40, 60, 80, 100])
@@ -209,8 +206,8 @@ def apply_smoothing(image, sigma=1.0, sigma_back=10.0):
     :rtype: ndarray
     """
     image_orig = image
-    image = gaussian_filter(image, sigma=sigma)
-    image_back = gaussian_filter(image, sigma=sigma_back)
+    image = gaussian_filter(image, sigma=sigma)#, mode='constant', cval=0)
+    image_back = gaussian_filter(image, sigma=sigma_back)#, mode='constant', cval=0)
 
     image = (image / image.max()) * 255
     image_back = (image_back / image_back.max()) * 255

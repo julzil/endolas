@@ -16,14 +16,16 @@ class EuclideanLoss(keras.losses.Loss):
         :param str loss_type: The type that can either be: \n
                               - 'msed' Mean Squared Euclidean Distance
                               - 'med' Mean Euclidean Distance
+                              - 'medn' Mean Euclidean Distance normalized
                               - 'max' Maximum Euclidean Distance
                               - 'min' Minimum Euclidean Distance
+        :param int grid_spacing: The spacing of the grid, which is halved and used to normalize for medn.
     """
     def __init__(self, batch_size=4, grid_width=5, grid_height=5,
-                 loss_type='msed'):
-        if loss_type not in ['msed', 'med', 'max', 'min']:
+                 loss_type='msed', grid_spacing=2):
+        if loss_type not in ['msed', 'med', 'medn', 'max', 'min']:
             raise AssertionError('Loss type "{}" not known, valid loss types '
-                                 'are "med", "msed, "max" and '
+                                 'are "med", "medn", "msed, "max" and '
                                  '"min"'.format(loss_type))
 
         super().__init__(name=loss_type)
@@ -31,6 +33,7 @@ class EuclideanLoss(keras.losses.Loss):
         self._grid_width = grid_width
         self._grid_height = grid_height
         self._loss_type = loss_type
+        self._grid_spacing = grid_spacing
 
     def call(self, labels, prediction):
         """ Compute the euclidean distance loss.
@@ -65,6 +68,9 @@ class EuclideanLoss(keras.losses.Loss):
 
             if self._loss_type == 'med':
                 loss += keras.backend.mean(euclidean_distance)
+
+            elif self._loss_type == 'medn':
+                loss += keras.backend.mean(euclidean_distance) / (0.5 * self._grid_spacing)
 
             elif self._loss_type == 'msed':
                 loss += keras.backend.mean(sum_of_squares)

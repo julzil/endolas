@@ -48,7 +48,7 @@ def eval_pred(path_fixed, path_validation, path_test, store_path, width, height,
                                     label="keypoints",
                                     channel="moving+fixed")
 
-    eu_loss = EuclideanLoss(batch_size=1, grid_width=grid_width, grid_height=grid_height, loss_type='maed')
+    eu_loss = EuclideanLoss(batch_size=1, grid_width=grid_width, grid_height=grid_height, loss_type='med')
 
     #dependencies = {'loss': eu_loss}
     model = tf.keras.models.load_model(store_path + weights, compile=False)
@@ -126,7 +126,7 @@ def eval_pred(path_fixed, path_validation, path_test, store_path, width, height,
     set_type = val_set + test_set
     image_id = validation_gen._image_ids + test_gen._image_ids
 
-    dataset = pd.DataFrame({'MAED': maed_array, 'Set': set_type, 'Image': image_id})
+    dataset = pd.DataFrame({'MED': maed_array, 'Set': set_type, 'Image': image_id})
     dataset.to_csv(store_path + '/evaluation.csv')
 
 
@@ -291,12 +291,11 @@ def spatial_display(store_path, path_validation, path_test):
     dataset.to_csv(store_path + '/evaluation_display.csv')
 
 
-def store_accuracy(accuracy_val, accuracy_test, experiment, store_path):
+def store_accuracy(accuracy_val, accuracy_test, store_path):
     """ Store the accuracy values in a pandas dataframe.
 
     :param dict accuracy_val: Accuracy values of the validation set.
     :param dict accuracy_test: Accuracy values of the test set.
-    :param int experiment: Experiment id.
     :param str store_path: Path to store the pandas dataframe.
     """
     set_2_image_2_accuracy = dict()
@@ -306,16 +305,14 @@ def store_accuracy(accuracy_val, accuracy_test, experiment, store_path):
     accuracys = []
     images = []
     set_types = []
-    experiments = []
 
     for set_type, image_2_accuracy in set_2_image_2_accuracy.items():
-        for image, accuracy in image_2_accuracy[0].items():
+        for image, accuracy in image_2_accuracy.items():
             accuracys.append(accuracy)
             images.append(image)
             set_types.append(set_type)
-            experiments.append(experiment)
 
-    dataset = pd.DataFrame({'Accuracy': accuracys, 'Image': images, 'Set': set_types, 'Experiment': experiments})
+    dataset = pd.DataFrame({'Accuracy': accuracys, 'Image': images, 'Set': set_types})
     dataset.to_csv(store_path+os.sep+"accuracy.csv")
 
 

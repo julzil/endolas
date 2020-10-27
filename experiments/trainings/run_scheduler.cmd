@@ -1,4 +1,9 @@
-papermill 8_10_11_euclidean.ipynb 8_10_11_euclidean_res.ipynb
-papermill 9_1_2_euclidean.ipynb 9_1_2_euclidean_res.ipynb
-papermill 9_3_4_euclidean.ipynb 9_3_4_euclidean_res.ipynb
-papermill 9_5_euclidean.ipynb 9_5_euclidean_res.ipynb
+papermill 12_euclidean.ipynb 12_1_euclidean_res.ipynb -p shape 320 -p spacing 14 -p experiment 1
+papermill 12_euclidean.ipynb 12_2_euclidean_res.ipynb -p shape 320 -p spacing 16 -p experiment 2
+papermill 12_euclidean.ipynb 12_3_euclidean_res.ipynb -p shape 320 -p spacing 18 -p experiment 3
+papermill 12_euclidean.ipynb 12_4_euclidean_res.ipynb -p shape 384 -p spacing 14 -p experiment 4
+papermill 12_euclidean.ipynb 12_5_euclidean_res.ipynb -p shape 384 -p spacing 16 -p experiment 5
+papermill 12_euclidean.ipynb 12_6_euclidean_res.ipynb -p shape 384 -p spacing 18 -p experiment 6
+papermill 12_euclidean.ipynb 12_7_euclidean_res.ipynb -p shape 448 -p spacing 14 -p experiment 7
+papermill 12_euclidean.ipynb 12_8_euclidean_res.ipynb -p shape 448 -p spacing 16 -p experiment 8
+papermill 12_euclidean.ipynb 12_9_euclidean_res.ipynb -p shape 448 -p spacing 18 -p experiment 9
