@@ -7,24 +7,27 @@ from tensorflow import keras
 
 # ------------------------------------------------------------------------------
 class EuclideanLoss(keras.losses.Loss):
-    def __init__(self, batch_size=4, grid_width=5, grid_height=5,
-                 loss_type='msed'):
-        """ Object used to define a custom loss for predicting
-            a displacement field.
+    """ Object used to define a custom loss for predicting
+        a displacement field.
 
-            :param int batch_size: The batch size which is used for training and
-                                   evaluation.
-            :param int grid_width: The width of the laser grid.
-            :param int grid_height: The height of the laser grid
-            :param str loss_type: The type that can either be: \n
-                                  - 'msed' Mean Squared Euclidean Distance
-                                  - 'med' Mean Euclidean Distance
-                                  - 'max' Maximum Euclidean Distance
-                                  - 'min' Minimum Euclidean Distance
-        """
-        if loss_type not in ['msed', 'med', 'max', 'min']:
+        :param int batch_size: The batch size which is used for training and 
+                               evaluation.
+        :param int grid_width: The width of the laser grid.
+        :param int grid_height: The height of the laser grid
+        :param str loss_type: The type that can either be: \n
+                              - 'msed' Mean Squared Euclidean Distance
+                              - 'med' Mean Euclidean Distance
+                              - 'medn' Mean Euclidean Distance normalized
+                              - 'max' Maximum Euclidean Distance
+                              - 'min' Minimum Euclidean Distance
+        :param int grid_spacing: The spacing of the grid, which is halved and 
+                                 used to normalize for medn.
+    """
+    def __init__(self, batch_size=4, grid_width=5, grid_height=5,
+                 loss_type='msed', grid_spacing=2):
+        if loss_type not in ['msed', 'med', 'medn', 'max', 'min']:
             raise AssertionError('Loss type "{}" not known, valid loss types '
-                                 'are "med", "msed, "max" and '
+                                 'are "med", "medn", "msed, "max" and '
                                  '"min"'.format(loss_type))
 
         super().__init__(name=loss_type)
@@ -32,6 +35,7 @@ class EuclideanLoss(keras.losses.Loss):
         self._grid_width = grid_width
         self._grid_height = grid_height
         self._loss_type = loss_type
+        self._grid_spacing = grid_spacing
 
     def call(self, labels, prediction):
         """ Compute the euclidean distance loss.
@@ -56,8 +60,8 @@ class EuclideanLoss(keras.losses.Loss):
             x_fix = labels[batch_index, :, 0, 1]
             y_fix = labels[batch_index, :, 1, 1]
 
-            ux_mov = self._get_displacement(ux, x_mov_int, y_mov_int)
-            uy_mov = self._get_displacement(uy, x_mov_int, y_mov_int)
+            ux_mov = self.get_displacement(ux, x_mov_int, y_mov_int)
+            uy_mov = self.get_displacement(uy, x_mov_int, y_mov_int)
 
             x_squared = keras.backend.square(x_mov + ux_mov - x_fix)
             y_squared = keras.backend.square(y_mov + uy_mov - y_fix)
@@ -67,6 +71,10 @@ class EuclideanLoss(keras.losses.Loss):
 
             if self._loss_type == 'med':
                 loss += keras.backend.mean(euclidean_distance)
+
+            elif self._loss_type == 'medn':
+                loss += keras.backend.mean(euclidean_distance) / \
+                        (0.5 * self._grid_spacing)
 
             elif self._loss_type == 'msed':
                 loss += keras.backend.mean(sum_of_squares)
@@ -84,7 +92,7 @@ class EuclideanLoss(keras.losses.Loss):
 
         return loss
 
-    def _get_displacement(self, u, x, y):
+    def get_displacement(self, u, x, y):
         """ Use the keras backend functionality to compute the displacement in
             a vectorized way.
 

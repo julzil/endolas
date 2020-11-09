@@ -1,3 +1,5 @@
+import copy
+
 # ------------------------------------------------------------------------------
 def bubblesort(list1, list2):
     """ Takes two list and sorts both in ascending order according to the values
