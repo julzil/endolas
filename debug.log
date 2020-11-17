@@ -1,2 +1,0 @@
-[0714/085126.016:ERROR:exit_code_watcher_win.cc(87)] Failed to wait for process exit or stop event
-[0714/085126.084:ERROR:registration_protocol_win.cc(131)] TransactNamedPipe: Die Pipe wurde beendet. (0x6D)
