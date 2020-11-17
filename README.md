@@ -1,14 +1,19 @@
-# ENDOLAS 
+# ENDOLAS
 
-This repository contains a deep learning based imaging pipeline, which is able to detect and match laser points from endoscopic laryngeal recordings.
-It was developed in th master thesis of Julian Zilker.
+This repository contains a deep learning based imaging pipeline, which is able to detect and match laser points from endoscopic laryngeal recordings. The name "endolas" is a mix of the words "endoscopy" and "laser".
+The pipeline was developed in the master thesis of Julian Zilker.
 
+![Pipeline](https://github.com/engineerByNature/endolas/blob/master/endolas_doc/pipeline.png)
 
 ## Installation
 
 To use the .endolas package and run the attached jupyter notebooks, create a conda environment from the .yml file with:
 
   conda env create -f environment.yml
+
+## Documentation
+
+See the file 'endolas_doc.html' for a code API documentation.
 
 ## Guide
 
