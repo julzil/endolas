@@ -7,7 +7,10 @@ The pipeline was developed in the master thesis of Julian Zilker.
 
 ## Installation
 
-For installation download the repository. Activate your desired python environment containing at least Python 3.7. Within the repository, run the setup.py with:
+1) Download the repository.
+2) Add the repository to the PYTHONPATH. 
+3) Activate your desired python environment containing at least Python 3.7. 
+4) Within the repository, run the setup.py with:
 
 ```
 pip install . 
