@@ -18,3 +18,7 @@ This repository contains a deep learning based imaging pipeline, which is able t
 
   'train_segmentation.ipynb'
   'train_registration.ipynb'
+  
+  
+To use the pipeline integrated in the GUI "glabel" please visit:
+https://github.com/engineerByNature/glabel
