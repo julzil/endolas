@@ -7,9 +7,11 @@ The pipeline was developed in the master thesis of Julian Zilker.
 
 ## Installation
 
-To use the .endolas package and run the attached jupyter notebooks, create a conda environment from the .yml file with:
+For installation download the repository. Activate your desired python environment containing at least Python 3.7. Within the repository, run the setup.py with:
 
-  conda env create -f environment.yml
+```
+pip install . 
+```
 
 ## Documentation
 
