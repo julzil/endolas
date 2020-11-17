@@ -1,7 +1,4 @@
 __pycache__
-*.hdf5
 *.ipynb_checkpoints
 *.idea
-experiments/results/*
-experiments/tf_logs/*
-jupyter/weights/*
+
