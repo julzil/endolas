@@ -31,11 +31,11 @@ See the file 'endolas_doc.html' for a code API documentation.
   'jupyter/generation_by_gan.ipynb'
   'jupyter/generation_by_vae.ipynb'
 
-* If the networks should be retrained the following notebooks can be used:
+* If the networks should be retrained, the following notebooks can be used:
 
   'jupyter/train_segmentation.ipynb'
   'jupyter/train_registration.ipynb'
   
   
-To use the pipeline integrated in the GUI "glabel" please visit:
+To use the pipeline, integrated in the GUI "glabel", please visit:
 https://github.com/engineerByNature/glabel
