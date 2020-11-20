@@ -8,6 +8,7 @@ setuptools.setup(
     description="pipeline for detecting and matching projected laser points",
     license="GPLv3+",
     packages=setuptools.find_packages(),
+    include_package_data=True,
     install_requires=[
 	"tensorflow==2.2.0",
 	"imageio==2.9.0",

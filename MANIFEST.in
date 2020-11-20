@@ -1,0 +1,2 @@
+include endolas/resources/segmentation_3_2_best.hdf5
+include endolas/resources/registration_8_9_60.hdf5

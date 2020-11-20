@@ -8,13 +8,14 @@ The pipeline was developed in the master thesis of Julian Zilker.
 ## Installation
 
 1) Download the repository.
-2) Add the repository to the PYTHONPATH. 
-3) Activate your desired python environment containing at least Python 3.7. 
-4) Within the repository, run the setup.py with:
+2) Activate your desired python environment containing at least Python 3.7. 
+3) Within the repository, run the setup.py with:
 
 ```
 pip install . 
 ```
+
+The package 'endolas' will now be installed in your environment including resources and additionally required packages.
 
 ## Documentation
 
