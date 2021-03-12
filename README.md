@@ -1,7 +1,6 @@
 # ENDOLAS
 
 This repository contains a deep learning based imaging pipeline, which is able to detect and match laser points from endoscopic laryngeal recordings. The name "endolas" is a mix of the words "endoscopy" and "laser".
-The pipeline was developed in the master thesis of Julian Zilker.
 
 ![Pipeline](https://github.com/engineerByNature/endolas/blob/master/endolas_doc/pipeline.png)
 
