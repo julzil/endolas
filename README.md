@@ -41,7 +41,3 @@ See the file 'endolas_doc.html' for a code API documentation.
 
   'jupyter/train_segmentation.ipynb'
   'jupyter/train_registration.ipynb'
-  
-  
-To use the pipeline integrated in the GUI "glabel", please visit:
-https://github.com/engineerByNature/glabel
