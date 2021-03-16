@@ -1,6 +1,6 @@
-# ENDOLAS
+# Feature-based image registration in structured light endoscopy
 
-This repository contains a deep learning based imaging pipeline, which is able to detect and match laser points from endoscopic laryngeal recordings. The name "endolas" is a mix of the words "endoscopy" and "laser".
+This repository contains a deep learning based image registration for structured light endoscopy. The method was developed with the use of laryngeal recordings to classify keypoints projected by a laser (features). The approach contains a preprocessing step, in which a semantic segmentation is performed to localize keypoints. The image registration is then performed to transform the irregulary placed keypoints into a regularly placed pattern. In a postprocessing step a nearest neighbor approach and a sorting algorithm are used to classifiy individual keypoints. The implementation resides in the package **endolas** (**endo**scopy + **las**er) and demonstration is provided in **demo**. Further, the dataset LASTEN, which was used for training and evaluation is given in **data**.
 
 ![Pipeline](https://github.com/engineerByNature/endolas/blob/master/endolas_doc/pipeline.png)
 
@@ -14,13 +14,9 @@ This repository contains a deep learning based imaging pipeline, which is able t
 pip install . 
 ```
 
-The package 'endolas' will now be installed in your environment including resources and additionally required packages.
+The package **endolas** will now be installed in your environment including resources and additionally required packages.
 
-## Documentation
-
-See the file 'endolas_doc.html' for a code API documentation.
-
-## Guide
+## Demo
 
 * The prediction of keypoints from images by the pipeline can be carried out with:
 
@@ -40,3 +36,7 @@ See the file 'endolas_doc.html' for a code API documentation.
 
   'jupyter/train_segmentation.ipynb'
   'jupyter/train_registration.ipynb'
+  
+## Documentation
+
+See the file 'endolas_doc.html' for a code API documentation.
