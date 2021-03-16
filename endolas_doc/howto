@@ -1,4 +1,0 @@
-1) Run sphinx-quickstart
-2) Run sphinx-apidoc and copy the generated rst files into a folder here
-3) In conf.py ensure that the search path is set, such that it pulls the packages rst
-4) Run make html
