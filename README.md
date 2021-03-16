@@ -1,6 +1,6 @@
 # Feature-based image registration in structured light endoscopy
 
-This repository contains a deep learning based image registration for structured light endoscopy. The method was developed with the use of laryngeal recordings to classify keypoints projected by a laser (features). The approach contains a preprocessing step, in which a semantic segmentation is performed to localize keypoints. The image registration is then performed to transform the irregulary placed keypoints into a regularly placed pattern. In a postprocessing step a nearest neighbor approach and a sorting algorithm are used to classifiy individual keypoints. The implementation resides in the package [**endolas**](./endolas) and demonstration is provided in [**demo**](./demo). Further, the dataset LASTEN, which was used for training and evaluation is given in [**data**](./data).
+This repository contains a deep learning-based image registration for structured light endoscopy. The method was developed with the use of laryngeal recordings to classify keypoints that are projected by a laser (features). The approach contains a preprocessing step, in which a semantic segmentation is performed to localize keypoints. The image registration is then performed to transform the irregularly placed keypoints into a regularly placed pattern. In a postprocessing step, a nearest neighbor approach and a sorting algorithm are used to classifiy individual keypoints. The implementation resides in the package [**endolas**](./endolas) and demonstration is provided in [**demo**](./demo). Further, the dataset LASTEN, which was used for training and evaluation, is given in [**data**](./data).
 
 ## Installation
 
@@ -23,4 +23,4 @@ The package **endolas** will now be installed in your environment including reso
 
 * The deep neural network of the registration can be trained with the aid of [**training.ipynb**](./demo/training.ipynb).
 
-* To understand how the loss of the registration is computed the [**LISTING_custom_loss.py**](./demo/LISTING_custom_loss.py) shows details about the implementation. Further the nearest neighbor and sorting algorithm, which are required in the postprocessing, are provided in [**LISTING_nearest_neighbor.py**](./demo/LISTING_nearest_neighbor.py) and [**LISTING_bubble_sort.py**](./demo/LISTING_bubble_sort.py).
+* To understand how the loss of the registration is computed, the [**LISTING_custom_loss.py**](./demo/LISTING_custom_loss.py) shows details about the implementation. Further the nearest neighbor and sorting algorithm, which are required in the postprocessing, are provided in [**LISTING_nearest_neighbor.py**](./demo/LISTING_nearest_neighbor.py) and [**LISTING_bubble_sort.py**](./demo/LISTING_bubble_sort.py).
