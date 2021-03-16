@@ -2,7 +2,7 @@
 
 This repository contains a deep learning based image registration for structured light endoscopy. The method was developed with the use of laryngeal recordings to classify keypoints projected by a laser (features). The approach contains a preprocessing step, in which a semantic segmentation is performed to localize keypoints. The image registration is then performed to transform the irregulary placed keypoints into a regularly placed pattern. In a postprocessing step a nearest neighbor approach and a sorting algorithm are used to classifiy individual keypoints. The implementation resides in the package **endolas** (**endo**scopy + **las**er) and demonstration is provided in **demo**. Further, the dataset LASTEN, which was used for training and evaluation is given in **data**.
 
-![Pipeline](https://github.com/engineerByNature/endolas/blob/master/endolas_doc/pipeline.png)
+![Registration](registration.png)
 
 ## Installation
 
