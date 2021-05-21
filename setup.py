@@ -10,7 +10,7 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     include_package_data=True,
     install_requires=[
-	"tensorflow==2.2.0",
+	"tensorflow==2.5.0",
 	"imageio==2.9.0",
 	"matplotlib==3.3.3",
 	"albumentations==0.5.1",
